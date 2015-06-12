@@ -7,7 +7,7 @@ phishing and corporate espionage.
 
 """
 
-__version__ = '20150610'
+__version__ = '20150612'
 
 
 import sys
@@ -35,18 +35,15 @@ def bitsquatting(domain):
 
 
 def homoglyph(domain):
-	glyphs = { 'd':'b', 'n':'m', 'o':'0', 'l':'1', 'l':'i', 'm':'rn', 'd':'cl', 'w':'vv' }
-	glyphs_inv = {v: k for k, v in glyphs.items()}
-	homoglyphs = dict(glyphs.items() + glyphs_inv.items())
+	glyphs = { 'd':['b', 'cl'], 'm':['n', 'rn'], 'l':['1', 'i'], 'o':['0'], 'w':['vv'], 'n':['m'], 'b':['d'], 'i':['l'] }
 	out = []
 	dom = domain.rsplit('.', 1)[0]
 	tld = domain.rsplit('.', 1)[1]
 	for i in range(0, len(dom)):
 		c = dom[i]
-		for j, k in homoglyphs.iteritems():
-			n = c.replace(j, k)
-			if (c != n):
-				out.append(dom[:i] + n + dom[i+1:] + '.' + tld)
+		if c in glyphs:
+			for g in range(0, len(glyphs[c])):
+				out.append(dom[:i] + glyphs[c][g] + dom[i+1:] + '.' + tld)
 	return out
 
 
