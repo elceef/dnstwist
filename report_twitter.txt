@@ -1,123 +1,117 @@
 dnstwist (20150615) by marcin@ulikowski.pl
-Processing 120 domains !!...!!!!.!!!!.!....!.!..!.!.!...!.!...!!!.!!!!!!!!!!!!.!!.!!!!!!!!!!!.!!!!!!!!!!!!!!!!.!!!!!...!..!!.!!.!.!..!!!.!.!!.!
+Processing 114 domains !!.!!!!!.!!!!!...!.!.!.!.!..!.!!..!!.!!!!!!!!!!!!.!!.!!!!!!!!!!!.!!!!!!!!!!!!!!!!.!!!!!...!..!!.!!.!.!..!!!.!.!!.!
 
-Bitsquatting         uwitter.com          72.52.4.120         
-Bitsquatting         vwitter.com          54.68.76.21         
-Bitsquatting         pwitter.com          -                   
-Bitsquatting         dwitter.com          -                   
-Bitsquatting         ôwitter.com          -                   
-Bitsquatting         tvitter.com          5.22.149.135        
-Bitsquatting         tuitter.com          208.73.210.214      
-Bitsquatting         tsitter.com          50.63.202.35        
-Bitsquatting         tgitter.com          192.40.56.146       
-Bitsquatting         twhtter.com          -                   
-Bitsquatting         twktter.com          103.224.182.241     
-Bitsquatting         twmtter.com          54.68.76.21         
-Bitsquatting         twatter.com          208.82.16.68        
-Bitsquatting         twytter.com          184.168.221.96      
-Bitsquatting         twétter.com          -                   
-Bitsquatting         twiuter.com          185.53.177.8        
-Bitsquatting         twivter.com          -                   
-Bitsquatting         twipter.com          -                   
-Bitsquatting         twidter.com          -                   
-Bitsquatting         twiôter.com          -                   
-Bitsquatting         twituer.com          72.52.4.119         
-Bitsquatting         twitver.com          -                   
-Bitsquatting         twitper.com          162.255.119.246     
-Bitsquatting         twitder.com          -                   
-Bitsquatting         twitôer.com          -                   
-Bitsquatting         twittdr.com          72.52.4.119         
-Bitsquatting         twittgr.com          -                   
-Bitsquatting         twittar.com          96.126.106.126      
-Bitsquatting         twittmr.com          -                   
-Bitsquatting         twittur.com          198.187.31.153      
-Bitsquatting         twittår.com          -                   
-Bitsquatting         twittes.com          -                   
-Bitsquatting         twittep.com          -                   
-Bitsquatting         twittev.com          184.187.12.126      
-Bitsquatting         twittez.com          -                   
-Bitsquatting         twitteb.com          54.68.76.21         
-Bitsquatting         twitteò.com          -                   
-Homoglyph            twltter.com          -                   
-Homoglyph            tvvitter.com         -                   
-Homoglyph            tvvltter.com         5.196.92.39         
-Repetition           ttwitter.com         95.211.117.206      
-Repetition           twwitter.com         95.211.117.206      
-Repetition           twiitter.com         -                   
-Repetition           twittter.com         199.59.148.10       
-Repetition           twittter.com         199.59.148.10       
-Repetition           twitteer.com         62.116.130.8        
-Repetition           twitterr.com         69.162.80.56        
-Replacement          wtitter.com          95.211.117.206      
-Replacement          tiwtter.com          54.75.246.166       
-Replacement          twtiter.com          208.73.210.214      
-Replacement          twitter.com          199.16.156.70       
-Replacement          twitetr.com          95.211.117.206      
-Replacement          twittre.com          95.211.117.206      
-Omission             witter.com           66.147.244.205      
-Omission             titter.com           84.22.98.192        
-Omission             twtter.com           -                   
-Omission             twiter.com           199.59.148.10       
-Omission             twiter.com           199.16.156.6        
-Omission             twittr.com           -                   
-Omission             twitte.com           66.33.208.125       
-Insertion            t3witter.com         198.40.51.109       
-Insertion            tw3itter.com         50.63.202.8         
-Insertion            tewitter.com         95.211.117.206      
-Insertion            tweitter.com         95.211.117.206      
-Insertion            tswitter.com         31.170.164.149      
-Insertion            twsitter.com         184.168.221.29      
-Insertion            tawitter.com         95.211.117.206      
-Insertion            twaitter.com         184.168.221.8       
-Insertion            tqwitter.com         69.162.80.55        
-Insertion            twqitter.com         199.59.243.120      
-Insertion            t2witter.com         -                   
-Insertion            tw2itter.com         50.63.202.12        
-Insertion            tw9itter.com         199.59.243.120      
-Insertion            twi9tter.com         185.53.179.6        
-Insertion            twoitter.com         208.73.210.217      
-Insertion            twiotter.com         103.224.182.241     
-Insertion            twkitter.com         184.168.221.11      
-Insertion            twiktter.com         185.53.177.9        
-Insertion            twjitter.com         184.168.221.96      
-Insertion            twijtter.com         199.59.243.120      
-Insertion            twuitter.com         103.224.182.243     
-Insertion            twiutter.com         95.211.117.206      
-Insertion            tw8itter.com         184.168.221.21      
-Insertion            twi8tter.com         185.53.179.9        
-Insertion            twi6tter.com         184.171.252.34      
-Insertion            twit6ter.com         208.73.211.178      
-Insertion            twiytter.com         162.218.54.42       
-Insertion            twityter.com         -                   
-Insertion            twigtter.com         199.59.243.120      
-Insertion            twitgter.com         50.63.202.15        
-Insertion            twiftter.com         72.52.4.119         
-Insertion            twitfter.com         148.251.19.202      
-Insertion            twirtter.com         116.212.117.220     
-Insertion            twitrter.com         -                   
-Insertion            twi5tter.com         -                   
-Insertion            twit5ter.com         -                   
-Insertion            twit6ter.com         208.73.210.200      
-Insertion            twitt6er.com         -                   
-Insertion            twityter.com         -                   
-Insertion            twittyer.com         185.53.178.6        
-Insertion            twitgter.com         50.63.202.15        
-Insertion            twittger.com         -                   
-Insertion            twitfter.com         148.251.19.202      
-Insertion            twittfer.com         208.73.210.214      
-Insertion            twitrter.com         -                   
-Insertion            twittrer.com         69.162.80.53        
-Insertion            twit5ter.com         -                   
-Insertion            twitt5er.com         198.40.51.109       
-Insertion            twitt4er.com         -                   
-Insertion            twitte4r.com         -                   
-Insertion            twittrer.com         95.211.117.206      
-Insertion            twitterr.com         95.211.117.206      
-Insertion            twittder.com         208.73.210.200      
-Insertion            twittedr.com         -                   
-Insertion            twittser.com         208.73.210.200      
-Insertion            twittesr.com         -                   
-Insertion            twittwer.com         103.1.175.248       
-Insertion            twittewr.com         199.59.243.120      
-Insertion            twitt3er.com         -                   
-Insertion            twitte3r.com         50.63.202.12        
+Bitsquatting         uwitter.com          72.52.4.120          United States       
+Bitsquatting         vwitter.com          54.68.76.21          United States       
+Bitsquatting         pwitter.com          -                    -                   
+Bitsquatting         dwitter.com          194.126.200.45       Switzerland         
+Bitsquatting         tvitter.com          5.22.149.135         Germany             
+Bitsquatting         tuitter.com          208.73.210.214       United States       
+Bitsquatting         tsitter.com          50.63.202.35         United States       
+Bitsquatting         tgitter.com          192.40.56.146        United States       
+Bitsquatting         twhtter.com          -                    -                   
+Bitsquatting         twktter.com          103.224.182.241      Australia           
+Bitsquatting         twmtter.com          54.68.76.21          United States       
+Bitsquatting         twatter.com          208.82.16.68         United States       
+Bitsquatting         twytter.com          184.168.221.96       United States       
+Bitsquatting         twiuter.com          185.53.177.8         Germany             
+Bitsquatting         twivter.com          -                    -                   
+Bitsquatting         twipter.com          -                    -                   
+Bitsquatting         twidter.com          -                    -                   
+Bitsquatting         twituer.com          72.52.4.119          United States       
+Bitsquatting         twitver.com          -                    -                   
+Bitsquatting         twitper.com          162.255.119.246      United States       
+Bitsquatting         twitder.com          -                    -                   
+Bitsquatting         twittdr.com          72.52.4.119          United States       
+Bitsquatting         twittgr.com          -                    -                   
+Bitsquatting         twittar.com          96.126.106.126       United States       
+Bitsquatting         twittmr.com          -                    -                   
+Bitsquatting         twittur.com          198.187.31.153       United States       
+Bitsquatting         twittes.com          -                    -                   
+Bitsquatting         twittep.com          -                    -                   
+Bitsquatting         twittev.com          184.187.12.126       United States       
+Bitsquatting         twittez.com          -                    -                   
+Bitsquatting         twitteb.com          54.68.76.21          United States       
+Homoglyph            tvvltter.com         5.196.92.39          France              
+Homoglyph            tvvitter.com         -                    -                   
+Homoglyph            twltter.com          -                    -                   
+Repetition           ttwitter.com         95.211.117.206       Netherlands         
+Repetition           twwitter.com         95.211.117.206       Netherlands         
+Repetition           twiitter.com         -                    -                   
+Repetition           twittter.com         199.59.150.39        United States       
+Repetition           twittter.com         199.59.150.39        United States       
+Repetition           twitteer.com         62.116.130.8         Germany             
+Repetition           twitterr.com         95.211.117.206       Netherlands         
+Replacement          wtitter.com          95.211.117.206       Netherlands         
+Replacement          tiwtter.com          54.75.246.166        Ireland             
+Replacement          twtiter.com          208.73.210.217       United States       
+Replacement          twitter.com          185.45.5.43          United Kingdom      
+Replacement          twitetr.com          95.211.117.206       Netherlands         
+Replacement          twittre.com          95.211.117.206       Netherlands         
+Omission             witter.com           66.147.244.205       United States       
+Omission             titter.com           84.22.98.192         Netherlands         
+Omission             twtter.com           -                    -                   
+Omission             twiter.com           199.16.156.6         United States       
+Omission             twiter.com           199.16.156.6         United States       
+Omission             twittr.com           -                    -                   
+Omission             twitte.com           66.33.208.125        United States       
+Insertion            t3witter.com         198.40.51.109        United States       
+Insertion            tw3itter.com         50.63.202.8          United States       
+Insertion            tewitter.com         95.211.117.206       Netherlands         
+Insertion            tweitter.com         95.211.117.206       Netherlands         
+Insertion            tswitter.com         31.170.164.149       United Kingdom      
+Insertion            twsitter.com         184.168.221.29       United States       
+Insertion            tawitter.com         95.211.117.206       Netherlands         
+Insertion            twaitter.com         184.168.221.8        United States       
+Insertion            tqwitter.com         95.211.117.206       Netherlands         
+Insertion            twqitter.com         199.59.243.120       United States       
+Insertion            t2witter.com         -                    -                   
+Insertion            tw2itter.com         50.63.202.12         United States       
+Insertion            tw9itter.com         199.59.243.120       United States       
+Insertion            twi9tter.com         185.53.179.6         Germany             
+Insertion            twoitter.com         208.73.211.178       United States       
+Insertion            twiotter.com         103.224.182.241      Australia           
+Insertion            twkitter.com         184.168.221.11       United States       
+Insertion            twiktter.com         185.53.177.9         Germany             
+Insertion            twjitter.com         184.168.221.96       United States       
+Insertion            twijtter.com         199.59.243.120       United States       
+Insertion            twuitter.com         103.224.182.243      Australia           
+Insertion            twiutter.com         95.211.117.206       Netherlands         
+Insertion            tw8itter.com         184.168.221.21       United States       
+Insertion            twi8tter.com         185.53.179.9         Germany             
+Insertion            twi6tter.com         184.171.252.34       United States       
+Insertion            twit6ter.com         208.73.210.214       United States       
+Insertion            twiytter.com         198.12.15.244        United States       
+Insertion            twityter.com         -                    -                   
+Insertion            twigtter.com         199.59.243.120       United States       
+Insertion            twitgter.com         50.63.202.15         United States       
+Insertion            twiftter.com         72.52.4.119          United States       
+Insertion            twitfter.com         148.251.19.202       Germany             
+Insertion            twirtter.com         116.212.117.220      Hong Kong           
+Insertion            twitrter.com         -                    -                   
+Insertion            twi5tter.com         -                    -                   
+Insertion            twit5ter.com         -                    -                   
+Insertion            twit6ter.com         208.73.210.214       United States       
+Insertion            twitt6er.com         -                    -                   
+Insertion            twityter.com         -                    -                   
+Insertion            twittyer.com         185.53.178.6         Germany             
+Insertion            twitgter.com         50.63.202.15         United States       
+Insertion            twittger.com         -                    -                   
+Insertion            twitfter.com         148.251.19.202       Germany             
+Insertion            twittfer.com         208.73.210.217       United States       
+Insertion            twitrter.com         -                    -                   
+Insertion            twittrer.com         95.211.117.206       Netherlands         
+Insertion            twit5ter.com         -                    -                   
+Insertion            twitt5er.com         198.40.51.109        United States       
+Insertion            twitt4er.com         -                    -                   
+Insertion            twitte4r.com         -                    -                   
+Insertion            twittrer.com         95.211.117.206       Netherlands         
+Insertion            twitterr.com         95.211.117.206       Netherlands         
+Insertion            twittder.com         208.73.210.214       United States       
+Insertion            twittedr.com         -                    -                   
+Insertion            twittser.com         208.73.210.214       United States       
+Insertion            twittesr.com         -                    -                   
+Insertion            twittwer.com         103.1.175.248        Singapore           
+Insertion            twittewr.com         199.59.243.120       United States       
+Insertion            twitt3er.com         -                    -                   
+Insertion            twitte3r.com         50.63.202.12         United States       

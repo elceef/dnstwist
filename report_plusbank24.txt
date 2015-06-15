@@ -1,140 +1,143 @@
-dnstwist (20150612) by marcin@ulikowski.pl
-Processing 137 domains ....................................!....................................................................................................
+dnstwist (20150615) by marcin@ulikowski.pl
+Processing 140 domains ........................................!...................................................................................................
 
-Bitsquatting         qlusbank24.pl        -                   
-Bitsquatting         rlusbank24.pl        -                   
-Bitsquatting         tlusbank24.pl        -                   
-Bitsquatting         xlusbank24.pl        -                   
-Bitsquatting         pmusbank24.pl        -                   
-Bitsquatting         pnusbank24.pl        -                   
-Bitsquatting         phusbank24.pl        -                   
-Bitsquatting         pdusbank24.pl        -                   
-Bitsquatting         pltsbank24.pl        -                   
-Bitsquatting         plwsbank24.pl        -                   
-Bitsquatting         plqsbank24.pl        -                   
-Bitsquatting         plesbank24.pl        -                   
-Bitsquatting         plurbank24.pl        -                   
-Bitsquatting         pluqbank24.pl        -                   
-Bitsquatting         pluwbank24.pl        -                   
-Bitsquatting         plucbank24.pl        -                   
-Bitsquatting         pluscank24.pl        -                   
-Bitsquatting         plusfank24.pl        -                   
-Bitsquatting         plusjank24.pl        -                   
-Bitsquatting         plusrank24.pl        -                   
-Bitsquatting         plusbcnk24.pl        -                   
-Bitsquatting         plusbenk24.pl        -                   
-Bitsquatting         plusbink24.pl        -                   
-Bitsquatting         plusbqnk24.pl        -                   
-Bitsquatting         plusbaok24.pl        -                   
-Bitsquatting         plusbalk24.pl        -                   
-Bitsquatting         plusbajk24.pl        -                   
-Bitsquatting         plusbafk24.pl        -                   
-Bitsquatting         plusbanj24.pl        -                   
-Bitsquatting         plusbani24.pl        -                   
-Bitsquatting         plusbano24.pl        -                   
-Bitsquatting         plusbanc24.pl        -                   
-Bitsquatting         plusbankr4.pl        -                   
-Bitsquatting         plusbank2t.pl        -                   
-Homoglyph            p1usbank24.pl        -                   
-Homoglyph            piusbank24.pl        -                   
-Homoglyph            plusdank24.pl        85.128.255.105      
-Homoglyph            plusbamk24.pl        -                   
-Repetition           pplusbank24.pl       -                   
-Repetition           pllusbank24.pl       -                   
-Repetition           pluusbank24.pl       -                   
-Repetition           plussbank24.pl       -                   
-Repetition           plusbbank24.pl       -                   
-Repetition           plusbaank24.pl       -                   
-Repetition           plusbannk24.pl       -                   
-Repetition           plusbankk24.pl       -                   
-Replacement          lpusbank24.pl        -                   
-Replacement          pulsbank24.pl        -                   
-Replacement          plsubank24.pl        -                   
-Replacement          plubsank24.pl        -                   
-Replacement          plusabnk24.pl        -                   
-Replacement          plusbnak24.pl        -                   
-Replacement          plusbakn24.pl        -                   
-Replacement          plusban2k4.pl        -                   
-Replacement          plusbank42.pl        -                   
-Omission             lusbank24.pl         -                   
-Omission             pusbank24.pl         -                   
-Omission             plsbank24.pl         -                   
-Omission             plubank24.pl         -                   
-Omission             plusank24.pl         -                   
-Omission             plusbnk24.pl         -                   
-Omission             plusbak24.pl         -                   
-Omission             plusban24.pl         -                   
-Omission             plusbank4.pl         -                   
-Omission             plusbank2.pl         -                   
-Insertion            pklusbank24.pl       -                   
-Insertion            plkusbank24.pl       -                   
-Insertion            polusbank24.pl       -                   
-Insertion            plousbank24.pl       -                   
-Insertion            pplusbank24.pl       -                   
-Insertion            plpusbank24.pl       -                   
-Insertion            pl8usbank24.pl       -                   
-Insertion            plu8sbank24.pl       -                   
-Insertion            pliusbank24.pl       -                   
-Insertion            pluisbank24.pl       -                   
-Insertion            pljusbank24.pl       -                   
-Insertion            plujsbank24.pl       -                   
-Insertion            plhusbank24.pl       -                   
-Insertion            pluhsbank24.pl       -                   
-Insertion            plyusbank24.pl       -                   
-Insertion            pluysbank24.pl       -                   
-Insertion            pl7usbank24.pl       -                   
-Insertion            plu7sbank24.pl       -                   
-Insertion            pluesbank24.pl       -                   
-Insertion            plusebank24.pl       -                   
-Insertion            pludsbank24.pl       -                   
-Insertion            plusdbank24.pl       -                   
-Insertion            pluxsbank24.pl       -                   
-Insertion            plusxbank24.pl       -                   
-Insertion            pluzsbank24.pl       -                   
-Insertion            pluszbank24.pl       -                   
-Insertion            pluasbank24.pl       -                   
-Insertion            plusabank24.pl       -                   
-Insertion            pluwsbank24.pl       -                   
-Insertion            pluswbank24.pl       -                   
-Insertion            plusvbank24.pl       -                   
-Insertion            plusbvank24.pl       -                   
-Insertion            plusgbank24.pl       -                   
-Insertion            plusbgank24.pl       -                   
-Insertion            plushbank24.pl       -                   
-Insertion            plusbhank24.pl       -                   
-Insertion            plusnbank24.pl       -                   
-Insertion            plusbnank24.pl       -                   
-Insertion            plusbqank24.pl       -                   
-Insertion            plusbaqnk24.pl       -                   
-Insertion            plusbwank24.pl       -                   
-Insertion            plusbawnk24.pl       -                   
-Insertion            plusbsank24.pl       -                   
-Insertion            plusbasnk24.pl       -                   
-Insertion            plusbzank24.pl       -                   
-Insertion            plusbaznk24.pl       -                   
-Insertion            plusbabnk24.pl       -                   
-Insertion            plusbanbk24.pl       -                   
-Insertion            plusbahnk24.pl       -                   
-Insertion            plusbanhk24.pl       -                   
-Insertion            plusbajnk24.pl       -                   
-Insertion            plusbanjk24.pl       -                   
-Insertion            plusbamnk24.pl       -                   
-Insertion            plusbanmk24.pl       -                   
-Insertion            plusbanok24.pl       -                   
-Insertion            plusbanko24.pl       -                   
-Insertion            plusbanlk24.pl       -                   
-Insertion            plusbankl24.pl       -                   
-Insertion            plusbanmk24.pl       -                   
-Insertion            plusbankm24.pl       -                   
-Insertion            plusbanjk24.pl       -                   
-Insertion            plusbankj24.pl       -                   
-Insertion            plusbanik24.pl       -                   
-Insertion            plusbanki24.pl       -                   
-Insertion            plusbank324.pl       -                   
-Insertion            plusbank234.pl       -                   
-Insertion            plusbankw24.pl       -                   
-Insertion            plusbank2w4.pl       -                   
-Insertion            plusbankq24.pl       -                   
-Insertion            plusbank2q4.pl       -                   
-Insertion            plusbank124.pl       -                   
-Insertion            plusbank214.pl       -                   
+Bitsquatting         qlusbank24.pl        -                    -                   
+Bitsquatting         rlusbank24.pl        -                    -                   
+Bitsquatting         tlusbank24.pl        -                    -                   
+Bitsquatting         xlusbank24.pl        -                    -                   
+Bitsquatting         pmusbank24.pl        -                    -                   
+Bitsquatting         pnusbank24.pl        -                    -                   
+Bitsquatting         phusbank24.pl        -                    -                   
+Bitsquatting         pdusbank24.pl        -                    -                   
+Bitsquatting         pltsbank24.pl        -                    -                   
+Bitsquatting         plwsbank24.pl        -                    -                   
+Bitsquatting         plqsbank24.pl        -                    -                   
+Bitsquatting         plesbank24.pl        -                    -                   
+Bitsquatting         plurbank24.pl        -                    -                   
+Bitsquatting         pluqbank24.pl        -                    -                   
+Bitsquatting         pluwbank24.pl        -                    -                   
+Bitsquatting         plucbank24.pl        -                    -                   
+Bitsquatting         pluscank24.pl        -                    -                   
+Bitsquatting         plusfank24.pl        -                    -                   
+Bitsquatting         plusjank24.pl        -                    -                   
+Bitsquatting         plusrank24.pl        -                    -                   
+Bitsquatting         plusbcnk24.pl        -                    -                   
+Bitsquatting         plusbenk24.pl        -                    -                   
+Bitsquatting         plusbink24.pl        -                    -                   
+Bitsquatting         plusbqnk24.pl        -                    -                   
+Bitsquatting         plusbaok24.pl        -                    -                   
+Bitsquatting         plusbalk24.pl        -                    -                   
+Bitsquatting         plusbajk24.pl        -                    -                   
+Bitsquatting         plusbafk24.pl        -                    -                   
+Bitsquatting         plusbanj24.pl        -                    -                   
+Bitsquatting         plusbani24.pl        -                    -                   
+Bitsquatting         plusbano24.pl        -                    -                   
+Bitsquatting         plusbanc24.pl        -                    -                   
+Bitsquatting         plusbankr4.pl        -                    -                   
+Bitsquatting         plusbank2t.pl        -                    -                   
+Homoglyph            plusbamk24.pl        -                    -                   
+Homoglyph            piusdank24.pl        -                    -                   
+Homoglyph            piusbank24.pl        -                    -                   
+Homoglyph            plusdamk24.pl        -                    -                   
+Homoglyph            piusdamk24.pl        -                    -                   
+Homoglyph            p1usbank24.pl        -                    -                   
+Homoglyph            plusdank24.pl        85.128.255.105       Poland              
+Repetition           pplusbank24.pl       -                    -                   
+Repetition           pllusbank24.pl       -                    -                   
+Repetition           pluusbank24.pl       -                    -                   
+Repetition           plussbank24.pl       -                    -                   
+Repetition           plusbbank24.pl       -                    -                   
+Repetition           plusbaank24.pl       -                    -                   
+Repetition           plusbannk24.pl       -                    -                   
+Repetition           plusbankk24.pl       -                    -                   
+Replacement          lpusbank24.pl        -                    -                   
+Replacement          pulsbank24.pl        -                    -                   
+Replacement          plsubank24.pl        -                    -                   
+Replacement          plubsank24.pl        -                    -                   
+Replacement          plusabnk24.pl        -                    -                   
+Replacement          plusbnak24.pl        -                    -                   
+Replacement          plusbakn24.pl        -                    -                   
+Replacement          plusban2k4.pl        -                    -                   
+Replacement          plusbank42.pl        -                    -                   
+Omission             lusbank24.pl         -                    -                   
+Omission             pusbank24.pl         -                    -                   
+Omission             plsbank24.pl         -                    -                   
+Omission             plubank24.pl         -                    -                   
+Omission             plusank24.pl         -                    -                   
+Omission             plusbnk24.pl         -                    -                   
+Omission             plusbak24.pl         -                    -                   
+Omission             plusban24.pl         -                    -                   
+Omission             plusbank4.pl         -                    -                   
+Omission             plusbank2.pl         -                    -                   
+Insertion            pklusbank24.pl       -                    -                   
+Insertion            plkusbank24.pl       -                    -                   
+Insertion            polusbank24.pl       -                    -                   
+Insertion            plousbank24.pl       -                    -                   
+Insertion            pplusbank24.pl       -                    -                   
+Insertion            plpusbank24.pl       -                    -                   
+Insertion            pl8usbank24.pl       -                    -                   
+Insertion            plu8sbank24.pl       -                    -                   
+Insertion            pliusbank24.pl       -                    -                   
+Insertion            pluisbank24.pl       -                    -                   
+Insertion            pljusbank24.pl       -                    -                   
+Insertion            plujsbank24.pl       -                    -                   
+Insertion            plhusbank24.pl       -                    -                   
+Insertion            pluhsbank24.pl       -                    -                   
+Insertion            plyusbank24.pl       -                    -                   
+Insertion            pluysbank24.pl       -                    -                   
+Insertion            pl7usbank24.pl       -                    -                   
+Insertion            plu7sbank24.pl       -                    -                   
+Insertion            pluesbank24.pl       -                    -                   
+Insertion            plusebank24.pl       -                    -                   
+Insertion            pludsbank24.pl       -                    -                   
+Insertion            plusdbank24.pl       -                    -                   
+Insertion            pluxsbank24.pl       -                    -                   
+Insertion            plusxbank24.pl       -                    -                   
+Insertion            pluzsbank24.pl       -                    -                   
+Insertion            pluszbank24.pl       -                    -                   
+Insertion            pluasbank24.pl       -                    -                   
+Insertion            plusabank24.pl       -                    -                   
+Insertion            pluwsbank24.pl       -                    -                   
+Insertion            pluswbank24.pl       -                    -                   
+Insertion            plusvbank24.pl       -                    -                   
+Insertion            plusbvank24.pl       -                    -                   
+Insertion            plusgbank24.pl       -                    -                   
+Insertion            plusbgank24.pl       -                    -                   
+Insertion            plushbank24.pl       -                    -                   
+Insertion            plusbhank24.pl       -                    -                   
+Insertion            plusnbank24.pl       -                    -                   
+Insertion            plusbnank24.pl       -                    -                   
+Insertion            plusbqank24.pl       -                    -                   
+Insertion            plusbaqnk24.pl       -                    -                   
+Insertion            plusbwank24.pl       -                    -                   
+Insertion            plusbawnk24.pl       -                    -                   
+Insertion            plusbsank24.pl       -                    -                   
+Insertion            plusbasnk24.pl       -                    -                   
+Insertion            plusbzank24.pl       -                    -                   
+Insertion            plusbaznk24.pl       -                    -                   
+Insertion            plusbabnk24.pl       -                    -                   
+Insertion            plusbanbk24.pl       -                    -                   
+Insertion            plusbahnk24.pl       -                    -                   
+Insertion            plusbanhk24.pl       -                    -                   
+Insertion            plusbajnk24.pl       -                    -                   
+Insertion            plusbanjk24.pl       -                    -                   
+Insertion            plusbamnk24.pl       -                    -                   
+Insertion            plusbanmk24.pl       -                    -                   
+Insertion            plusbanok24.pl       -                    -                   
+Insertion            plusbanko24.pl       -                    -                   
+Insertion            plusbanlk24.pl       -                    -                   
+Insertion            plusbankl24.pl       -                    -                   
+Insertion            plusbanmk24.pl       -                    -                   
+Insertion            plusbankm24.pl       -                    -                   
+Insertion            plusbanjk24.pl       -                    -                   
+Insertion            plusbankj24.pl       -                    -                   
+Insertion            plusbanik24.pl       -                    -                   
+Insertion            plusbanki24.pl       -                    -                   
+Insertion            plusbank324.pl       -                    -                   
+Insertion            plusbank234.pl       -                    -                   
+Insertion            plusbankw24.pl       -                    -                   
+Insertion            plusbank2w4.pl       -                    -                   
+Insertion            plusbankq24.pl       -                    -                   
+Insertion            plusbank2q4.pl       -                    -                   
+Insertion            plusbank124.pl       -                    -                   
+Insertion            plusbank214.pl       -                    -                   
