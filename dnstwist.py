@@ -1,19 +1,43 @@
 #!/usr/bin/env python
-"""
-dnstwist by marcin@ulikowski.pl
+#
+# dnstwist by marcin@ulikowski.pl
+# Generate and resolve domain variations to detect typo squatting, phishing and corporate espionage.
+#
+#
+# dnstwist is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# dnstwist is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Volatility.  If not, see <http://www.gnu.org/licenses/>.
 
-Generate and resolve domain variations to detect typo squatting, phishing and corporate espionage.
-
-"""
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20150615'
+__version__ = '20150616'
 __email__ = 'marcin@ulikowski.pl'
 
 
 import sys
 import socket
 import signal
+try:
+	import dns.resolver
+	module_dnspython = True
+except:
+	module_dnspython = False
+	pass
+try:
+	import GeoIP
+	module_geoip = True
+except:
+	module_geoip = False
+	pass
 
 
 def sigint_handler(signal, frame):
@@ -30,7 +54,7 @@ def bitsquatting(domain):
 		c = dom[i]
 		for j in range(0, len(masks)):
 			b = chr(ord(c) ^ masks[j])
-			if (b.isalpha() and b.lower() == b):
+			if b.isalpha() and b.lower() == b:
 				out.append(dom[:i] + b + dom[i+1:] + '.' + tld)
 	return out
 
@@ -50,8 +74,7 @@ def homoglyph(domain):
 					for g in range(0, len(glyphs[c])):
 						win = win[:j] + glyphs[c][g] + win[j+1:]
 						if len(glyphs[c][g]) > 1:
-							j += 1
-							#print len(glyphs[c][g])
+							j += len(glyphs[c][g]) - 1
 						out.append(dom[:i] + win + dom[i+ws:] + '.' + tld)
 				j += 1
 	return list(set(out))
@@ -104,7 +127,7 @@ def insertion(domain):
 	return out
 
 
-print('dnstwist (' + __version__ + ') by marcin@ulikowski.pl')
+print('dnstwist (' + __version__ + ') by ' + __email__)
 if len(sys.argv) < 2:
 	print('Usage: ' + sys.argv[0] + ' <domain>')
 	sys.exit()
@@ -112,17 +135,21 @@ if len(sys.argv) < 2:
 domains = []
 
 for i in bitsquatting(sys.argv[1]):
-	domains.append({'type':'Bitsquatting', 'domain':i, 'ipaddr':'-'})
+	domains.append({ 'type':'Bitsquatting', 'domain':i, 'a':'', 'ns':'', 'mx':'', 'country':'' })
 for i in homoglyph(sys.argv[1]):
-	domains.append({'type':'Homoglyph', 'domain':i, 'ipaddr':'-'})
+	domains.append({ 'type':'Homoglyph', 'domain':i, 'a':'', 'ns':'', 'mx':'', 'country':'' })
 for i in repetition(sys.argv[1]):
-	domains.append({'type':'Repetition', 'domain':i, 'ipaddr':'-'})
+	domains.append({ 'type':'Repetition', 'domain':i, 'a':'', 'ns':'', 'mx':'', 'country':'' })
 for i in replacement(sys.argv[1]):
-	domains.append({'type':'Replacement', 'domain':i, 'ipaddr':'-'})
+	domains.append({ 'type':'Replacement', 'domain':i, 'a':'', 'ns':'', 'mx':'', 'country':'' })
 for i in omission(sys.argv[1]):
-	domains.append({'type':'Omission', 'domain':i, 'ipaddr':'-'})
+	domains.append({'type':'Omission', 'domain':i, 'a':'', 'ns':'', 'mx':'', 'country':'' })
 for i in insertion(sys.argv[1]):
-	domains.append({'type':'Insertion', 'domain':i, 'ipaddr':'-'})
+	domains.append({'type':'Insertion', 'domain':i, 'a':'', 'ns':'', 'mx':'', 'country':'' })
+
+if module_dnspython == False:
+	sys.stderr.write('NOTICE: missing dnspython module - functionality is limited !\n')
+	sys.stderr.flush()
 
 sys.stdout.write('Processing ' + str(len(domains)) + ' domains ')
 sys.stdout.flush()
@@ -131,16 +158,53 @@ signal.signal(signal.SIGINT, sigint_handler)
 
 for i in range(0, len(domains)):
 	try:
-		domains[i]['ipaddr'] = socket.gethostbyname(domains[i]['domain'])
+		domains[i]['a'] = socket.gethostbyname(domains[i]['domain'])
 	except:
-		sys.stdout.write('.')
-		sys.stdout.flush()
 		pass
-	else:
+
+	if module_dnspython:
+		try:
+			ns = dns.resolver.query(domains[i]['domain'], 'NS')
+			domains[i]['ns'] = str(ns[0])[:-1]
+		except:
+			pass
+
+		if domains[i]['ns']:
+			try:
+				mx = dns.resolver.query(domains[i]['domain'], 'MX')
+				domains[i]['mx'] = str(mx[0].exchange)[:-1]
+			except:
+				pass
+
+	if module_geoip:
+		gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
+		try:
+			domains[i]['country'] = gi.country_name_by_addr(domains[i]['a'])
+		except:
+			pass
+
+	if domains[i]['a'] or domains[i]['ns']:
 		sys.stdout.write('!')
+		sys.stdout.flush()
+	else:
+		sys.stdout.write('.')
 		sys.stdout.flush()
 
 sys.stdout.write('\n\n')
 
-for d in domains:
-	print("%-20s %-20s %-20s" % (d['type'], d['domain'], d['ipaddr']))
+for i in domains:
+	dns = ''
+	if i['a']:
+		dns += i['a']
+		if i['country']:
+			dns += '/' + i['country']
+	elif i['ns']:
+		dns += 'NS:' + i['ns']
+	if i['mx']:
+		dns += ' MX:' + i['mx']
+	if not dns:
+		dns = '-'
+
+	sys.stdout.write('%-20s %-20s %s' % (i['type'], i['domain'], dns))
+	sys.stdout.write('\n')
+	sys.stdout.flush()
