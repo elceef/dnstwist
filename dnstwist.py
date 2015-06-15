@@ -2,12 +2,13 @@
 """
 dnstwist by marcin@ulikowski.pl
 
-Generate and resolve domain variations to detect typo squatting,
-phishing and corporate espionage.
+Generate and resolve domain variations to detect typo squatting, phishing and corporate espionage.
 
 """
 
-__version__ = '20150612'
+__author__ = 'Marcin Ulikowski'
+__version__ = '20150615'
+__email__ = 'marcin@ulikowski.pl'
 
 
 import sys
@@ -39,12 +40,21 @@ def homoglyph(domain):
 	out = []
 	dom = domain.rsplit('.', 1)[0]
 	tld = domain.rsplit('.', 1)[1]
-	for i in range(0, len(dom)):
-		c = dom[i]
-		if c in glyphs:
-			for g in range(0, len(glyphs[c])):
-				out.append(dom[:i] + glyphs[c][g] + dom[i+1:] + '.' + tld)
-	return out
+	for ws in range(0, len(dom)):
+		for i in range(0, len(dom)-ws):
+			win = dom[i:i+ws]
+			j = 0
+			while j < ws:
+				c = win[j]
+				if c in glyphs:
+					for g in range(0, len(glyphs[c])):
+						win = win[:j] + glyphs[c][g] + win[j+1:]
+						if len(glyphs[c][g]) > 1:
+							j += 1
+							#print len(glyphs[c][g])
+						out.append(dom[:i] + win + dom[i+ws:] + '.' + tld)
+				j += 1
+	return list(set(out))
 
 
 def repetition(domain):
@@ -94,9 +104,9 @@ def insertion(domain):
 	return out
 
 
-print 'dnstwist (' + __version__ + ') by marcin@ulikowski.pl'
+print('dnstwist (' + __version__ + ') by marcin@ulikowski.pl')
 if len(sys.argv) < 2:
-	print 'Usage: ' + sys.argv[0] + ' <domain>'
+	print('Usage: ' + sys.argv[0] + ' <domain>')
 	sys.exit()
 
 domains = []
@@ -133,4 +143,4 @@ for i in range(0, len(domains)):
 sys.stdout.write('\n\n')
 
 for d in domains:
-	print "%-20s %-20s %-20s" % (d['type'], d['domain'], d['ipaddr'])
+	print("%-20s %-20s %-20s" % (d['type'], d['domain'], d['ipaddr']))
