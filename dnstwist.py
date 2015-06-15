@@ -14,6 +14,7 @@ __email__ = 'marcin@ulikowski.pl'
 import sys
 import socket
 import signal
+import pygeoip
 
 
 def sigint_handler(signal, frame):
@@ -112,26 +113,30 @@ if len(sys.argv) < 2:
 domains = []
 
 for i in bitsquatting(sys.argv[1]):
-	domains.append({'type':'Bitsquatting', 'domain':i, 'ipaddr':'-'})
+	domains.append({'type':'Bitsquatting', 'domain':i, 'ipaddr':'-', 'country':'-'})
 for i in homoglyph(sys.argv[1]):
-	domains.append({'type':'Homoglyph', 'domain':i, 'ipaddr':'-'})
+	domains.append({'type':'Homoglyph', 'domain':i, 'ipaddr':'-','country':'-'})
 for i in repetition(sys.argv[1]):
-	domains.append({'type':'Repetition', 'domain':i, 'ipaddr':'-'})
+	domains.append({'type':'Repetition', 'domain':i, 'ipaddr':'-', 'country':'-'})
 for i in replacement(sys.argv[1]):
-	domains.append({'type':'Replacement', 'domain':i, 'ipaddr':'-'})
+	domains.append({'type':'Replacement', 'domain':i, 'ipaddr':'-', 'country':'-'})
 for i in omission(sys.argv[1]):
-	domains.append({'type':'Omission', 'domain':i, 'ipaddr':'-'})
+	domains.append({'type':'Omission', 'domain':i, 'ipaddr':'-', 'country':'-'})
 for i in insertion(sys.argv[1]):
-	domains.append({'type':'Insertion', 'domain':i, 'ipaddr':'-'})
+	domains.append({'type':'Insertion', 'domain':i, 'ipaddr':'-', 'country':'-'})
 
 sys.stdout.write('Processing ' + str(len(domains)) + ' domains ')
 sys.stdout.flush()
 
 signal.signal(signal.SIGINT, sigint_handler)
 
+geoips = pygeoip.GeoIP('GeoIP.dat')
+
 for i in range(0, len(domains)):
 	try:
-		domains[i]['ipaddr'] = socket.gethostbyname(domains[i]['domain'])
+		ipaddr = socket.gethostbyname(domains[i]['domain'])
+		domains[i]['ipaddr'] = ipaddr
+		domains[i]['country'] = geoips.country_name_by_addr(ipaddr)
 	except:
 		sys.stdout.write('.')
 		sys.stdout.flush()
@@ -143,4 +148,4 @@ for i in range(0, len(domains)):
 sys.stdout.write('\n\n')
 
 for d in domains:
-	print("%-20s %-20s %-20s" % (d['type'], d['domain'], d['ipaddr']))
+	print("%-20s %-20s %-20s %-20s" % (d['type'], d['domain'], d['ipaddr'], d['country']))
