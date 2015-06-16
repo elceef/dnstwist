@@ -17,8 +17,8 @@ If you want *dnstwist* to develop full power, please make sure the following Pyt
 ### Contact
 To send question, comments or a chocolate, just drop an e-mail at [marcin@ulikowski.pl](mailto:marcin@ulikowski.pl)
 
-LinkedIn: [Marcin Ulikowski](https://pl.linkedin.com/in/elceef)
-Twitter: [@elceef](https://twitter.com/elceef)
+* LinkedIn: [Marcin Ulikowski](https://pl.linkedin.com/in/elceef)
+* Twitter: [@elceef](https://twitter.com/elceef)
 
 ### Example report
 ```
