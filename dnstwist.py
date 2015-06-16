@@ -54,7 +54,8 @@ def bitsquatting(domain):
 		c = dom[i]
 		for j in range(0, len(masks)):
 			b = chr(ord(c) ^ masks[j])
-			if b.isalpha() and b.lower() == b:
+			o = ord(b)
+			if (o >= 48 and o <= 57) or (o >= 97 and o <= 122):
 				out.append(dom[:i] + b + dom[i+1:] + '.' + tld)
 	return out
 
@@ -135,17 +136,17 @@ if len(sys.argv) < 2:
 domains = []
 
 for i in bitsquatting(sys.argv[1]):
-	domains.append({ 'type':'Bitsquatting', 'domain':i, 'a':'', 'ns':'', 'mx':'', 'country':'' })
+	domains.append({ 'type':'Bitsquatting', 'domain':i })
 for i in homoglyph(sys.argv[1]):
-	domains.append({ 'type':'Homoglyph', 'domain':i, 'a':'', 'ns':'', 'mx':'', 'country':'' })
+	domains.append({ 'type':'Homoglyph', 'domain':i })
 for i in repetition(sys.argv[1]):
-	domains.append({ 'type':'Repetition', 'domain':i, 'a':'', 'ns':'', 'mx':'', 'country':'' })
+	domains.append({ 'type':'Repetition', 'domain':i })
 for i in replacement(sys.argv[1]):
-	domains.append({ 'type':'Replacement', 'domain':i, 'a':'', 'ns':'', 'mx':'', 'country':'' })
+	domains.append({ 'type':'Replacement', 'domain':i })
 for i in omission(sys.argv[1]):
-	domains.append({'type':'Omission', 'domain':i, 'a':'', 'ns':'', 'mx':'', 'country':'' })
+	domains.append({'type':'Omission', 'domain':i })
 for i in insertion(sys.argv[1]):
-	domains.append({'type':'Insertion', 'domain':i, 'a':'', 'ns':'', 'mx':'', 'country':'' })
+	domains.append({'type':'Insertion', 'domain':i })
 
 if module_dnspython == False:
 	sys.stderr.write('NOTICE: missing dnspython module - functionality is limited !\n')
@@ -158,9 +159,18 @@ signal.signal(signal.SIGINT, sigint_handler)
 
 for i in range(0, len(domains)):
 	try:
-		domains[i]['a'] = socket.gethostbyname(domains[i]['domain'])
+		ip = socket.getaddrinfo(domains[i]['domain'], 80)
 	except:
 		pass
+	else:
+		for j in ip:
+			if '.' in j[4][0]:
+				domains[i]['a'] = j[4][0]
+				break
+		for j in ip:
+			if ':' in j[4][0]:
+				domains[i]['aaaa'] = j[4][0]
+				break
 
 	if module_dnspython:
 		try:
@@ -169,7 +179,7 @@ for i in range(0, len(domains)):
 		except:
 			pass
 
-		if domains[i]['ns']:
+		if 'ns' in domains[i]:
 			try:
 				mx = dns.resolver.query(domains[i]['domain'], 'MX')
 				domains[i]['mx'] = str(mx[0].exchange)[:-1]
@@ -179,11 +189,11 @@ for i in range(0, len(domains)):
 	if module_geoip:
 		gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
 		try:
-			domains[i]['country'] = gi.country_name_by_addr(domains[i]['a'])
+			domains[i]['country'] = str(gi.country_name_by_addr(domains[i]['a']))
 		except:
 			pass
 
-	if domains[i]['a'] or domains[i]['ns']:
+	if 'a' in domains[i] or 'ns' in domains[i]:
 		sys.stdout.write('!')
 		sys.stdout.flush()
 	else:
@@ -194,17 +204,19 @@ sys.stdout.write('\n\n')
 
 for i in domains:
 	dns = ''
-	if i['a']:
+	if 'a' in i:
 		dns += i['a']
-		if i['country']:
+		if 'country' in i:
 			dns += '/' + i['country']
-	elif i['ns']:
+	elif 'ns' in i:
 		dns += 'NS:' + i['ns']
-	if i['mx']:
+	if 'aaaa' in i:
+		dns += ' ' + i['aaaa']
+	if 'mx' in i:
 		dns += ' MX:' + i['mx']
 	if not dns:
 		dns = '-'
 
-	sys.stdout.write('%-20s %-20s %s' % (i['type'], i['domain'], dns))
+	sys.stdout.write('%-15s %-15s %s' % (i['type'], i['domain'], dns))
 	sys.stdout.write('\n')
 	sys.stdout.flush()
