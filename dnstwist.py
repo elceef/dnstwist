@@ -91,12 +91,29 @@ def repetition(domain):
 	return out
 
 
-def replacement(domain):
+def transposition(domain):
 	out = []
 	dom = domain.rsplit('.', 1)[0]
 	tld = domain.rsplit('.', 1)[1]
 	for i in range(0, len(dom)-1):
 		out.append(dom[:i] + dom[i+1] + dom[i] + dom[i+2:] + '.' + tld)
+	return out
+
+
+def replacement(domain):
+	keys = {
+	'1':'2q', '2':'3wq1', '3':'4ew2', '4':'5re3', '5':'6tr4', '6':'7yt5', '7':'8uy6', '8':'9iu7', '9':'0oi8', '0':'po9',
+	'q':'12wa', 'w':'3esaq2', 'e':'4rdsw3', 'r':'5tfde4', 't':'6ygfr5', 'y':'7uhgt6', 'u':'8ijhy7', 'i':'9okju8', 'o':'0plki9', 'p':'lo0',
+	'a':'qwsz', 's':'edxzaw', 'd':'rfcxse', 'f':'tgvcdr', 'g':'yhbvft', 'h':'ujnbgy', 'j':'ikmnhu', 'k':'olmji', 'l':'kop',
+	'z':'asx', 'x':'zsdc', 'c':'xdfv', 'v':'cfgb', 'b':'vghn', 'n':'bhjm', 'm':'njk'
+	}
+	out = []
+	dom = domain.rsplit('.', 1)[0]
+	tld = domain.rsplit('.', 1)[1]
+	for i in range(0, len(dom)):
+		if dom[i] in keys:
+			for c in range(0, len(keys[dom[i]])):
+				out.append(dom[:i] + keys[dom[i]][c] + dom[i+1:] + '.' + tld)
 	return out
 
 
@@ -148,6 +165,8 @@ for i in homoglyph(sys.argv[1]):
 	domains.append({ 'type':'Homoglyph', 'domain':i })
 for i in repetition(sys.argv[1]):
 	domains.append({ 'type':'Repetition', 'domain':i })
+for i in transposition(sys.argv[1]):
+	domains.append({ 'type':'Transposition', 'domain':i })
 for i in replacement(sys.argv[1]):
 	domains.append({ 'type':'Replacement', 'domain':i })
 for i in omission(sys.argv[1]):
