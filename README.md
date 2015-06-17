@@ -1,10 +1,10 @@
 dnstwist
 ========
-See what sort of trouble users can get in trying to type your domain name. A simple tool to look for registered domains similar to your own, only distinguished by typos (or cosmic ray). Useful to detect fraud, phishing attacks and corporate espionage.
+See what sort of trouble users can get in trying to type your domain name. A simple tool to look for registered domains similar to your own, only distinguished by typos (or cosmic ray). Useful as additional source of targeted threat intelligence. Can detect fraud, phishing attacks and corporate espionage.
 
 Required modules
 ----------------
-If you want *dnstwist* to develop full power, please make sure the following Python modules are present on your system. If they missed *dnstwist* will still work, but without some cool features.
+If you want *dnstwist* to develop full power, please make sure the following Python modules are present on your system. If missing, *dnstwist* will still work, but without some cool features.
 
 * [Python GeoIP](https://pypi.python.org/pypi/GeoIP/)
 * [A DNS toolkit for Python](http://www.dnspython.org/)

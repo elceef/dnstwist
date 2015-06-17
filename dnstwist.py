@@ -15,13 +15,11 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Volatility.  If not, see <http://www.gnu.org/licenses/>.
-
+# along with dnstwist.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Marcin Ulikowski'
 __version__ = '20150617'
 __email__ = 'marcin@ulikowski.pl'
-
 
 import sys
 import socket
@@ -39,11 +37,9 @@ except:
 	module_geoip = False
 	pass
 
-
 def sigint_handler(signal, frame):
 	print('You pressed Ctrl+C!')
 	sys.exit(0)
-
 
 def bitsquatting(domain):
 	out = []
@@ -58,7 +54,6 @@ def bitsquatting(domain):
 			if (o >= 48 and o <= 57) or (o >= 97 and o <= 122):
 				out.append(dom[:i] + b + dom[i+1:] + '.' + tld)
 	return out
-
 
 def homoglyph(domain):
 	glyphs = { 'd':['b', 'cl'], 'm':['n', 'rn'], 'l':['1', 'i'], 'o':['0'], 'w':['vv'], 'n':['m'], 'b':['d'], 'i':['l'] }
@@ -80,7 +75,6 @@ def homoglyph(domain):
 				j += 1
 	return list(set(out))
 
-
 def repetition(domain):
 	out = []
 	dom = domain.rsplit('.', 1)[0]
@@ -90,7 +84,6 @@ def repetition(domain):
 			out.append(dom[:i] + dom[i] + dom[i] + dom[i+1:] + '.' + tld)
 	return out
 
-
 def transposition(domain):
 	out = []
 	dom = domain.rsplit('.', 1)[0]
@@ -98,7 +91,6 @@ def transposition(domain):
 	for i in range(0, len(dom)-1):
 		out.append(dom[:i] + dom[i+1] + dom[i] + dom[i+2:] + '.' + tld)
 	return out
-
 
 def replacement(domain):
 	keys = {
@@ -125,7 +117,6 @@ def omission(domain):
 		out.append(dom[:i] + dom[i+1:] + '.' + tld)
 	return out
 
-
 def insertion(domain):
 	keys = {
 	'1':'2q', '2':'3wq1', '3':'4ew2', '4':'5re3', '5':'6tr4', '6':'7yt5', '7':'8uy6', '8':'9iu7', '9':'0oi8', '0':'po9',
@@ -144,119 +135,128 @@ def insertion(domain):
 				out.append(dom[:i] + dom[i] + keys[dom[i]][c] + dom[i+1:] + '.' + tld)
 	return out
 
+def fuzz_domain(domain):
+	domains = []
 
-if len(sys.argv) == 3:
-	output_csv = True
-else:
-	output_csv = False
+	for i in bitsquatting(sys.argv[1]):
+		domains.append({ 'type':'Bitsquatting', 'domain':i })
+	for i in homoglyph(sys.argv[1]):
+		domains.append({ 'type':'Homoglyph', 'domain':i })
+	for i in repetition(sys.argv[1]):
+		domains.append({ 'type':'Repetition', 'domain':i })
+	for i in transposition(sys.argv[1]):
+		domains.append({ 'type':'Transposition', 'domain':i})
+	for i in replacement(sys.argv[1]):
+		domains.append({ 'type':'Replacement', 'domain':i })
+	for i in omission(sys.argv[1]):
+		domains.append({'type':'Omission', 'domain':i })
+	for i in insertion(sys.argv[1]):
+		domains.append({'type':'Insertion', 'domain':i })
 
-if not output_csv:
-	print('dnstwist (' + __version__ + ') by ' + __email__)
+	return domains
 
-	if len(sys.argv) < 2:
-		print('Usage: ' + sys.argv[0] + ' example.com [csv]')
-		sys.exit()
-
-domains = []
-
-for i in bitsquatting(sys.argv[1]):
-	domains.append({ 'type':'Bitsquatting', 'domain':i })
-for i in homoglyph(sys.argv[1]):
-	domains.append({ 'type':'Homoglyph', 'domain':i })
-for i in repetition(sys.argv[1]):
-	domains.append({ 'type':'Repetition', 'domain':i })
-for i in transposition(sys.argv[1]):
-	domains.append({ 'type':'Transposition', 'domain':i })
-for i in replacement(sys.argv[1]):
-	domains.append({ 'type':'Replacement', 'domain':i })
-for i in omission(sys.argv[1]):
-	domains.append({'type':'Omission', 'domain':i })
-for i in insertion(sys.argv[1]):
-	domains.append({'type':'Insertion', 'domain':i })
-
-if not module_dnspython:
-	sys.stderr.write('NOTICE: missing dnspython module - DNS functionality is limited !\n')
-	sys.stderr.flush()
-
-if not module_geoip:
-	sys.stderr.write('NOTICE: missing GeoIP module - geographical location not available !\n')
-	sys.stderr.flush()
-
-if not output_csv:
-	sys.stdout.write('Processing ' + str(len(domains)) + ' domains ')
-	sys.stdout.flush()
-
-signal.signal(signal.SIGINT, sigint_handler)
-
-for i in range(0, len(domains)):
-	try:
-		ip = socket.getaddrinfo(domains[i]['domain'], 80)
-	except:
-		pass
+def main():
+	if len(sys.argv) == 3:
+		output_csv = True
 	else:
-		for j in ip:
-			if '.' in j[4][0]:
-				domains[i]['a'] = j[4][0]
-				break
-		for j in ip:
-			if ':' in j[4][0]:
-				domains[i]['aaaa'] = j[4][0]
-				break
+		output_csv = False
 
-	if module_dnspython:
+	if not output_csv:
+		print('dnstwist (' + __version__ + ') by ' + __email__)
+
+		if len(sys.argv) < 2:
+			print('Usage: ' + sys.argv[0] + ' example.com [csv]')
+			sys.exit()
+
+	domains = fuzz_domain(sys.argv[1])
+
+	if not module_dnspython:
+		sys.stderr.write('NOTICE: missing dnspython module - DNS functionality is limited !\n')
+		sys.stderr.flush()
+
+	if not module_geoip:
+		sys.stderr.write('NOTICE: missing GeoIP module - geographical location not available !\n')
+		sys.stderr.flush()
+
+	if not output_csv:
+		sys.stdout.write('Processing ' + str(len(domains)) + ' domains ')
+		sys.stdout.flush()
+
+	signal.signal(signal.SIGINT, sigint_handler)
+
+	for i in range(0, len(domains)):
 		try:
-			ns = dns.resolver.query(domains[i]['domain'], 'NS')
-			domains[i]['ns'] = str(ns[0])[:-1]
+			ip = socket.getaddrinfo(domains[i]['domain'], 80)
 		except:
 			pass
+		else:
+			for j in ip:
+				if '.' in j[4][0]:
+					domains[i]['a'] = j[4][0]
+					break
+			for j in ip:
+				if ':' in j[4][0]:
+					domains[i]['aaaa'] = j[4][0]
+					break
 
-		if 'ns' in domains[i]:
+		if module_dnspython:
 			try:
-				mx = dns.resolver.query(domains[i]['domain'], 'MX')
-				domains[i]['mx'] = str(mx[0].exchange)[:-1]
+				ns = dns.resolver.query(domains[i]['domain'], 'NS')
+				domains[i]['ns'] = str(ns[0])[:-1]
 			except:
 				pass
 
-	if module_geoip:
-		gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
-		try:
-			country = gi.country_name_by_addr(domains[i]['a'])
-		except:
-			pass
-		else:
-			if country:
-				domains[i]['country'] = country
+			if 'ns' in domains[i]:
+				try:
+					mx = dns.resolver.query(domains[i]['domain'], 'MX')
+					domains[i]['mx'] = str(mx[0].exchange)[:-1]
+				except:
+					pass
+
+		if module_geoip:
+			gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
+			try:
+				country = gi.country_name_by_addr(domains[i]['a'])
+			except:
+				pass
+			else:
+				if country:
+					domains[i]['country'] = country
+
+		if not output_csv:
+			if 'a' in domains[i] or 'ns' in domains[i]:
+				sys.stdout.write('!')
+				sys.stdout.flush()
+			else:
+				sys.stdout.write('.')
+				sys.stdout.flush()
 
 	if not output_csv:
-		if 'a' in domains[i] or 'ns' in domains[i]:
-			sys.stdout.write('!')
+		sys.stdout.write('\n\n')
+
+	for i in domains:
+		if not output_csv:
+			zone = ''
+
+			if 'a' in i:
+				zone += i['a']
+				if 'country' in i:
+					zone += '/' + i['country']
+			elif 'ns' in i:
+				zone += 'NS:' + i['ns']
+			if 'aaaa' in i:
+				zone += ' ' + i['aaaa']
+			if 'mx' in i:
+				zone += ' MX:' + i['mx']
+			if not zone:
+				zone = '-'
+
+			sys.stdout.write('%-15s %-15s %s\n' % (i['type'], i['domain'], zone))
 			sys.stdout.flush()
 		else:
-			sys.stdout.write('.')
-			sys.stdout.flush()
+			print(i.get('type') + ',' + i.get('domain') + ',' + i.get('a', '') + ',' + i.get('aaaa', '') + ',' + i.get('mx', '') + ',' + i.get('ns', '') + ',' + i.get('country', ''))
 
-if not output_csv:
-	sys.stdout.write('\n\n')
+	return 0
 
-for i in domains:
-	if not output_csv:
-		dns = ''
-
-		if 'a' in i:
-			dns += i['a']
-			if 'country' in i:
-				dns += '/' + i['country']
-		elif 'ns' in i:
-			dns += 'NS:' + i['ns']
-		if 'aaaa' in i:
-			dns += ' ' + i['aaaa']
-		if 'mx' in i:
-			dns += ' MX:' + i['mx']
-		if not dns:
-			dns = '-'
-
-		sys.stdout.write('%-15s %-15s %s' % (i['type'], i['domain'], dns))
-		sys.stdout.write('\n')
-		sys.stdout.flush()
-	else:
-		print(i.get('type') + ',' + i.get('domain') + ',' + i.get('a', '') + ',' + i.get('aaaa', '') + ',' + i.get('mx', '') + ',' + i.get('ns', '') + ',' + i.get('country', ''))
+if __name__ == '__main__':
+	main()
