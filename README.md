@@ -1,6 +1,6 @@
 dnstwist
 ========
-See what sort of trouble users can get in trying to type your domain name. A simple tool to look for registered domains similar to your own, only distinguished by typos (or cosmic ray). Useful as additional source of targeted threat intelligence. Can detect fraud, phishing attacks and corporate espionage.
+See what sort of trouble users can get in trying to type your domain name. Look for registered domains similar to your own, only distinguished by [typos](https://en.wikipedia.org/wiki/Typosquatting) (or cosmic ray). Useful as additional source of targeted threat intelligence. Can detect fraud, phishing attacks and corporate espionage.
 
 Required modules
 ----------------
@@ -15,6 +15,12 @@ Further reading
 * [Heise-Online: Dnstwist variiert und testet Domainnamen](http://www.heise.de/newsticker/meldung/Dnstwist-variiert-und-testet-Domainnamen-2690418.html)
 * [Newday International: dnstwist varies and tests domain name](https://www.newday.mk/dnstwist-varies-and-tests-domain-name/)
 * [ISC StormCast for Tuesday, June 16th 2015](https://isc.sans.edu/podcastdetail.html?id=4529)
+
+Special thanks
+--------------
+* Patricia Lipp
+* Steve Steiner
+* Christopher Schmidt
 
 Contact
 -------
