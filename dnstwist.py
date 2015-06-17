@@ -19,7 +19,7 @@
 
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20150616'
+__version__ = '20150617'
 __email__ = 'marcin@ulikowski.pl'
 
 
@@ -128,10 +128,17 @@ def insertion(domain):
 	return out
 
 
-print('dnstwist (' + __version__ + ') by ' + __email__)
-if len(sys.argv) < 2:
-	print('Usage: ' + sys.argv[0] + ' <domain>')
-	sys.exit()
+if len(sys.argv) == 3:
+	output_csv = True
+else:
+	output_csv = False
+
+if not output_csv:
+	print('dnstwist (' + __version__ + ') by ' + __email__)
+
+	if len(sys.argv) < 2:
+		print('Usage: ' + sys.argv[0] + ' example.com [csv]')
+		sys.exit()
 
 domains = []
 
@@ -148,12 +155,17 @@ for i in omission(sys.argv[1]):
 for i in insertion(sys.argv[1]):
 	domains.append({'type':'Insertion', 'domain':i })
 
-if module_dnspython == False:
-	sys.stderr.write('NOTICE: missing dnspython module - functionality is limited !\n')
+if not module_dnspython:
+	sys.stderr.write('NOTICE: missing dnspython module - DNS functionality is limited !\n')
 	sys.stderr.flush()
 
-sys.stdout.write('Processing ' + str(len(domains)) + ' domains ')
-sys.stdout.flush()
+if not module_geoip:
+	sys.stderr.write('NOTICE: missing GeoIP module - geographical location not available !\n')
+	sys.stderr.flush()
+
+if not output_csv:
+	sys.stdout.write('Processing ' + str(len(domains)) + ' domains ')
+	sys.stdout.flush()
 
 signal.signal(signal.SIGINT, sigint_handler)
 
@@ -189,34 +201,43 @@ for i in range(0, len(domains)):
 	if module_geoip:
 		gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
 		try:
-			domains[i]['country'] = str(gi.country_name_by_addr(domains[i]['a']))
+			country = gi.country_name_by_addr(domains[i]['a'])
 		except:
 			pass
+		else:
+			if country:
+				domains[i]['country'] = country
 
-	if 'a' in domains[i] or 'ns' in domains[i]:
-		sys.stdout.write('!')
-		sys.stdout.flush()
-	else:
-		sys.stdout.write('.')
-		sys.stdout.flush()
+	if not output_csv:
+		if 'a' in domains[i] or 'ns' in domains[i]:
+			sys.stdout.write('!')
+			sys.stdout.flush()
+		else:
+			sys.stdout.write('.')
+			sys.stdout.flush()
 
-sys.stdout.write('\n\n')
+if not output_csv:
+	sys.stdout.write('\n\n')
 
 for i in domains:
-	dns = ''
-	if 'a' in i:
-		dns += i['a']
-		if 'country' in i:
-			dns += '/' + i['country']
-	elif 'ns' in i:
-		dns += 'NS:' + i['ns']
-	if 'aaaa' in i:
-		dns += ' ' + i['aaaa']
-	if 'mx' in i:
-		dns += ' MX:' + i['mx']
-	if not dns:
-		dns = '-'
+	if not output_csv:
+		dns = ''
 
-	sys.stdout.write('%-15s %-15s %s' % (i['type'], i['domain'], dns))
-	sys.stdout.write('\n')
-	sys.stdout.flush()
+		if 'a' in i:
+			dns += i['a']
+			if 'country' in i:
+				dns += '/' + i['country']
+		elif 'ns' in i:
+			dns += 'NS:' + i['ns']
+		if 'aaaa' in i:
+			dns += ' ' + i['aaaa']
+		if 'mx' in i:
+			dns += ' MX:' + i['mx']
+		if not dns:
+			dns = '-'
+
+		sys.stdout.write('%-15s %-15s %s' % (i['type'], i['domain'], dns))
+		sys.stdout.write('\n')
+		sys.stdout.flush()
+	else:
+		print(i.get('type') + ',' + i.get('domain') + ',' + i.get('a', '') + ',' + i.get('aaaa', '') + ',' + i.get('mx', '') + ',' + i.get('ns', '') + ',' + i.get('country', ''))
