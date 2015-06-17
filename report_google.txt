@@ -1,98 +1,131 @@
-dnstwist (20150616) by marcin@ulikowski.pl
-Processing 95 domains !...!.......!!..!!!.!....!..!.!..!.!!!!.!!!!!!!!!!!!!!!!!..!!!.!!!!!!..!!..!!.!!!!!!!!!!..!.!!!
+dnstwist (20150617) by marcin@ulikowski.pl
+Processing 128 domains !...!.......!!..!!!.!....!..!.!..!.!!!!.!!!!!!!!!!.!!!!!.!!.!!.!!!!.!!!.!!!!.!!!!!!!!!!!!!..!!!.!!!!!!..!!..!!.!!!!!!!!!!..!.!!!
 
-Bitsquatting         foogle.com           64.111.126.107/United States MX:ALT2.ASPMX.L.GOOGLE.com
-Bitsquatting         eoogle.com           -
-Bitsquatting         coogle.com           -
-Bitsquatting         ooogle.com           -
-Bitsquatting         woogle.com           98.124.198.1/United States
-Bitsquatting         gnogle.com           -
-Bitsquatting         gmogle.com           -
-Bitsquatting         gkogle.com           -
-Bitsquatting         ggogle.com           -
-Bitsquatting         gongle.com           -
-Bitsquatting         gomgle.com           -
-Bitsquatting         gokgle.com           -
-Bitsquatting         goggle.com           104.156.226.89 MX:nullmx.domainmanager.com
-Bitsquatting         goofle.com           69.89.22.115/United States MX:goofle.com
-Bitsquatting         gooele.com           -
-Bitsquatting         goocle.com           -
-Bitsquatting         gooole.com           98.124.198.1/United States
-Bitsquatting         goowle.com           54.68.76.21/United States
-Bitsquatting         googme.com           199.59.243.120/United States
-Bitsquatting         googne.com           -
-Bitsquatting         googhe.com           199.59.243.120/United States
-Bitsquatting         googde.com           -
-Bitsquatting         googld.com           -
-Bitsquatting         googlg.com           -
-Bitsquatting         googla.com           -
-Bitsquatting         googlm.com           98.126.223.220/United States
-Bitsquatting         googlu.com           -
-Homoglyph            g00gle.com           -
-Homoglyph            g0ogle.com           98.124.198.1/United States
-Homoglyph            go0gie.com           -
-Homoglyph            googie.com           209.237.151.18/United States MX:inbound.registeredsite.com
-Homoglyph            g00gie.com           -
-Homoglyph            goog1e.com           -
-Homoglyph            g00g1e.com           54.85.146.186/United States
-Homoglyph            go0gle.com           -
-Homoglyph            go0g1e.com           72.52.4.120/United States MX:mail.nickstel.com
-Repetition           ggoogle.com          46.28.247.108/Poland
-Repetition           gooogle.com          46.28.247.88/Poland
-Repetition           gooogle.com          46.28.247.99/Poland
-Repetition           googgle.com          -
-Repetition           googlle.com          NS:ns4.domainmanager.com MX:nullmx.domainmanager.com
-Repetition           googlee.com          46.28.247.93/Poland
-Replacement          ogogle.com           46.28.247.123/Poland
-Replacement          google.com           46.28.247.104/Poland MX:alt2.aspmx.l.google.com
-Replacement          gogole.com           46.28.247.89/Poland
-Replacement          goolge.com           46.28.247.104/Poland
-Replacement          googel.com           46.28.247.93/Poland
-Omission             oogle.com            109.123.198.149/Czech Republic MX:ALT4.ASPMX.L.GOOGLE.com
-Omission             gogle.com            46.28.247.104/Poland
-Omission             gogle.com            46.28.247.104/Poland
-Omission             goole.com            87.106.83.127/Germany MX:mx01.1and1.co.uk
-Omission             googe.com            162.243.20.86/United States
-Omission             googl.com            46.28.247.84/Poland
-Insertion            g0oogle.com          184.172.106.42/United States
-Insertion            go0ogle.com          64.74.223.42/United States MX:p.nsm.ctmail.com
-Insertion            gpoogle.com          208.48.81.133/United States MX:mail.b-io.co
-Insertion            gopogle.com          209.15.13.134/United States MX:mail.b-io.co
-Insertion            gloogle.com          -
-Insertion            gologle.com          -
-Insertion            gkoogle.com          50.63.202.7/United States MX:smtp.secureserver.net
-Insertion            gokogle.com          103.224.182.253/Australia MX:mail.post-host.net
-Insertion            gioogle.com          208.87.34.163/Bahamas
-Insertion            goiogle.com          -
-Insertion            g9oogle.com          185.53.177.8 MX:mail.h-email.net
-Insertion            go9ogle.com          199.59.243.120/United States
-Insertion            go0ogle.com          64.74.223.42/United States MX:p.nsm.ctmail.com
-Insertion            goo0gle.com          103.224.182.244/Australia MX:mail.post-host.net
-Insertion            gopogle.com          209.15.13.134/United States MX:mail.b-io.co
-Insertion            goopgle.com          69.162.80.55/United States
-Insertion            gologle.com          -
-Insertion            goolgle.com          -
-Insertion            gokogle.com          103.224.182.253/Australia
-Insertion            gookgle.com          103.224.182.210/Australia MX:mail.post-host.net
-Insertion            goiogle.com          -
-Insertion            gooigle.com          -
-Insertion            go9ogle.com          199.59.243.120/United States
-Insertion            goo9gle.com          184.172.106.42/United States
-Insertion            gooygle.com          -
-Insertion            googyle.com          103.224.182.252/Australia MX:mail.post-host.net
-Insertion            goohgle.com          83.64.127.75/Austria
-Insertion            googhle.com          5.39.99.51/France
-Insertion            goobgle.com          103.224.182.249/Australia MX:mail.post-host.net
-Insertion            googble.com          69.163.201.152/United States
-Insertion            goovgle.com          199.59.243.120/United States
-Insertion            googvle.com          103.224.182.243/Australia
-Insertion            goofgle.com          208.73.211.178/United States
-Insertion            googfle.com          103.224.182.241/Australia
-Insertion            gootgle.com          103.224.182.244/Australia MX:mail.post-host.net
-Insertion            googtle.com          -
-Insertion            googkle.com          -
-Insertion            googlke.com          98.124.199.1/United States
-Insertion            googole.com          -
-Insertion            googloe.com          209.15.13.134/United States MX:mail.b-io.co
-Insertion            googple.com          199.59.243.120/United States
-Insertion            googlpe.com          103.224.182.243/Australia
+Bitsquatting    foogle.com      64.111.126.107/United States MX:ASPMX.L.GOOGLE.com
+Bitsquatting    eoogle.com      -
+Bitsquatting    coogle.com      -
+Bitsquatting    ooogle.com      -
+Bitsquatting    woogle.com      98.124.198.1/United States
+Bitsquatting    gnogle.com      -
+Bitsquatting    gmogle.com      -
+Bitsquatting    gkogle.com      -
+Bitsquatting    ggogle.com      -
+Bitsquatting    gongle.com      -
+Bitsquatting    gomgle.com      -
+Bitsquatting    gokgle.com      -
+Bitsquatting    goggle.com      104.156.226.89/United States MX:mail2.domainmanager.com
+Bitsquatting    goofle.com      69.89.22.115/United States MX:goofle.com
+Bitsquatting    gooele.com      -
+Bitsquatting    goocle.com      -
+Bitsquatting    gooole.com      98.124.199.1/United States
+Bitsquatting    goowle.com      54.68.76.21/United States
+Bitsquatting    googme.com      199.59.243.120/United States
+Bitsquatting    googne.com      -
+Bitsquatting    googhe.com      199.59.243.120/United States
+Bitsquatting    googde.com      -
+Bitsquatting    googld.com      -
+Bitsquatting    googlg.com      -
+Bitsquatting    googla.com      -
+Bitsquatting    googlm.com      98.126.223.220/United States
+Bitsquatting    googlu.com      -
+Homoglyph       g00gle.com      -
+Homoglyph       g0ogle.com      98.124.198.1/United States
+Homoglyph       go0gie.com      -
+Homoglyph       googie.com      209.237.151.18/United States MX:inbound.registeredsite.com
+Homoglyph       g00gie.com      -
+Homoglyph       goog1e.com      -
+Homoglyph       g00g1e.com      54.208.74.215/United States MX:anmail.namebrightmail.com
+Homoglyph       go0gle.com      -
+Homoglyph       go0g1e.com      72.52.4.120/United States MX:mail.nickstel.com
+Repetition      ggoogle.com     216.58.209.68/United States 2a00:1450:401b:801::2004
+Repetition      gooogle.com     216.58.209.68/United States 2a00:1450:401b:801::2004
+Repetition      gooogle.com     216.58.209.68/United States 2a00:1450:401b:801::2004
+Repetition      googgle.com     -
+Repetition      googlle.com     96.126.106.126/United States MX:nullmx.domainmanager.com
+Repetition      googlee.com     216.58.209.68/United States 2a00:1450:401b:801::2004
+Transposition   ogogle.com      216.58.209.68/United States 2a00:1450:401b:801::2004
+Transposition   google.com      216.58.209.78/United States 2a00:1450:401b:801::200e MX:alt1.aspmx.l.google.com
+Transposition   gogole.com      216.58.209.68/United States 2a00:1450:401b:801::2004
+Transposition   goolge.com      216.58.209.68/United States 2a00:1450:401b:801::2004
+Transposition   googel.com      216.58.209.68/United States 2a00:1450:401b:801::2004
+Replacement     yoogle.com      127.0.0.1
+Replacement     hoogle.com      184.168.221.30/United States MX:smtp.secureserver.net
+Replacement     boogle.com      74.207.250.77/United States MX:mail.boogle.com
+Replacement     voogle.com      -
+Replacement     foogle.com      64.111.126.107/United States MX:ASPMX.L.GOOGLE.com
+Replacement     toogle.com      98.124.198.1/United States
+Replacement     g0ogle.com      98.124.198.1/United States
+Replacement     gpogle.com      103.224.182.252/Australia MX:mail.post-host.net
+Replacement     glogle.com      208.73.210.214/United States
+Replacement     gkogle.com      -
+Replacement     giogle.com      162.209.11.4/United States MX:giogle.com
+Replacement     g9ogle.com      103.224.182.250/Australia MX:mail.post-host.net
+Replacement     go0gle.com      -
+Replacement     gopgle.com      95.211.117.206/Netherlands
+Replacement     golgle.com      95.211.117.206/Netherlands
+Replacement     gokgle.com      -
+Replacement     goigle.com      95.211.117.206/Netherlands
+Replacement     go9gle.com      108.167.140.232/United States MX:go9gle.com
+Replacement     gooyle.com      208.73.211.178/United States
+Replacement     goohle.com      184.154.126.179/United States
+Replacement     gooble.com      -
+Replacement     goovle.com      103.232.215.142/China
+Replacement     goofle.com      69.89.22.115/United States MX:goofle.com
+Replacement     gootle.com      208.73.210.200/United States
+Replacement     googke.com      -
+Replacement     googoe.com      208.73.211.178/United States
+Replacement     googpe.com      208.87.34.163/Bahamas
+Replacement     googl4.com      199.59.243.120/United States
+Replacement     googlr.com      216.58.209.68/United States 2a00:1450:401b:801::2004
+Replacement     googld.com      -
+Replacement     googls.com      5.39.99.49/France
+Replacement     googlw.com      NS:dns3.name-services.com MX:eforwardct.name-services.com
+Replacement     googl3.com      184.168.221.58/United States MX:smtp.secureserver.net
+Omission        oogle.com       109.123.198.149/Czech Republic MX:ALT3.ASPMX.L.GOOGLE.com
+Omission        gogle.com       216.58.209.68/United States 2a00:1450:401b:801::2004
+Omission        gogle.com       216.58.209.68/United States 2a00:1450:401b:801::2004
+Omission        goole.com       87.106.83.127/Germany MX:mx00.1and1.co.uk
+Omission        googe.com       162.243.20.86/United States
+Omission        googl.com       216.58.209.68/United States 2a00:1450:401b:801::2004
+Insertion       g0oogle.com     185.2.66.16/Ireland
+Insertion       go0ogle.com     64.74.223.42/United States MX:p.nsm.ctmail.com
+Insertion       gpoogle.com     64.15.205.101/Australia MX:mail.b-io.co
+Insertion       gopogle.com     209.15.13.134/United States MX:mail.b-io.co
+Insertion       gloogle.com     -
+Insertion       gologle.com     -
+Insertion       gkoogle.com     50.63.202.7/United States MX:smtp.secureserver.net
+Insertion       gokogle.com     103.224.182.253/Australia MX:mail.post-host.net
+Insertion       gioogle.com     208.87.34.163/Bahamas
+Insertion       goiogle.com     -
+Insertion       g9oogle.com     185.53.177.8/Germany MX:mail.h-email.net
+Insertion       go9ogle.com     199.59.243.120/United States
+Insertion       go0ogle.com     64.74.223.42/United States MX:p.nsm.ctmail.com
+Insertion       goo0gle.com     103.224.182.244/Australia MX:mail.post-host.net
+Insertion       gopogle.com     209.15.13.134/United States MX:mail.b-io.co
+Insertion       goopgle.com     95.211.117.206/Netherlands
+Insertion       gologle.com     -
+Insertion       goolgle.com     -
+Insertion       gokogle.com     103.224.182.253/Australia MX:mail.post-host.net
+Insertion       gookgle.com     103.224.182.210/Australia MX:mail.post-host.net
+Insertion       goiogle.com     -
+Insertion       gooigle.com     -
+Insertion       go9ogle.com     199.59.243.120/United States
+Insertion       goo9gle.com     184.172.106.42/United States
+Insertion       gooygle.com     -
+Insertion       googyle.com     103.224.182.252/Australia MX:mail.post-host.net
+Insertion       goohgle.com     83.64.127.75/Austria
+Insertion       googhle.com     5.39.99.51/France
+Insertion       goobgle.com     103.224.182.249/Australia MX:mail.post-host.net
+Insertion       googble.com     69.163.201.152/United States
+Insertion       goovgle.com     199.59.243.120/United States
+Insertion       googvle.com     103.224.182.243/Australia MX:mail.post-host.net
+Insertion       goofgle.com     208.73.210.217/United States
+Insertion       googfle.com     103.224.182.241/Australia MX:mail.post-host.net
+Insertion       gootgle.com     103.224.182.244/Australia MX:mail.post-host.net
+Insertion       googtle.com     -
+Insertion       googkle.com     -
+Insertion       googlke.com     98.124.198.1/United States
+Insertion       googole.com     -
+Insertion       googloe.com     209.15.13.134/United States MX:mail.b-io.co
+Insertion       googple.com     199.59.243.120/United States
+Insertion       googlpe.com     103.224.182.243/Australia MX:mail.post-host.net
