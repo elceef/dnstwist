@@ -53,7 +53,7 @@ def bitsquatting(domain):
 		for j in range(0, len(masks)):
 			b = chr(ord(c) ^ masks[j])
 			o = ord(b)
-			if (o >= 48 and o <= 57) or (o >= 97 and o <= 122):
+			if (o >= 48 and o <= 57) or (o >= 97 and o <= 122) or o == 45:
 				out.append(dom[:i] + b + dom[i+1:] + '.' + tld)
 
 	return out
@@ -67,8 +67,8 @@ def homoglyph(domain):
 	for ws in range(0, len(dom)):
 		for i in range(0, (len(dom)-ws)+1):
 			win = dom[i:i+ws]
-			j = 0
 
+			j = 0
 			while j < ws:
 				c = win[j]
 				if c in glyphs:
