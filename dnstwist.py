@@ -59,7 +59,10 @@ def bitsquatting(domain):
 	return out
 
 def homoglyph(domain):
-	glyphs = { 'd':['b', 'cl'], 'm':['n', 'rn'], 'l':['1', 'i'], 'o':['0'], 'w':['vv'], 'n':['m'], 'b':['d'], 'i':['l'], 'g':['q'], 'q':['g'] }
+	glyphs = {
+	'd':['b', 'cl'], 'm':['n', 'rn'], 'l':['1', 'i'], 'o':['0'],
+	'w':['vv'], 'n':['m'], 'b':['d'], 'i':['l'], 'g':['q'], 'q':['g']
+	}
 	out = []
 	dom = domain.rsplit('.', 1)[0]
 	tld = domain.rsplit('.', 1)[1]
@@ -271,7 +274,9 @@ def main():
 			sys.stdout.write('%-15s %-15s %s\n' % (i['type'], i['domain'], zone))
 			sys.stdout.flush()
 		else:
-			print(i.get('type') + ',' + i.get('domain') + ',' + i.get('a', '') + ',' + i.get('aaaa', '') + ',' + i.get('mx', '') + ',' + i.get('ns', '') + ',' + i.get('country', ''))
+			print('%s,%s,%s,%s,%s,%s,%s' % (i.get('type'), i.get('domain'), i.get('a', ''),
+			i.get('aaaa', ''), i.get('mx', ''), i.get('ns', ''), i.get('country', ''))
+			)
 
 	return 0
 
