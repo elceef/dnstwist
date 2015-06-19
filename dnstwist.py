@@ -19,9 +19,10 @@
 # along with dnstwist.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20150618'
+__version__ = '20150619'
 __email__ = 'marcin@ulikowski.pl'
 
+import re
 import sys
 import socket
 import signal
@@ -41,6 +42,15 @@ except:
 def sigint_handler(signal, frame):
 	print('You pressed Ctrl+C!')
 	sys.exit(0)
+
+# Internationalized domains not supported
+def validate_domain(domain):
+	if len(domain) > 255:
+		return False
+	if domain[-1] == ".":
+		domain = domain[:-1]
+	allowed = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
+	return allowed.match(domain)
 
 def bitsquatting(domain):
 	out = []
@@ -158,20 +168,20 @@ def insertion(domain):
 def fuzz_domain(domain):
 	domains = []
 
-	for i in bitsquatting(sys.argv[1]):
+	for i in bitsquatting(domain):
 		domains.append({ 'type':'Bitsquatting', 'domain':i })
-	for i in homoglyph(sys.argv[1]):
+	for i in homoglyph(domain):
 		domains.append({ 'type':'Homoglyph', 'domain':i })
-	for i in repetition(sys.argv[1]):
+	for i in repetition(domain):
 		domains.append({ 'type':'Repetition', 'domain':i })
-	for i in transposition(sys.argv[1]):
-		domains.append({ 'type':'Transposition', 'domain':i})
-	for i in replacement(sys.argv[1]):
+	for i in transposition(domain):
+		domains.append({ 'type':'Transposition', 'domain':i })
+	for i in replacement(domain):
 		domains.append({ 'type':'Replacement', 'domain':i })
-	for i in omission(sys.argv[1]):
-		domains.append({'type':'Omission', 'domain':i })
-	for i in insertion(sys.argv[1]):
-		domains.append({'type':'Insertion', 'domain':i })
+	for i in omission(domain):
+		domains.append({ 'type':'Omission', 'domain':i })
+	for i in insertion(domain):
+		domains.append({ 'type':'Insertion', 'domain':i })
 
 	return domains
 
@@ -187,8 +197,12 @@ def main():
 		if len(sys.argv) < 2:
 			print('Usage: ' + sys.argv[0] + ' example.com [csv]')
 			sys.exit()
+	
+	if not validate_domain(sys.argv[1]):
+		sys.stderr.write('ERROR: invalid domain name !\n')
+		sys.exit(-1)
 
-	domains = fuzz_domain(sys.argv[1])
+	domains = fuzz_domain(sys.argv[1].lower())
 
 	if not module_dnspython:
 		sys.stderr.write('NOTICE: missing dnspython module - DNS functionality is limited !\n')
@@ -274,7 +288,8 @@ def main():
 			sys.stdout.write('%-15s %-15s %s\n' % (i['type'], i['domain'], zone))
 			sys.stdout.flush()
 		else:
-			print('%s,%s,%s,%s,%s,%s,%s' % (i.get('type'), i.get('domain'), i.get('a', ''),
+			print(
+			'%s,%s,%s,%s,%s,%s,%s' % (i.get('type'), i.get('domain'), i.get('a', ''),
 			i.get('aaaa', ''), i.get('mx', ''), i.get('ns', ''), i.get('country', ''))
 			)
 
