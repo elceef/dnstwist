@@ -234,15 +234,19 @@ def main():
 					break
 
 		if module_dnspython:
+			resolv = dns.resolver.Resolver()
+			resolv.lifetime = 1
+			resolv.timeout = 1
+
 			try:
-				ns = dns.resolver.query(domains[i]['domain'], 'NS')
+				ns = resolv.query(domains[i]['domain'], 'NS')
 				domains[i]['ns'] = str(ns[0])[:-1]
 			except:
 				pass
 
 			if 'ns' in domains[i]:
 				try:
-					mx = dns.resolver.query(domains[i]['domain'], 'MX')
+					mx = resolv.query(domains[i]['domain'], 'MX')
 					domains[i]['mx'] = str(mx[0].exchange)[:-1]
 				except:
 					pass
