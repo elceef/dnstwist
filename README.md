@@ -1,6 +1,6 @@
 dnstwist
 ========
-See what sort of trouble users can get in trying to type your domain name. Look for registered domains similar to your own, only distinguished by [typos](https://en.wikipedia.org/wiki/Typosquatting) (or cosmic ray). Useful as additional source of targeted threat intelligence. Can detect fraud, phishing attacks and corporate espionage.
+See what sort of trouble users can get in trying to type your domain name. Look for registered domains similar to your own, only distinguished by [typos](https://en.wikipedia.org/wiki/Typosquatting) (or cosmic ray). Useful as an additional source of targeted threat intelligence. Can detect fraud, phishing attacks and corporate espionage.
 
 Required modules
 ----------------
