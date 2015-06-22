@@ -219,6 +219,8 @@ def main():
 
 	signal.signal(signal.SIGINT, sigint_handler)
 
+	total_hits = 0
+
 	for i in range(0, len(domains)):
 		try:
 			ip = socket.getaddrinfo(domains[i]['domain'], 80)
@@ -266,12 +268,13 @@ def main():
 			if 'a' in domains[i] or 'ns' in domains[i]:
 				sys.stdout.write('!')
 				sys.stdout.flush()
+				total_hits += 1
 			else:
 				sys.stdout.write('.')
 				sys.stdout.flush()
 
 	if not output_csv:
-		sys.stdout.write('\n\n')
+		sys.stdout.write(' ' + str(total_hits) + ' hit(s)\n\n')
 
 	for i in domains:
 		if not output_csv:
