@@ -19,7 +19,7 @@
 # along with dnstwist.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20150619'
+__version__ = '20150622'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -113,7 +113,8 @@ def transposition(domain):
 	tld = domain.rsplit('.', 1)[1]
 
 	for i in range(0, len(dom)-1):
-		out.append(dom[:i] + dom[i+1] + dom[i] + dom[i+2:] + '.' + tld)
+		if dom[i+1] != dom[i]:
+			out.append(dom[:i] + dom[i+1] + dom[i] + dom[i+2:] + '.' + tld)
 
 	return out
 
