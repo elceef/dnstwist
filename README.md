@@ -22,6 +22,7 @@ Special thanks
 * Steve Steiner
 * Christopher Schmidt
 * James Lane
+* Piotr Chmyłkowski
 
 Contact
 -------
@@ -34,10 +35,10 @@ Example report
 --------------
 ```
 $ ./dnstwist.py github.com
-dnstwist (20150619) by marcin@ulikowski.pl
-Processing 132 domains !!!!!!!.!..!!!..!!.!..!...!!!.!.!!!!!!!.!!!.!!!!!!.!!!!..!!!!.!!!!.!!.!!!.!!.!.!!!!!...!....!!.....!..!.!...!!....!...!....!..!!....
+dnstwist (20150622) by marcin@ulikowski.pl
+Processing 132 domains !!!!!!!.!..!!!..!!.!..!...!!!.!.!!!!!!!.!!!.!!!!!!.!!!!..!!!!.!!!!.!!.!!!.!!.!.!!!!!...!....!!.....!..!.!...!!....!...!....!..!!.... 73 hit(s)
 
-Bitsquatting    fithub.com      4.35.164.141/United States MX:aspmx2.googlemail.com
+Bitsquatting    fithub.com      4.35.164.141/United States MX:aspmx3.googlemail.com
 Bitsquatting    eithub.com      174.136.12.111/United States MX:eithub.com
 Bitsquatting    cithub.com      14.63.216.242/Korea, Republic of
 Bitsquatting    oithub.com      54.68.76.21/United States
@@ -49,7 +50,7 @@ Bitsquatting    gathub.com      74.208.30.209/United States 2607:f1c0:1000:a0:cb
 Bitsquatting    gythub.com      -
 Bitsquatting    giuhub.com      -
 Bitsquatting    givhub.com      185.53.177.7 MX:mail.h-email.net
-Bitsquatting    giphub.com      182.92.191.220/China MX:smtp.giphub.com
+Bitsquatting    giphub.com      182.92.191.220/China
 Bitsquatting    gidhub.com      173.239.2.182/United States MX:mx7.gidhub.com
 Bitsquatting    gi4hub.com      -
 Bitsquatting    gitiub.com      -
@@ -67,7 +68,7 @@ Bitsquatting    githuj.com      108.45.93.78/United States
 Bitsquatting    githur.com      104.27.140.182
 Homoglyph       githud.com      209.222.14.3/United States
 Homoglyph       qlthub.com      -
-Homoglyph       qithub.com      162.255.119.253 MX:eforward3.registrar-servers.com
+Homoglyph       qithub.com      162.255.119.253 MX:eforward2.registrar-servers.com
 Homoglyph       glthud.com      -
 Homoglyph       glthub.com      202.214.8.82/Japan MX:glthub.com
 Repetition      ggithub.com     199.59.243.120/United States
@@ -85,13 +86,13 @@ Replacement     yithub.com      72.52.4.90/United States MX:mailgw.ns36.de
 Replacement     hithub.com      72.52.4.120/United States MX:mail.nickstel.com
 Replacement     bithub.com      173.230.136.135/United States MX:in2-smtp.messagingengine.com
 Replacement     vithub.com      78.46.90.242/Germany MX:mail.vithub.com
-Replacement     fithub.com      4.35.164.141/United States MX:aspmx3.googlemail.com
+Replacement     fithub.com      4.35.164.141/United States MX:alt2.aspmx.l.google.com
 Replacement     tithub.com      69.172.201.208/United States
 Replacement     g9thub.com      -
 Replacement     gothub.com      184.168.47.225/United States MX:smtp.secureserver.net
 Replacement     gkthub.com      141.8.224.183/Switzerland MX:mail.mxproc.com
 Replacement     gjthub.com      72.52.4.90/United States MX:mailgw.ns36.de
-Replacement     guthub.com      216.146.46.11/United States
+Replacement     guthub.com      216.146.46.10/United States
 Replacement     g8thub.com      -
 Replacement     gi6hub.com      -
 Replacement     giyhub.com      103.224.182.239/Australia MX:mail.post-host.net
@@ -117,7 +118,7 @@ Replacement     githuh.com      -
 Replacement     githun.com      54.72.11.253/United States MX:mail.h-email.net
 Omission        ithub.com       -
 Omission        gthub.com       208.113.199.104/United States MX:fltr-in2.mail.dreamhost.com
-Omission        gihub.com       208.73.210.200/United States
+Omission        gihub.com       208.73.211.178/United States
 Omission        gitub.com       141.8.224.239/Switzerland MX:mail.mxproc.com
 Omission        githb.com       103.224.182.242/Australia MX:mail.post-host.net
 Omission        githu.com       72.52.4.120/United States MX:mail.nickstel.com
@@ -130,7 +131,7 @@ Insertion       gikthub.com     -
 Insertion       gjithub.com     -
 Insertion       gijthub.com     -
 Insertion       guithub.com     95.211.117.206/Netherlands
-Insertion       giuthub.com     69.162.80.52/United States
+Insertion       giuthub.com     95.211.117.206/Netherlands
 Insertion       g8ithub.com     -
 Insertion       gi8thub.com     -
 Insertion       gi6thub.com     -
@@ -155,7 +156,7 @@ Insertion       gitbhub.com     72.172.89.185/United States MX:mx7.gitbhub.com
 Insertion       githbub.com     -
 Insertion       gitghub.com     -
 Insertion       githgub.com     -
-Insertion       gityhub.com     75.119.192.209/United States MX:mx1.sub5.homie.mail.dreamhost.com
+Insertion       gityhub.com     75.119.192.209/United States MX:mx2.sub5.homie.mail.dreamhost.com
 Insertion       githyub.com     -
 Insertion       gith8ub.com     -
 Insertion       githu8b.com     -
