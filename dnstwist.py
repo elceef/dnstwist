@@ -38,6 +38,11 @@ try:
 except:
 	module_geoip = False
 	pass
+try:
+	from ipwhois import IPWhois
+	module_ipwhois = True
+except:
+	module_ipwhois = False
 
 def sigint_handler(signal, frame):
 	print('You pressed Ctrl+C!')
@@ -264,6 +269,18 @@ def main():
 				if country:
 					domains[i]['country'] = country
 
+		if module_ipwhois:
+			try:
+				asn = IPWhois(domains[i]['a']).lookup()['asn']
+				desc = IPWhois(domains[i]['a']).lookup()['nets'][0]['description']
+			except:
+				pass
+			else:
+				if asn:
+					domains[i]['asn'] = asn
+				if desc:
+					domains[i]['desc'] = desc
+
 		if not output_csv:
 			if 'a' in domains[i] or 'ns' in domains[i]:
 				sys.stdout.write('!')
@@ -290,6 +307,10 @@ def main():
 				zone += ' ' + i['aaaa']
 			if 'mx' in i:
 				zone += ' MX:' + i['mx']
+                        if 'asn' in i:
+				zone += ' ASN:' + i['asn']
+                        if 'desc' in i:
+				zone += ' Desc:' + i['desc']
 			if not zone:
 				zone = '-'
 
@@ -297,8 +318,9 @@ def main():
 			sys.stdout.flush()
 		else:
 			print(
-			'%s,%s,%s,%s,%s,%s,%s' % (i.get('type'), i.get('domain'), i.get('a', ''),
-			i.get('aaaa', ''), i.get('mx', ''), i.get('ns', ''), i.get('country', ''))
+			'%s,%s,%s,%s,%s,%s,%s,%s,%s' % (i.get('type'), i.get('domain'), i.get('a', ''),
+			i.get('aaaa', ''), i.get('mx', ''), i.get('ns', ''), i.get('country', ''),
+			i.get('asn', ''), i.get('desc', ''))
 			)
 
 	return 0
