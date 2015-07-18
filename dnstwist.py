@@ -147,6 +147,16 @@ def omission(domain):
 
 	return out
 
+def hyphenation(domain):
+	out = []
+	dom = domain.rsplit('.', 1)[0]
+	tld = domain.rsplit('.', 1)[1]
+
+	for i in range(1, len(dom)):
+		out.append(dom[:i] + '-' + dom[i:] + '.' + tld)
+
+	return out
+
 def insertion(domain):
 	keys = {
 	'1':'2q', '2':'3wq1', '3':'4ew2', '4':'5re3', '5':'6tr4', '6':'7yt5', '7':'8uy6', '8':'9iu7', '9':'0oi8', '0':'po9',
@@ -181,6 +191,8 @@ def fuzz_domain(domain):
 		domains.append({ 'type':'Replacement', 'domain':i })
 	for i in omission(domain):
 		domains.append({ 'type':'Omission', 'domain':i })
+	for i in hyphenation(domain):
+		domains.append({ 'type':'Hyphenation', 'domain':i })
 	for i in insertion(domain):
 		domains.append({ 'type':'Insertion', 'domain':i })
 
