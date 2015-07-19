@@ -19,7 +19,7 @@
 # along with dnstwist.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20150622'
+__version__ = '20150719'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -136,7 +136,6 @@ def replacement(domain):
 
 	return out
 
-
 def omission(domain):
 	out = []
 	dom = domain.rsplit('.', 1)[0]
@@ -153,7 +152,8 @@ def hyphenation(domain):
 	tld = domain.rsplit('.', 1)[1]
 
 	for i in range(1, len(dom)):
-		out.append(dom[:i] + '-' + dom[i:] + '.' + tld)
+		if dom[i] != '-' and dom[i-1] != '-':
+			out.append(dom[:i] + '-' + dom[i:] + '.' + tld)
 
 	return out
 
