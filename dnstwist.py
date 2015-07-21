@@ -41,7 +41,6 @@ except:
 	pass
 
 def sigint_handler(signal, frame):
-	print('You pressed Ctrl+C!')
 	sys.exit(0)
 
 # Internationalized domains not supported
@@ -158,6 +157,17 @@ def hyphenation(domain):
 
 	return out
 
+def subdomain(domain):
+	out = []
+	dom = domain.rsplit('.', 1)[0]
+	tld = domain.rsplit('.', 1)[1]
+
+	for i in range(1, len(dom)-4):
+		if dom[i] != '.' and dom[i-1] != '.':
+			out.append(dom[:i] + '.' + dom[i:] + '.' + tld)
+
+	return out
+
 def insertion(domain):
 	keys = {
 	'1':'2q', '2':'3wq1', '3':'4ew2', '4':'5re3', '5':'6tr4', '6':'7yt5', '7':'8uy6', '8':'9iu7', '9':'0oi8', '0':'po9',
@@ -196,20 +206,27 @@ def fuzz_domain(domain):
 		domains.append({ 'type':'Hyphenation', 'domain':i })
 	for i in insertion(domain):
 		domains.append({ 'type':'Insertion', 'domain':i })
+	for i in subdomain(domain):
+		domains.append({ 'type':'Subdomain', 'domain':i })
 
 	return domains
 
 def main():
 	parser = argparse.ArgumentParser(
-	description='''See what sort of trouble users can get in trying to type your domain name. 
-	Look for registered domains similar to your own, only distinguished by typos (or cosmic ray). 
-	Useful as an additional source of targeted threat intelligence. Can detect fraud, phishing 
-	attacks and corporate espionage.''',
+	description='''Find similar-looking domains that adversaries can use to attack you.  
+	Can detect fraud, phishing attacks and corporate espionage. Useful as an additional 
+	source of targeted threat intelligence.''',
 	epilog='''Questions? Complaints? You can reach the author at <marcin@ulikowski.pl>'''
 	)
+
 	parser.add_argument('domain', help='domain name to check (e.g., ulikowski.pl)')
 	parser.add_argument('-c', '--csv', action="store_true", help="print output in CSV format")
 	parser.add_argument('-r', '--registered', action="store_true", help="show only registered domain names")
+
+	if len(sys.argv) < 2:
+		parser.print_help()
+		sys.exit(1)
+
 	args = parser.parse_args()
 
 	if not args.csv:
@@ -238,20 +255,6 @@ def main():
 	total_hits = 0
 
 	for i in range(0, len(domains)):
-		try:
-			ip = socket.getaddrinfo(domains[i]['domain'], 80)
-		except:
-			pass
-		else:
-			for j in ip:
-				if '.' in j[4][0]:
-					domains[i]['a'] = j[4][0]
-					break
-			for j in ip:
-				if ':' in j[4][0]:
-					domains[i]['aaaa'] = j[4][0]
-					break
-
 		if module_dnspython:
 			resolv = dns.resolver.Resolver()
 			resolv.lifetime = 1
@@ -265,10 +268,36 @@ def main():
 
 			if 'ns' in domains[i]:
 				try:
+					ns = resolv.query(domains[i]['domain'], 'A')
+					domains[i]['a'] = str(ns[0])
+				except:
+					pass
+	
+				try:
+					ns = resolv.query(domains[i]['domain'], 'AAAA')
+					domains[i]['aaaa'] = str(ns[0])
+				except:
+					pass
+
+				try:
 					mx = resolv.query(domains[i]['domain'], 'MX')
 					domains[i]['mx'] = str(mx[0].exchange)[:-1]
 				except:
 					pass
+		else:
+			try:
+				ip = socket.getaddrinfo(domains[i]['domain'], 80)
+			except:
+				pass
+			else:
+				for j in ip:
+					if '.' in j[4][0]:
+						domains[i]['a'] = j[4][0]
+						break
+				for j in ip:
+					if ':' in j[4][0]:
+						domains[i]['aaaa'] = j[4][0]
+						break
 
 		if module_geoip:
 			if 'a' in domains[i]:
