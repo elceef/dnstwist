@@ -19,13 +19,14 @@
 # along with dnstwist.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20150719'
+__version__ = '20150721'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
 import sys
 import socket
 import signal
+import argparse
 try:
 	import dns.resolver
 	module_dnspython = True
@@ -47,7 +48,7 @@ def sigint_handler(signal, frame):
 def validate_domain(domain):
 	if len(domain) > 255:
 		return False
-	if domain[-1] == ".":
+	if domain[-1] == '.':
 		domain = domain[:-1]
 	allowed = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
 	return allowed.match(domain)
@@ -199,33 +200,36 @@ def fuzz_domain(domain):
 	return domains
 
 def main():
-	if len(sys.argv) == 3:
-		output_csv = True
-	else:
-		output_csv = False
+	parser = argparse.ArgumentParser(
+	description='''See what sort of trouble users can get in trying to type your domain name. 
+	Look for registered domains similar to your own, only distinguished by typos (or cosmic ray). 
+	Useful as an additional source of targeted threat intelligence. Can detect fraud, phishing 
+	attacks and corporate espionage.''',
+	epilog='''Questions? Complaints? You can reach the author at <marcin@ulikowski.pl>'''
+	)
+	parser.add_argument('domain', help='domain name to check (e.g., ulikowski.pl)')
+	parser.add_argument('-c', '--csv', action="store_true", help="print output in CSV format")
+	parser.add_argument('-r', '--registered', action="store_true", help="show only registered domain names")
+	args = parser.parse_args()
 
-	if not output_csv:
-		print('dnstwist (' + __version__ + ') by ' + __email__)
-
-		if len(sys.argv) < 2:
-			print('Usage: ' + sys.argv[0] + ' example.com [csv]')
-			sys.exit()
+	if not args.csv:
+		sys.stdout.write('dnstwist (' + __version__ + ') by ' + __email__ + '\n\n')
 	
-	if not validate_domain(sys.argv[1]):
-		sys.stderr.write('ERROR: invalid domain name !\n')
+	if not validate_domain(args.domain):
+		sys.stderr.write('ERROR: invalid domain name!\n')
 		sys.exit(-1)
 
-	domains = fuzz_domain(sys.argv[1].lower())
+	domains = fuzz_domain(args.domain.lower())
 
 	if not module_dnspython:
-		sys.stderr.write('NOTICE: missing dnspython module - DNS functionality is limited !\n')
+		sys.stderr.write('NOTICE: missing dnspython module - DNS functionality is limited!\n')
 		sys.stderr.flush()
 
 	if not module_geoip:
-		sys.stderr.write('NOTICE: missing GeoIP module - geographical location not available !\n')
+		sys.stderr.write('NOTICE: missing GeoIP module - geographical location not available!\n')
 		sys.stderr.flush()
 
-	if not output_csv:
+	if not args.csv:
 		sys.stdout.write('Processing ' + str(len(domains)) + ' domains ')
 		sys.stdout.flush()
 
@@ -267,16 +271,17 @@ def main():
 					pass
 
 		if module_geoip:
-			gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
-			try:
-				country = gi.country_name_by_addr(domains[i]['a'])
-			except:
-				pass
-			else:
-				if country:
-					domains[i]['country'] = country
+			if 'a' in domains[i]:
+				gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
+				try:
+					country = gi.country_name_by_addr(domains[i]['a'])
+				except:
+					pass
+				else:
+					if country:
+						domains[i]['country'] = country
 
-		if not output_csv:
+		if not args.csv:
 			if 'a' in domains[i] or 'ns' in domains[i]:
 				sys.stdout.write('!')
 				sys.stdout.flush()
@@ -285,33 +290,34 @@ def main():
 				sys.stdout.write('.')
 				sys.stdout.flush()
 
-	if not output_csv:
+	if not args.csv:
 		sys.stdout.write(' ' + str(total_hits) + ' hit(s)\n\n')
 
 	for i in domains:
-		if not output_csv:
-			zone = ''
+		zone = ''
 
-			if 'a' in i:
-				zone += i['a']
-				if 'country' in i:
-					zone += '/' + i['country']
-			elif 'ns' in i:
-				zone += 'NS:' + i['ns']
-			if 'aaaa' in i:
-				zone += ' ' + i['aaaa']
-			if 'mx' in i:
-				zone += ' MX:' + i['mx']
-			if not zone:
-				zone = '-'
+		if 'a' in i:
+			zone += i['a']
+			if 'country' in i:
+				zone += '/' + i['country']
+		elif 'ns' in i:
+			zone += 'NS:' + i['ns']
+		if 'aaaa' in i:
+			zone += ' ' + i['aaaa']
+		if 'mx' in i:
+			zone += ' MX:' + i['mx']
+		if not zone:
+			zone = '-'
 
-			sys.stdout.write('%-15s %-15s %s\n' % (i['type'], i['domain'], zone))
-			sys.stdout.flush()
-		else:
-			print(
-			'%s,%s,%s,%s,%s,%s,%s' % (i.get('type'), i.get('domain'), i.get('a', ''),
-			i.get('aaaa', ''), i.get('mx', ''), i.get('ns', ''), i.get('country', ''))
-			)
+		if (args.registered and zone != '-') or not args.registered:
+			if not args.csv:
+				sys.stdout.write('%-15s %-15s %s\n' % (i['type'], i['domain'], zone))
+				sys.stdout.flush()
+			else:
+				print(
+				'%s,%s,%s,%s,%s,%s,%s' % (i.get('type'), i.get('domain'), i.get('a', ''),
+				i.get('aaaa', ''), i.get('mx', ''), i.get('ns', ''), i.get('country', ''))
+				)
 
 	return 0
 
