@@ -19,13 +19,14 @@
 # along with dnstwist.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20150622'
+__version__ = '20150721'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
 import sys
 import socket
 import signal
+import argparse
 try:
 	import dns.resolver
 	module_dnspython = True
@@ -45,14 +46,13 @@ except:
 	module_ipwhois = False
 
 def sigint_handler(signal, frame):
-	print('You pressed Ctrl+C!')
 	sys.exit(0)
 
 # Internationalized domains not supported
 def validate_domain(domain):
 	if len(domain) > 255:
 		return False
-	if domain[-1] == ".":
+	if domain[-1] == '.':
 		domain = domain[:-1]
 	allowed = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
 	return allowed.match(domain)
@@ -141,7 +141,6 @@ def replacement(domain):
 
 	return out
 
-
 def omission(domain):
 	out = []
 	dom = domain.rsplit('.', 1)[0]
@@ -149,6 +148,28 @@ def omission(domain):
 
 	for i in range(0, len(dom)):
 		out.append(dom[:i] + dom[i+1:] + '.' + tld)
+
+	return out
+
+def hyphenation(domain):
+	out = []
+	dom = domain.rsplit('.', 1)[0]
+	tld = domain.rsplit('.', 1)[1]
+
+	for i in range(1, len(dom)):
+		if dom[i] != '-' and dom[i-1] != '-':
+			out.append(dom[:i] + '-' + dom[i:] + '.' + tld)
+
+	return out
+
+def subdomain(domain):
+	out = []
+	dom = domain.rsplit('.', 1)[0]
+	tld = domain.rsplit('.', 1)[1]
+
+	for i in range(1, len(dom)-4):
+		if dom[i] != '.' and dom[i-1] != '.':
+			out.append(dom[:i] + '.' + dom[i:] + '.' + tld)
 
 	return out
 
@@ -186,39 +207,52 @@ def fuzz_domain(domain):
 		domains.append({ 'type':'Replacement', 'domain':i })
 	for i in omission(domain):
 		domains.append({ 'type':'Omission', 'domain':i })
+	for i in hyphenation(domain):
+		domains.append({ 'type':'Hyphenation', 'domain':i })
 	for i in insertion(domain):
 		domains.append({ 'type':'Insertion', 'domain':i })
+	for i in subdomain(domain):
+		domains.append({ 'type':'Subdomain', 'domain':i })
 
 	return domains
 
 def main():
-	if len(sys.argv) == 3:
-		output_csv = True
-	else:
-		output_csv = False
+	parser = argparse.ArgumentParser(
+	description='''Find similar-looking domains that adversaries can use to attack you.  
+	Can detect fraud, phishing attacks and corporate espionage. Useful as an additional 
+	source of targeted threat intelligence.''',
+	epilog='''Questions? Complaints? You can reach the author at <marcin@ulikowski.pl>'''
+	)
 
-	if not output_csv:
-		print('dnstwist (' + __version__ + ') by ' + __email__)
+	parser.add_argument('domain', help='domain name to check (e.g., ulikowski.pl)')
+	parser.add_argument('-c', '--csv', action="store_true", help="print output in CSV format")
+	parser.add_argument('-r', '--registered', action="store_true", help="show only registered domain names")
+	parser.add_argument('-w', '--whois', action="store_true", help="perform whois lookup for ASN and description (slow)")
 
-		if len(sys.argv) < 2:
-			print('Usage: ' + sys.argv[0] + ' example.com [csv]')
-			sys.exit()
+	if len(sys.argv) < 2:
+		parser.print_help()
+		sys.exit(1)
+
+	args = parser.parse_args()
+
+	if not args.csv:
+		sys.stdout.write('dnstwist (' + __version__ + ') by ' + __email__ + '\n\n')
 	
-	if not validate_domain(sys.argv[1]):
-		sys.stderr.write('ERROR: invalid domain name !\n')
+	if not validate_domain(args.domain):
+		sys.stderr.write('ERROR: invalid domain name!\n')
 		sys.exit(-1)
 
-	domains = fuzz_domain(sys.argv[1].lower())
+	domains = fuzz_domain(args.domain.lower())
 
 	if not module_dnspython:
-		sys.stderr.write('NOTICE: missing dnspython module - DNS functionality is limited !\n')
+		sys.stderr.write('NOTICE: missing dnspython module - DNS functionality is limited!\n')
 		sys.stderr.flush()
 
 	if not module_geoip:
-		sys.stderr.write('NOTICE: missing GeoIP module - geographical location not available !\n')
+		sys.stderr.write('NOTICE: missing GeoIP module - geographical location not available!\n')
 		sys.stderr.flush()
 
-	if not output_csv:
+	if not args.csv:
 		sys.stdout.write('Processing ' + str(len(domains)) + ' domains ')
 		sys.stdout.flush()
 
@@ -227,20 +261,6 @@ def main():
 	total_hits = 0
 
 	for i in range(0, len(domains)):
-		try:
-			ip = socket.getaddrinfo(domains[i]['domain'], 80)
-		except:
-			pass
-		else:
-			for j in ip:
-				if '.' in j[4][0]:
-					domains[i]['a'] = j[4][0]
-					break
-			for j in ip:
-				if ':' in j[4][0]:
-					domains[i]['aaaa'] = j[4][0]
-					break
-
 		if module_dnspython:
 			resolv = dns.resolver.Resolver()
 			resolv.lifetime = 1
@@ -254,25 +274,42 @@ def main():
 
 			if 'ns' in domains[i]:
 				try:
+					ns = resolv.query(domains[i]['domain'], 'A')
+					domains[i]['a'] = str(ns[0])
+				except:
+					pass
+	
+				try:
+					ns = resolv.query(domains[i]['domain'], 'AAAA')
+					domains[i]['aaaa'] = str(ns[0])
+				except:
+					pass
+
+				try:
 					mx = resolv.query(domains[i]['domain'], 'MX')
 					domains[i]['mx'] = str(mx[0].exchange)[:-1]
 				except:
 					pass
-
-		if module_geoip:
-			gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
+		else:
 			try:
-				country = gi.country_name_by_addr(domains[i]['a'])
+				ip = socket.getaddrinfo(domains[i]['domain'], 80)
 			except:
 				pass
 			else:
-				if country:
-					domains[i]['country'] = country
+				for j in ip:
+					if '.' in j[4][0]:
+						domains[i]['a'] = j[4][0]
+						break
+				for j in ip:
+					if ':' in j[4][0]:
+						domains[i]['aaaa'] = j[4][0]
+						break
 
-		if module_ipwhois:
+		if module_ipwhois and args.whois:
 			try:
-				asn = IPWhois(domains[i]['a']).lookup()['asn']
-				desc = IPWhois(domains[i]['a']).lookup()['nets'][0]['description']
+				whois = IPWhois(domains[i]['a']).lookup()
+				asn = whois['asn']
+				desc = whois['nets'][0]['description']
 			except:
 				pass
 			else:
@@ -281,7 +318,18 @@ def main():
 				if desc:
 					domains[i]['desc'] = desc
 
-		if not output_csv:
+		if module_geoip:
+			if 'a' in domains[i]:
+				gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
+				try:
+					country = gi.country_name_by_addr(domains[i]['a'])
+				except:
+					pass
+				else:
+					if country:
+						domains[i]['country'] = country
+
+		if not args.csv:
 			if 'a' in domains[i] or 'ns' in domains[i]:
 				sys.stdout.write('!')
 				sys.stdout.flush()
@@ -290,38 +338,39 @@ def main():
 				sys.stdout.write('.')
 				sys.stdout.flush()
 
-	if not output_csv:
+	if not args.csv:
 		sys.stdout.write(' ' + str(total_hits) + ' hit(s)\n\n')
 
 	for i in domains:
-		if not output_csv:
-			zone = ''
+		zone = ''
 
-			if 'a' in i:
-				zone += i['a']
-				if 'country' in i:
-					zone += '/' + i['country']
-			elif 'ns' in i:
-				zone += 'NS:' + i['ns']
-			if 'aaaa' in i:
-				zone += ' ' + i['aaaa']
-			if 'mx' in i:
-				zone += ' MX:' + i['mx']
-                        if 'asn' in i:
-				zone += ' ASN:' + i['asn']
-                        if 'desc' in i:
-				zone += ' Desc:' + i['desc']
-			if not zone:
-				zone = '-'
+		if 'a' in i:
+			zone += i['a']
+			if 'country' in i:
+				zone += '/' + i['country']
+		elif 'ns' in i:
+			zone += 'NS:' + i['ns']
+		if 'aaaa' in i:
+			zone += ' ' + i['aaaa']
+		if 'mx' in i:
+			zone += ' MX:' + i['mx']
+		if 'asn' in i:
+			zone += ' ASN:' + i['asn']
+		if 'desc' in i:
+			zone += ' Desc:' + i['desc']
+		if not zone:
+			zone = '-'
 
-			sys.stdout.write('%-15s %-15s %s\n' % (i['type'], i['domain'], zone))
-			sys.stdout.flush()
-		else:
-			print(
-			'%s,%s,%s,%s,%s,%s,%s,%s,%s' % (i.get('type'), i.get('domain'), i.get('a', ''),
-			i.get('aaaa', ''), i.get('mx', ''), i.get('ns', ''), i.get('country', ''),
-			i.get('asn', ''), i.get('desc', ''))
-			)
+		if (args.registered and zone != '-') or not args.registered:
+			if not args.csv:
+				sys.stdout.write('%-15s %-15s %s\n' % (i['type'], i['domain'], zone))
+				sys.stdout.flush()
+			else:
+				print(
+				'%s,%s,%s,%s,%s,%s,%s,%s,%s' % (i.get('type'), i.get('domain'), i.get('a', ''),
+				i.get('aaaa', ''), i.get('mx', ''), i.get('ns', ''), i.get('country', ''),
+				i.get('asn', ''), i.get('desc', ''))
+				)
 
 	return 0
 

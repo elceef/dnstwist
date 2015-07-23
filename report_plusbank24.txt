@@ -1,5 +1,5 @@
-dnstwist (20150618) by marcin@ulikowski.pl
-Processing 192 domains .................................................!..............................................................................................................................................
+dnstwist (20150719) by marcin@ulikowski.pl
+Processing 201 domains .................................................!.............................................................................!......................................................................... 2 hit(s)
 
 Bitsquatting    qlusbank24.pl   -
 Bitsquatting    rlusbank24.pl   -
@@ -121,6 +121,15 @@ Omission        plusbak24.pl    -
 Omission        plusban24.pl    -
 Omission        plusbank4.pl    -
 Omission        plusbank2.pl    -
+Hyphenation     p-lusbank24.pl  -
+Hyphenation     pl-usbank24.pl  -
+Hyphenation     plu-sbank24.pl  -
+Hyphenation     plus-bank24.pl  -
+Hyphenation     plusb-ank24.pl  -
+Hyphenation     plusba-nk24.pl  -
+Hyphenation     plusban-k24.pl  -
+Hyphenation     plusbank-24.pl  91.239.67.99/Poland MX:mail.plusbank-24.pl
+Hyphenation     plusbank2-4.pl  -
 Insertion       pklusbank24.pl  -
 Insertion       plkusbank24.pl  -
 Insertion       polusbank24.pl  -
