@@ -8,6 +8,7 @@ If you want *dnstwist* to develop full power, please make sure the following Pyt
 
 * [Python GeoIP](https://pypi.python.org/pypi/GeoIP/)
 * [A DNS toolkit for Python](http://www.dnspython.org/)
+* [WHOIS](https://pypi.python.org/pypi/whois)
 
 Variation techniques
 --------------------
@@ -37,6 +38,7 @@ Special thanks
 * Christopher Schmidt
 * James Lane
 * Piotr Chmyłkowski
+* Eugene Kogan
 
 Example report
 --------------
