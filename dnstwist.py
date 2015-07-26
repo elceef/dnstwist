@@ -19,7 +19,7 @@
 # along with dnstwist.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20150721'
+__version__ = '20150726'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -40,10 +40,11 @@ except:
 	module_geoip = False
 	pass
 try:
-	from ipwhois import IPWhois
-	module_ipwhois = True
+	import whois
+	module_whois = True
 except:
-	module_ipwhois = False
+	module_whois = False
+	pass
 
 def sigint_handler(signal, frame):
 	sys.exit(0)
@@ -225,9 +226,9 @@ def main():
 	)
 
 	parser.add_argument('domain', help='domain name to check (e.g., ulikowski.pl)')
-	parser.add_argument('-c', '--csv', action="store_true", help="print output in CSV format")
-	parser.add_argument('-r', '--registered', action="store_true", help="show only registered domain names")
-	parser.add_argument('-w', '--whois', action="store_true", help="perform whois lookup for ASN and description (slow)")
+	parser.add_argument('-c', '--csv', action='store_true', help='print output in CSV format')
+	parser.add_argument('-r', '--registered', action='store_true', help='show only registered domain names')
+	parser.add_argument('-w', '--whois', action='store_true', help='perform WHOIS lookup for creation/modification date (slow)')
 
 	if len(sys.argv) < 2:
 		parser.print_help()
@@ -250,6 +251,14 @@ def main():
 
 	if not module_geoip:
 		sys.stderr.write('NOTICE: missing GeoIP module - geographical location not available!\n')
+		sys.stderr.flush()
+
+	if not module_whois and args.whois:
+		sys.stderr.write('NOTICE: missing whois module - WHOIS database not available!\n')
+		sys.stderr.flush()
+
+	if module_whois and args.whois:
+		sys.stderr.write('Be advised: some WHOIS servers limit the number of queries and a longer fun with this tool may end up with a temporary ban to the service.\n\n')
 		sys.stderr.flush()
 
 	if not args.csv:
@@ -305,18 +314,14 @@ def main():
 						domains[i]['aaaa'] = j[4][0]
 						break
 
-		if module_ipwhois and args.whois:
-			try:
-				whois = IPWhois(domains[i]['a']).lookup()
-				asn = whois['asn']
-				desc = whois['nets'][0]['description']
-			except:
-				pass
-			else:
-				if asn:
-					domains[i]['asn'] = asn
-				if desc:
-					domains[i]['desc'] = desc
+		if module_whois and args.whois:
+			if 'ns' in domains[i] or 'a' in domains[i]:
+				try:
+					whoisdb = whois.query(domains[i]['domain'])
+					domains[i]['created'] = str(whoisdb.creation_date).replace(' ', 'T')
+					domains[i]['updated'] = str(whoisdb.last_updated).replace(' ', 'T')
+				except:
+					pass
 
 		if module_geoip:
 			if 'a' in domains[i]:
@@ -342,34 +347,38 @@ def main():
 		sys.stdout.write(' ' + str(total_hits) + ' hit(s)\n\n')
 
 	for i in domains:
-		zone = ''
+		info = ''
 
 		if 'a' in i:
-			zone += i['a']
+			info += i['a']
 			if 'country' in i:
-				zone += '/' + i['country']
+				info += '/' + i['country']
 		elif 'ns' in i:
-			zone += 'NS:' + i['ns']
+			info += 'NS:' + i['ns']
 		if 'aaaa' in i:
-			zone += ' ' + i['aaaa']
+			info += ' ' + i['aaaa']
 		if 'mx' in i:
-			zone += ' MX:' + i['mx']
-		if 'asn' in i:
-			zone += ' ASN:' + i['asn']
-		if 'desc' in i:
-			zone += ' Desc:' + i['desc']
-		if not zone:
-			zone = '-'
+			info += ' MX:' + i['mx']
+		if 'created' in i and 'updated' in i and i['created'] == i['updated']:
+				info += ' Created/Updated:' + i['created']
+		else:
+			if 'created' in i:
+				info += ' Created:' + i['created']
+			if 'updated' in i:
+				info += ' Updated:' + i['updated']
 
-		if (args.registered and zone != '-') or not args.registered:
+		if not info:
+			info = '-'
+
+		if (args.registered and info != '-') or not args.registered:
 			if not args.csv:
-				sys.stdout.write('%-15s %-15s %s\n' % (i['type'], i['domain'], zone))
+				sys.stdout.write('%-15s %-15s %s\n' % (i['type'], i['domain'], info))
 				sys.stdout.flush()
 			else:
 				print(
 				'%s,%s,%s,%s,%s,%s,%s,%s,%s' % (i.get('type'), i.get('domain'), i.get('a', ''),
 				i.get('aaaa', ''), i.get('mx', ''), i.get('ns', ''), i.get('country', ''),
-				i.get('asn', ''), i.get('desc', ''))
+				i.get('created', ''), i.get('updated', ''))
 				)
 
 	return 0
