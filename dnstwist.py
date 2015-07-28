@@ -158,7 +158,7 @@ def hyphenation(domain):
 	tld = domain.rsplit('.', 1)[1]
 
 	for i in range(1, len(dom)):
-		if dom[i] != '-' and dom[i-1] != '-':
+		if dom[i] not in ['-', '.'] and dom[i-1] not in ['-', '.']:
 			out.append(dom[:i] + '-' + dom[i:] + '.' + tld)
 
 	return out
@@ -257,7 +257,7 @@ def main():
 		sys.stderr.write('NOTICE: missing whois module - WHOIS database not available!\n')
 		sys.stderr.flush()
 
-	if module_whois and args.whois:
+	if module_whois and args.whois and not args.csv:
 		sys.stderr.write('Be advised: some WHOIS servers limit the number of queries and a longer fun with this tool may end up with a temporary ban to the service.\n\n')
 		sys.stderr.flush()
 
