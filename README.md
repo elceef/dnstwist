@@ -10,19 +10,9 @@ If you want *dnstwist* to develop full power, please make sure the following Pyt
 * [A DNS toolkit for Python](http://www.dnspython.org/)
 * [WHOIS](https://pypi.python.org/pypi/whois)
 
-Variation techniques
---------------------
-The following are the algorithms implemented by *dnstwist* to generate domain name variations adversaries potentially could use:
+If running Ubuntu or Debian, you can install dependencies like this:
 
-* **Bitsquatting**: simulates hardware errors in RAM, resulting in the mutation of the resolved domain name by a single bit.
-* **Homoglyph**: replaces a letter in the domain name with letters that look similar.
-* **Repetition**: repeats one of the letters in the domain name.
-* **Transposition**: swaps two letters within the domain name.
-* **Replacement**: replaces one of the letters in the domain name with an adjacent letter on the keyboard.
-* **Ommission**: removes one of the letters from the domain name.
-* **Hyphenation**: adds a hyphen character to the domain name.
-* **Insertion**: inserts an adjacent letter on the keyboard into the domain name.
-* **Subdomain**: adds a dot character to the domain name.
+`sudo apt-get install python-dnspython python-geoip python-whois`
 
 Contact
 -------
@@ -44,7 +34,7 @@ Example report
 --------------
 ```
 $ ./dnstwist.py github.com
-dnstwist (20150721) by marcin@ulikowski.pl
+dnstwist (20150726) by marcin@ulikowski.pl
 
 Processing 138 domains !!!!!!!.!..!!!..!..!..!...!!!.!..!!.!!!.!!!.!!!!!!.!!!!..!!!!.!!!!.!!.!!!..!.......!..!..........!!.....!..!.!...!!....!...!....!..!!..... 64 hit(s)
 
