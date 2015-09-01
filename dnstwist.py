@@ -19,7 +19,7 @@
 # along with dnstwist.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20150726'
+__version__ = '20150901'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -169,7 +169,7 @@ def subdomain(domain):
 	tld = domain.rsplit('.', 1)[1]
 
 	for i in range(1, len(dom)-4):
-		if dom[i] != '.' and dom[i-1] != '.':
+		if dom[i] not in ['-', '.'] and dom[i-1] not in ['-', '.']:
 			out.append(dom[:i] + '.' + dom[i:] + '.' + tld)
 
 	return out
@@ -214,6 +214,8 @@ def fuzz_domain(domain):
 		domains.append({ 'type':'Insertion', 'domain':i })
 	for i in subdomain(domain):
 		domains.append({ 'type':'Subdomain', 'domain':i })
+
+	domains[:] = [x for x in domains if validate_domain(x['domain'])]
 
 	return domains
 
