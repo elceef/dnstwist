@@ -346,6 +346,9 @@ def main():
 	if not args.csv:
 		sys.stdout.write(' ' + str(total_hits) + ' hit(s)\n\n')
 
+	if args.csv:
+		sys.stdout.write("type,domain,a,aaaa,mx,ns,country,created,updated\n")
+
 	for i in domains:
 		info = ''
 
