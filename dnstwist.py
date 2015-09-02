@@ -163,6 +163,17 @@ def hyphenation(domain):
 
 	return out
 
+def dotification(domain):
+        out = []
+        dom = domain.rsplit('.', 1)[0]
+        tld = domain.rsplit('.', 1)[1]
+
+        for i in range(1, len(dom)):
+                if dom[i] != '.' and dom[i-1] != '.':
+                        out.append(dom[:i] + '.' + dom[i:] + '.' + tld)
+
+        return out
+
 def subdomain(domain):
 	out = []
 	dom = domain.rsplit('.', 1)[0]
@@ -210,6 +221,8 @@ def fuzz_domain(domain):
 		domains.append({ 'type':'Omission', 'domain':i })
 	for i in hyphenation(domain):
 		domains.append({ 'type':'Hyphenation', 'domain':i })
+	for i in dotification(domain):
+                domains.append({ 'type':'Dotification', 'domain':i })
 	for i in insertion(domain):
 		domains.append({ 'type':'Insertion', 'domain':i })
 	for i in subdomain(domain):
