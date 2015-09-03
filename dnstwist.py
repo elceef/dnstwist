@@ -168,7 +168,7 @@ def subdomain(domain):
 	dom = domain.rsplit('.', 1)[0]
 	tld = domain.rsplit('.', 1)[1]
 
-	for i in range(1, len(dom)-4):
+	for i in range(1, len(dom)):
 		if dom[i] not in ['-', '.'] and dom[i-1] not in ['-', '.']:
 			out.append(dom[:i] + '.' + dom[i:] + '.' + tld)
 
