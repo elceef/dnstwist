@@ -19,7 +19,7 @@
 # along with dnstwist.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20150901'
+__version__ = '20150910'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -57,6 +57,44 @@ def validate_domain(domain):
 		domain = domain[:-1]
 	allowed = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
 	return allowed.match(domain)
+
+def http_banner(ip, vhost):
+	try:
+		http = socket.socket()
+		http.settimeout(1)
+		http.connect((ip, 80))
+		http.send('HEAD / HTTP/1.1\r\nHost: %s\r\n\r\n' % str(vhost))
+		response = http.recv(4096)
+		http.close()
+	except:
+		pass
+	else:
+		sep = ''
+		if '\r\n\r\n' in response: sep = '\r\n'
+		elif '\n\n' in response: sep = '\n'
+		headers = response.split(sep)
+		for filed in headers:
+			if filed.startswith('Server: '):
+				return filed[8:]
+		return 'HTTP %s' % headers[0].split(' ')[1]
+
+def smtp_banner(mx):
+	try:
+		smtp = socket.socket()
+		smtp.settimeout(1)
+		smtp.connect((mx, 25))
+		response = smtp.recv(4096)
+		smtp.close()
+	except:
+		pass
+	else:
+		sep = ''
+		if '\r\n' in response: sep = '\r\n'
+		elif '\n' in response: sep = '\n'
+		hello = response.split(sep)[0]
+		if hello.startswith('220'):
+			return hello[4:]
+		return hello[:40]
 
 def bitsquatting(domain):
 	out = []
@@ -230,7 +268,9 @@ def main():
 	parser.add_argument('domain', help='domain name to check (e.g., ulikowski.pl)')
 	parser.add_argument('-c', '--csv', action='store_true', help='print output in CSV format')
 	parser.add_argument('-r', '--registered', action='store_true', help='show only registered domain names')
-	parser.add_argument('-w', '--whois', action='store_true', help='perform WHOIS lookup for creation/modification date (slow)')
+	parser.add_argument('-w', '--whois', action='store_true', help='perform lookup for WHOIS creation/modification date (slow)')
+	parser.add_argument('-g', '--geoip', action='store_true', help='perform lookup for GeoIP location')
+	parser.add_argument('-b', '--banners', action='store_true', help='determine HTTP and SMTP service banners')
 
 	if len(sys.argv) < 2:
 		parser.print_help()
@@ -251,7 +291,7 @@ def main():
 		sys.stderr.write('NOTICE: missing dnspython module - DNS functionality is limited!\n')
 		sys.stderr.flush()
 
-	if not module_geoip:
+	if not module_geoip and args.geoip:
 		sys.stderr.write('NOTICE: missing GeoIP module - geographical location not available!\n')
 		sys.stderr.flush()
 
@@ -259,12 +299,8 @@ def main():
 		sys.stderr.write('NOTICE: missing whois module - WHOIS database not available!\n')
 		sys.stderr.flush()
 
-	if module_whois and args.whois and not args.csv:
-		sys.stderr.write('Be advised: some WHOIS servers limit the number of queries and a longer fun with this tool may end up with a temporary ban to the service.\n\n')
-		sys.stderr.flush()
-
 	if not args.csv:
-		sys.stdout.write('Processing ' + str(len(domains)) + ' domains ')
+		sys.stdout.write('Processing %d domains ' % len(domains))
 		sys.stdout.flush()
 
 	signal.signal(signal.SIGINT, sigint_handler)
@@ -279,7 +315,7 @@ def main():
 
 			try:
 				ns = resolv.query(domains[i]['domain'], 'NS')
-				domains[i]['ns'] = str(ns[0])[:-1]
+				domains[i]['ns'] = str(ns[0])[:-1].lower()
 			except:
 				pass
 
@@ -298,7 +334,7 @@ def main():
 
 				try:
 					mx = resolv.query(domains[i]['domain'], 'MX')
-					domains[i]['mx'] = str(mx[0].exchange)[:-1]
+					domains[i]['mx'] = str(mx[0].exchange)[:-1].lower()
 				except:
 					pass
 		else:
@@ -325,7 +361,7 @@ def main():
 				except:
 					pass
 
-		if module_geoip:
+		if module_geoip and args.geoip:
 			if 'a' in domains[i]:
 				gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
 				try:
@@ -335,6 +371,16 @@ def main():
 				else:
 					if country:
 						domains[i]['country'] = country
+
+		if args.banners:
+			if 'a' in domains[i]:
+				banner = http_banner(domains[i]['a'], domains[i]['domain'])
+				if banner:
+					domains[i]['banner-http'] = banner
+			if 'mx' in domains[i]:
+				banner = smtp_banner(domains[i]['mx'])
+				if banner:
+					domains[i]['banner-smtp'] = banner
 
 		if not args.csv:
 			if 'a' in domains[i] or 'ns' in domains[i]:
@@ -346,10 +392,10 @@ def main():
 				sys.stdout.flush()
 
 	if not args.csv:
-		sys.stdout.write(' ' + str(total_hits) + ' hit(s)\n\n')
+		sys.stdout.write(' %d hit(s)\n\n' % total_hits)
 
 	if args.csv:
-		sys.stdout.write("type,domain,a,aaaa,mx,ns,country,created,updated\n")
+		sys.stdout.write('Generator,Domain,A,AAAA,MX,NS,Country,Created,Updated\n')
 
 	for i in domains:
 		info = ''
@@ -358,14 +404,21 @@ def main():
 			info += i['a']
 			if 'country' in i:
 				info += '/' + i['country']
+			if 'banner-http' in i:
+				info += ' HTTP:"%s"' % i['banner-http']
 		elif 'ns' in i:
 			info += 'NS:' + i['ns']
+
 		if 'aaaa' in i:
 			info += ' ' + i['aaaa']
+
 		if 'mx' in i:
 			info += ' MX:' + i['mx']
+			if 'banner-smtp' in i:
+				info += ' SMTP:"%s"' % i['banner-smtp']
+
 		if 'created' in i and 'updated' in i and i['created'] == i['updated']:
-				info += ' Created/Updated:' + i['created']
+			info += ' Created/Updated:' + i['created']
 		else:
 			if 'created' in i:
 				info += ' Created:' + i['created']
