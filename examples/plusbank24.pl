@@ -1,6 +1,6 @@
-dnstwist (20150901) by marcin@ulikowski.pl
+dnstwist (20150910) by marcin@ulikowski.pl
 
-Processing 206 domains .................................................!.............................................................................!............................................................................!. 3 hit(s)
+Processing 210 domains .................................................!.............................................................................!............................................................................!...!. 4 hit(s)
 
 Bitsquatting    qlusbank24.pl   -
 Bitsquatting    rlusbank24.pl   -
@@ -208,3 +208,7 @@ Subdomain       pl.usbank24.pl  -
 Subdomain       plu.sbank24.pl  -
 Subdomain       plus.bank24.pl  72.52.4.91/United States MX:mail.nickstel.com
 Subdomain       plusb.ank24.pl  -
+Subdomain       plusba.nk24.pl  -
+Subdomain       plusban.k24.pl  -
+Subdomain       plusbank.24.pl  212.91.28.157/Poland MX:alt2.aspmx.l.google.com
+Subdomain       plusbank2.4.pl  -
