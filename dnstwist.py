@@ -114,8 +114,8 @@ def bitsquatting(domain):
 
 def homoglyph(domain):
 	glyphs = {
-	'd':['b', 'cl'], 'm':['n', 'rn'], 'l':['1', 'i'], 'o':['0'],
-	'w':['vv'], 'n':['m'], 'b':['d'], 'i':['l'], 'g':['q'], 'q':['g']
+	'd':['b', 'cl'], 'm':['n', 'nn', 'rn'], 'l':['1', 'i'], 'o':['0'],
+	'w':['vv'], 'n':['m'], 'b':['d'], 'i':['1', 'l'], 'g':['q'], 'q':['g']
 	}
 	out = []
 	dom = domain.rsplit('.', 1)[0]
