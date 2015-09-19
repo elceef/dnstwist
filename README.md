@@ -2,6 +2,18 @@ dnstwist
 ========
 See what sort of trouble users can get in trying to type your domain name. Find similar-looking domains that adversaries can use to attack you. Can detect fraud, phishing attacks and corporate espionage. Useful as an additional source of targeted threat intelligence.
 
+Features
+--------
+There are several good reasons to give it a try:
+
+* Wide range of domain fuzzing algorithms
+* Resolving domain names to IPv4 and IPv6
+* Queries for NS and MX records
+* Optional: GeoIP location information
+* Optional: Banner grabbing for HTTP and SMTP services
+* Optional: WHOIS lookups for creation and modification date
+* Optional: Output in CSV format
+
 Required modules
 ----------------
 If you want *dnstwist* to develop full power, please make sure the following Python modules are present on your system. If missing, *dnstwist* **will still work**, but without some cool features.
@@ -25,7 +37,7 @@ detect fraud, phishing attacks and corporate espionage. Useful as an
 additional source of targeted threat intelligence.
 
 positional arguments:
-  domain            domain name to check (e.g., ulikowski.pl)
+  domain            domain name to check
 
 optional arguments:
   -h, --help        show this help message and exit
@@ -38,7 +50,7 @@ optional arguments:
 Questions? Complaints? You can reach the author at <marcin@ulikowski.pl>
 ```
 
-You are also welcome to see some [example reports](https://github.com/elceef/dnstwist/tree/master/examples)
+You are also welcome to see some [example reports](https://github.com/elceef/dnstwist/tree/master/examples).
 
 Contact
 -------

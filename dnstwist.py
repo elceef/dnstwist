@@ -18,7 +18,7 @@
 # limitations under the License.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20150910'
+__version__ = '20150919'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -44,6 +44,27 @@ try:
 except:
 	module_whois = False
 	pass
+
+if sys.platform != 'win32' and sys.stdout.isatty():
+	FG_YELLOW = '\x1b[33m'
+	FG_GREEN = '\x1b[32m'
+	FG_MAGENTA = '\x1b[35m'
+	FG_CYAN = '\x1b[36m'
+	FG_BLUE = '\x1b[34m'
+	FG_RESET = '\x1b[39m'
+
+	ST_BRIGHT = '\x1b[1m'
+	ST_RESET = '\x1b[0m'
+else:
+	FG_YELLOW = ''
+	FG_GREEN = ''
+	FG_MAGENTA = ''
+	FG_CYAN = ''
+	FG_BLUE = ''
+	FG_RESET = ''
+
+	ST_BRIGHT = ''
+	ST_RESET = ''
 
 def sigint_handler(signal, frame):
 	sys.exit(0)
@@ -264,7 +285,7 @@ def main():
 	epilog='''Questions? Complaints? You can reach the author at <marcin@ulikowski.pl>'''
 	)
 
-	parser.add_argument('domain', help='domain name to check (e.g., ulikowski.pl)')
+	parser.add_argument('domain', help='domain name to check')
 	parser.add_argument('-c', '--csv', action='store_true', help='print output in CSV format')
 	parser.add_argument('-r', '--registered', action='store_true', help='show only registered domain names')
 	parser.add_argument('-w', '--whois', action='store_true', help='perform lookup for WHOIS creation/modification date (slow)')
@@ -278,7 +299,14 @@ def main():
 	args = parser.parse_args()
 
 	if not args.csv:
-		sys.stdout.write('dnstwist (' + __version__ + ') by ' + __email__ + '\n\n')
+		sys.stdout.write(ST_BRIGHT + FG_BLUE + 
+'''     _           _            _     _   
+  __| |_ __  ___| |___      _(_)___| |_ 
+ / _` | '_ \/ __| __\ \ /\ / / / __| __|
+| (_| | | | \__ \ |_ \ V  V /| \__ \ |_ 
+ \__,_|_| |_|___/\__| \_/\_/ |_|___/\__| %s
+
+''' % __version__ + FG_RESET)
 	
 	if not validate_domain(args.domain):
 		sys.stderr.write('ERROR: invalid domain name!\n')
@@ -383,7 +411,7 @@ def main():
 
 		if not args.csv:
 			if 'a' in domains[i] or 'ns' in domains[i]:
-				sys.stdout.write('!')
+				sys.stdout.write(FG_YELLOW + '!' + FG_RESET)
 				sys.stdout.flush()
 				total_hits += 1
 			else:
@@ -402,34 +430,34 @@ def main():
 		if 'a' in i:
 			info += i['a']
 			if 'country' in i:
-				info += '/' + i['country']
+				info += FG_CYAN + '/' + i['country'] + FG_RESET
 			if 'banner-http' in i:
-				info += ' HTTP:"%s"' % i['banner-http']
+				info += ' %sHTTP:%s"%s"%s' % (FG_GREEN, FG_CYAN, i['banner-http'], FG_RESET)
 		elif 'ns' in i:
-			info += 'NS:' + i['ns']
+			info += '%sNS:%s%s%s' % (FG_GREEN, FG_CYAN, i['ns'], FG_RESET)
 
 		if 'aaaa' in i:
 			info += ' ' + i['aaaa']
 
 		if 'mx' in i:
-			info += ' MX:' + i['mx']
+			info += ' %sMX:%s%s%s' % (FG_GREEN, FG_CYAN, i['mx'], FG_RESET)
 			if 'banner-smtp' in i:
-				info += ' SMTP:"%s"' % i['banner-smtp']
+				info += ' %sSMTP:%s"%s"%s' % (FG_GREEN, FG_CYAN, i['banner-smtp'], FG_RESET)
 
 		if 'created' in i and 'updated' in i and i['created'] == i['updated']:
-			info += ' Created/Updated:' + i['created']
+			info += ' %sCreated/Updated:%s%s%s' % (FG_GREEN, FG_CYAN, i['created'], FG_RESET)
 		else:
 			if 'created' in i:
-				info += ' Created:' + i['created']
+				info += ' %sCreated:%s%s%s' % (FG_GREEN, FG_CYAN, i['created'], FG_RESET)
 			if 'updated' in i:
-				info += ' Updated:' + i['updated']
+				info += ' %sUpdated:%s%s%s' % (FG_GREEN, FG_CYAN, i['updated'], FG_RESET)
 
 		if not info:
 			info = '-'
 
 		if (args.registered and info != '-') or not args.registered:
 			if not args.csv:
-				sys.stdout.write('%-15s %-15s %s\n' % (i['type'], i['domain'], info))
+				sys.stdout.write('%s%-15s%s %-15s %s\n' % (FG_MAGENTA, i['type'], FG_RESET, i['domain'], info))
 				sys.stdout.flush()
 			else:
 				print(
@@ -437,6 +465,8 @@ def main():
 				i.get('aaaa', ''), i.get('mx', ''), i.get('ns', ''), i.get('country', ''),
 				i.get('created', ''), i.get('updated', ''))
 				)
+
+	print(FG_RESET + ST_RESET)
 
 	return 0
 
