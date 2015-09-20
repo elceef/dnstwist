@@ -4,7 +4,7 @@ See what sort of trouble users can get in trying to type your domain name. Find 
 
 Demo
 ----
-![demo](http://i.imgur.com/8IeMdXO.png)
+![Screenshot](http://i.imgur.com/8IeMdXO.png)
 
 You are also welcome to see some [example reports](https://github.com/elceef/dnstwist/tree/master/examples).
 
@@ -14,7 +14,7 @@ There are several good reasons to give it a try:
 
 * Wide range of domain fuzzing algorithms
 * Resolving domain names to IPv4 and IPv6
-* Queries for NS and MX records
+* Querying for NS and MX records
 * Optional: Evaluating web page similarity with fuzzy hashes
 * Optional: GeoIP location information
 * Optional: Banner grabbing for HTTP and SMTP services
@@ -28,7 +28,7 @@ If you want *dnstwist* to develop full power, please make sure the following Pyt
 * [Python GeoIP](https://pypi.python.org/pypi/GeoIP/)
 * [A DNS toolkit for Python](http://www.dnspython.org/)
 * [WHOIS](https://pypi.python.org/pypi/whois)
-* [Requests: HTTP for Humans](http://www.python-requests.org/en/latest/)
+* [Requests: HTTP for Humans](http://www.python-requests.org/)
 * [ssdeep](https://pypi.python.org/pypi/ssdeep)
 
 If running Ubuntu or Debian, you can install dependencies like this:
@@ -38,6 +38,7 @@ If running Ubuntu or Debian, you can install dependencies like this:
 Installation of *ssdeep* module requires a little more effort:
 
 `$ sudo apt-get install build-essential libffi-dev python python-dev python-pip automake autoconf libtool`
+
 `$ sudo BUILD_LIB=1 pip install ssdeep`
 
 Contact
