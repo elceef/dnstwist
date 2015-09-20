@@ -18,7 +18,7 @@
 # limitations under the License.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20150919'
+__version__ = '20150920'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -44,8 +44,20 @@ try:
 except:
 	module_whois = False
 	pass
+try:
+	import ssdeep
+	module_ssdeep = True
+except:
+	module_ssdeep = False
+try:
+	import requests
+	module_requests = True
+except:
+	module_requests = False
+	pass
 
 if sys.platform != 'win32' and sys.stdout.isatty():
+	FG_RED = '\x1b[31m'
 	FG_YELLOW = '\x1b[33m'
 	FG_GREEN = '\x1b[32m'
 	FG_MAGENTA = '\x1b[35m'
@@ -56,6 +68,7 @@ if sys.platform != 'win32' and sys.stdout.isatty():
 	ST_BRIGHT = '\x1b[1m'
 	ST_RESET = '\x1b[0m'
 else:
+	FG_RED = ''
 	FG_YELLOW = ''
 	FG_GREEN = ''
 	FG_MAGENTA = ''
@@ -66,7 +79,19 @@ else:
 	ST_BRIGHT = ''
 	ST_RESET = ''
 
+def display(text):
+	global args
+	if not args.csv:
+		sys.stdout.write(text)
+		sys.stdout.flush()
+
+def display_csv(text):
+	global args
+	if args.csv:
+		sys.stdout.write(text)
+
 def sigint_handler(signal, frame):
+	sys.stdout.write(FG_RESET + ST_RESET)
 	sys.exit(0)
 
 # Internationalized domains not supported
@@ -84,18 +109,17 @@ def http_banner(ip, vhost):
 		http.settimeout(1)
 		http.connect((ip, 80))
 		http.send('HEAD / HTTP/1.1\r\nHost: %s\r\n\r\n' % str(vhost))
-		response = http.recv(4096)
+		response = http.recv(1024)
 		http.close()
 	except:
 		pass
 	else:
-		sep = ''
-		if '\r\n\r\n' in response: sep = '\r\n'
-		elif '\n\n' in response: sep = '\n'
+		if '\r\n' in response: sep = '\r\n'
+		else: sep = '\n'
 		headers = response.split(sep)
-		for filed in headers:
-			if filed.startswith('Server: '):
-				return filed[8:]
+		for field in headers:
+			if field.startswith('Server: '):
+				return field[8:]
 		return 'HTTP %s' % headers[0].split(' ')[1]
 
 def smtp_banner(mx):
@@ -103,17 +127,16 @@ def smtp_banner(mx):
 		smtp = socket.socket()
 		smtp.settimeout(1)
 		smtp.connect((mx, 25))
-		response = smtp.recv(4096)
+		response = smtp.recv(1024)
 		smtp.close()
 	except:
 		pass
 	else:
-		sep = ''
 		if '\r\n' in response: sep = '\r\n'
-		elif '\n' in response: sep = '\n'
+		else: sep = '\n'
 		hello = response.split(sep)[0]
 		if hello.startswith('220'):
-			return hello[4:]
+			return hello[4:].strip()
 		return hello[:40]
 
 def bitsquatting(domain):
@@ -149,11 +172,11 @@ def homoglyph(domain):
 			while j < ws:
 				c = win[j]
 				if c in glyphs:
-					for g in range(0, len(glyphs[c])):
-						win = win[:j] + glyphs[c][g] + win[j+1:]
+					for g in glyphs[c]:
+						win = win[:j] + g + win[j+1:]
 
-						if len(glyphs[c][g]) > 1:
-							j += len(glyphs[c][g]) - 1
+						if len(g) > 1:
+							j += len(g) - 1
 						out.append(dom[:i] + win + dom[i+ws:] + '.' + tld)
 
 				j += 1
@@ -169,7 +192,7 @@ def repetition(domain):
 		if dom[i].isalpha():
 			out.append(dom[:i] + dom[i] + dom[i] + dom[i+1:] + '.' + tld)
 
-	return out
+	return list(set(out))
 
 def transposition(domain):
 	out = []
@@ -208,7 +231,7 @@ def omission(domain):
 	for i in range(0, len(dom)):
 		out.append(dom[:i] + dom[i+1:] + '.' + tld)
 
-	return out
+	return list(set(out))
 
 def hyphenation(domain):
 	out = []
@@ -254,6 +277,8 @@ def insertion(domain):
 def fuzz_domain(domain):
 	domains = []
 
+	domains.append({ 'type':'Original*', 'domain':domain })
+
 	for i in bitsquatting(domain):
 		domains.append({ 'type':'Bitsquatting', 'domain':i })
 	for i in homoglyph(domain):
@@ -291,15 +316,16 @@ def main():
 	parser.add_argument('-w', '--whois', action='store_true', help='perform lookup for WHOIS creation/modification date (slow)')
 	parser.add_argument('-g', '--geoip', action='store_true', help='perform lookup for GeoIP location')
 	parser.add_argument('-b', '--banners', action='store_true', help='determine HTTP and SMTP service banners')
+	parser.add_argument('-s', '--ssdeep', action='store_true', help='fetch web pages and compare fuzzy hashes to evaluate similarity')
 
 	if len(sys.argv) < 2:
 		parser.print_help()
 		sys.exit(0)
 
+	global args
 	args = parser.parse_args()
 
-	if not args.csv:
-		sys.stdout.write(ST_BRIGHT + FG_BLUE + 
+	display(ST_BRIGHT + FG_MAGENTA + 
 '''     _           _            _     _   
   __| |_ __  ___| |___      _(_)___| |_ 
  / _` | '_ \/ __| __\ \ /\ / / / __| __|
@@ -315,20 +341,29 @@ def main():
 	domains = fuzz_domain(args.domain.lower())
 
 	if not module_dnspython:
-		sys.stderr.write('NOTICE: missing dnspython module - DNS functionality is limited!\n')
-		sys.stderr.flush()
-
+		sys.stderr.write('NOTICE: Missing module: dnspython - DNS features limited!\n')
 	if not module_geoip and args.geoip:
-		sys.stderr.write('NOTICE: missing GeoIP module - geographical location not available!\n')
-		sys.stderr.flush()
-
+		sys.stderr.write('NOTICE: Missing module: GeoIP - geographical location not available!\n')
 	if not module_whois and args.whois:
-		sys.stderr.write('NOTICE: missing whois module - WHOIS database not available!\n')
-		sys.stderr.flush()
+		sys.stderr.write('NOTICE: Missing module: whois - database not accessible!\n')
+	if not module_ssdeep and args.ssdeep:
+		sys.stderr.write('NOTICE: Missing module: ssdeep - fuzzy hashes not available!\n')
+	if not module_requests and args.ssdeep:
+		sys.stderr.write('NOTICE: Missing module: Requests - web page downloads not possible!\n')
 
-	if not args.csv:
-		sys.stdout.write('Processing %d domains ' % len(domains))
-		sys.stdout.flush()
+	if args.ssdeep and module_ssdeep and module_requests:
+		display('Fetching web page from: http://' + args.domain.lower() + '/ [following redirects] ... ')
+		try:
+			req = requests.get('http://' + args.domain.lower(), timeout=2)
+		except:
+			display('Failed!\n')
+			args.ssdeep = False			
+			pass
+		else:
+			display('%d %s (%d bytes)\n' % (req.status_code, req.reason, len(req.text)))
+			orig_domain_ssdeep = ssdeep.hash(req.text)
+
+	display('Processing %d domains ' % len(domains))
 
 	signal.signal(signal.SIGINT, sigint_handler)
 
@@ -409,20 +444,25 @@ def main():
 				if banner:
 					domains[i]['banner-smtp'] = banner
 
-		if not args.csv:
-			if 'a' in domains[i] or 'ns' in domains[i]:
-				sys.stdout.write(FG_YELLOW + '!' + FG_RESET)
-				sys.stdout.flush()
-				total_hits += 1
-			else:
-				sys.stdout.write('.')
-				sys.stdout.flush()
+		if module_ssdeep and module_requests and args.ssdeep:
+			if 'a' in domains[i]:
+				try:
+					req = requests.get('http://' + domains[i]['domain'], timeout=1)
+					fuzz_domain_ssdeep = ssdeep.hash(req.text)
+				except:
+					pass
+				else:
+					domains[i]['ssdeep'] = ssdeep.compare(orig_domain_ssdeep, fuzz_domain_ssdeep)
 
-	if not args.csv:
-		sys.stdout.write(' %d hit(s)\n\n' % total_hits)
+		if 'a' in domains[i] or 'ns' in domains[i]:
+			display(FG_YELLOW + '!' + FG_RESET)
+			total_hits += 1
+		else:
+			display('.')
 
-	if args.csv:
-		sys.stdout.write('Generator,Domain,A,AAAA,MX,NS,Country,Created,Updated\n')
+	display(' %d hit(s)\n\n' % total_hits)
+
+	display_csv('Generator,Domain,A,AAAA,MX,NS,Country,Created,Updated,SSDEEP\n')
 
 	for i in domains:
 		info = ''
@@ -452,21 +492,22 @@ def main():
 			if 'updated' in i:
 				info += ' %sUpdated:%s%s%s' % (FG_GREEN, FG_CYAN, i['updated'], FG_RESET)
 
+		if 'ssdeep' in i:
+			if i['ssdeep'] > 0:
+				info += ' %sSSDEEP:%s%d%%%s' % (FG_GREEN, FG_CYAN, i['ssdeep'], FG_RESET)
+
 		if not info:
 			info = '-'
 
 		if (args.registered and info != '-') or not args.registered:
-			if not args.csv:
-				sys.stdout.write('%s%-15s%s %-15s %s\n' % (FG_MAGENTA, i['type'], FG_RESET, i['domain'], info))
-				sys.stdout.flush()
-			else:
-				print(
-				'%s,%s,%s,%s,%s,%s,%s,%s,%s' % (i.get('type'), i.get('domain'), i.get('a', ''),
-				i.get('aaaa', ''), i.get('mx', ''), i.get('ns', ''), i.get('country', ''),
-				i.get('created', ''), i.get('updated', ''))
-				)
+			display('%s%-15s%s %-15s %s\n' % (FG_BLUE, i['type'], FG_RESET, i['domain'], info))
+			display_csv(
+			'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (i.get('type'), i.get('domain'), i.get('a', ''),
+			i.get('aaaa', ''), i.get('mx', ''), i.get('ns', ''), i.get('country', ''),
+			i.get('created', ''), i.get('updated', ''), str(i.get('ssdeep', '')))
+			)
 
-	print(FG_RESET + ST_RESET)
+	display(FG_RESET + ST_RESET)
 
 	return 0
 
