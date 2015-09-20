@@ -1,7 +1,13 @@
-dnstwist (20150910) by marcin@ulikowski.pl
+     _           _            _     _   
+  __| |_ __  ___| |___      _(_)___| |_ 
+ / _` | '_ \/ __| __\ \ /\ / / / __| __|
+| (_| | | | \__ \ |_ \ V  V /| \__ \ |_ 
+ \__,_|_| |_|___/\__| \_/\_/ |_|___/\__| 20150920
 
-Processing 210 domains .................................................!.............................................................................!............................................................................!...!. 4 hit(s)
+Fetching web page from: http://plusbank24.pl/ [following redirects] ... 200 OK (22906 bytes)
+Processing 211 domains !.................................................!.............................................................................!............................................................................!...!. 5 hit(s)
 
+Original*       plusbank24.pl   91.226.117.19/Poland SSDEEP:96%
 Bitsquatting    qlusbank24.pl   -
 Bitsquatting    rlusbank24.pl   -
 Bitsquatting    tlusbank24.pl   -
@@ -52,13 +58,13 @@ Homoglyph       plusdamk24.pl   -
 Homoglyph       piusdamk24.pl   -
 Homoglyph       p1usbank24.pl   -
 Homoglyph       plusdank24.pl   85.128.255.105/Poland MX:plusdank24.pl
+Repetition      plussbank24.pl  -
+Repetition      plusbannk24.pl  -
 Repetition      pplusbank24.pl  -
 Repetition      pllusbank24.pl  -
-Repetition      pluusbank24.pl  -
-Repetition      plussbank24.pl  -
-Repetition      plusbbank24.pl  -
 Repetition      plusbaank24.pl  -
-Repetition      plusbannk24.pl  -
+Repetition      plusbbank24.pl  -
+Repetition      pluusbank24.pl  -
 Repetition      plusbankk24.pl  -
 Transposition   lpusbank24.pl   -
 Transposition   pulsbank24.pl   -
@@ -112,15 +118,15 @@ Replacement     plusbank25.pl   -
 Replacement     plusbank2r.pl   -
 Replacement     plusbank2e.pl   -
 Replacement     plusbank23.pl   -
-Omission        lusbank24.pl    -
-Omission        pusbank24.pl    -
-Omission        plsbank24.pl    -
+Omission        plusbank4.pl    -
+Omission        plusban24.pl    -
 Omission        plubank24.pl    -
+Omission        pusbank24.pl    -
 Omission        plusank24.pl    -
+Omission        lusbank24.pl    -
+Omission        plsbank24.pl    -
 Omission        plusbnk24.pl    -
 Omission        plusbak24.pl    -
-Omission        plusban24.pl    -
-Omission        plusbank4.pl    -
 Omission        plusbank2.pl    -
 Hyphenation     p-lusbank24.pl  -
 Hyphenation     pl-usbank24.pl  -
