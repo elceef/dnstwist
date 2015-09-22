@@ -231,6 +231,11 @@ def omission(domain):
 	for i in range(0, len(dom)):
 		out.append(dom[:i] + dom[i+1:] + '.' + tld)
 
+	n = re.sub(r'(.)\1+', r'\1', dom)+'.'+tld
+	
+	if n not in out:
+		out.append(n) 
+
 	return list(set(out))
 
 def hyphenation(domain):
