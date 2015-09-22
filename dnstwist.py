@@ -385,9 +385,7 @@ def main():
         sys.exit(-1)
 
     domains = fuzz_domain(args.domain.lower())
-    for d in domains:
-        print d
-    return 0
+
     if not module_dnspython:
         sys.stderr.write('NOTICE: Missing module: dnspython - DNS features limited!\n')
     if not module_geoip and args.geoip:
