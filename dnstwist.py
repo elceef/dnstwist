@@ -280,7 +280,7 @@ def fuzz_domain(domain):
 	domains.append({ 'type':'Original*', 'domain':domain })
 
 	dom = domain.rsplit('.', 1)[0]
-        domtld = domain.rsplit('.', 1)[1]
+	domtld = domain.rsplit('.', 1)[1]
 
         tldset = ['com', 'net', 'org', 'io', 'cm']
         if not (domtld in tldset):
