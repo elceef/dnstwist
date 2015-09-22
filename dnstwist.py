@@ -111,7 +111,7 @@ def http_banner(ip, vhost):
 		http.send('HEAD / HTTP/1.1\r\nHost: %s\r\n\r\n' % str(vhost))
 		response = http.recv(1024)
 		http.close()
-	except:
+	except Exception:
 		pass
 	else:
 		if '\r\n' in response: sep = '\r\n'
@@ -129,7 +129,7 @@ def smtp_banner(mx):
 		smtp.connect((mx, 25))
 		response = smtp.recv(1024)
 		smtp.close()
-	except:
+	except Exception:
 		pass
 	else:
 		if '\r\n' in response: sep = '\r\n'
@@ -330,7 +330,7 @@ def main():
   __| |_ __  ___| |___      _(_)___| |_ 
  / _` | '_ \/ __| __\ \ /\ / / / __| __|
 | (_| | | | \__ \ |_ \ V  V /| \__ \ |_ 
- \__,_|_| |_|___/\__| \_/\_/ |_|___/\__| %s
+ \__,_|_| |_|___/\__| \_/\_/ |_|___/\__| {%s}
 
 ''' % __version__ + FG_RESET)
 	
@@ -352,10 +352,10 @@ def main():
 		sys.stderr.write('NOTICE: Missing module: Requests - web page downloads not possible!\n')
 
 	if args.ssdeep and module_ssdeep and module_requests:
-		display('Fetching web page from: http://' + args.domain.lower() + '/ [following redirects] ... ')
+		display('Fetching content from: http://' + args.domain.lower() + '/ [following redirects] ... ')
 		try:
 			req = requests.get('http://' + args.domain.lower(), timeout=2)
-		except:
+		except Exception:
 			display('Failed!\n')
 			args.ssdeep = False			
 			pass
@@ -378,31 +378,31 @@ def main():
 			try:
 				ns = resolv.query(domains[i]['domain'], 'NS')
 				domains[i]['ns'] = str(ns[0])[:-1].lower()
-			except:
+			except Exception:
 				pass
 
 			if 'ns' in domains[i]:
 				try:
 					ns = resolv.query(domains[i]['domain'], 'A')
 					domains[i]['a'] = str(ns[0])
-				except:
+				except Exception:
 					pass
 	
 				try:
 					ns = resolv.query(domains[i]['domain'], 'AAAA')
 					domains[i]['aaaa'] = str(ns[0])
-				except:
+				except Exception:
 					pass
 
 				try:
 					mx = resolv.query(domains[i]['domain'], 'MX')
 					domains[i]['mx'] = str(mx[0].exchange)[:-1].lower()
-				except:
+				except Exception:
 					pass
 		else:
 			try:
 				ip = socket.getaddrinfo(domains[i]['domain'], 80)
-			except:
+			except Exception:
 				pass
 			else:
 				for j in ip:
@@ -420,7 +420,7 @@ def main():
 					whoisdb = whois.query(domains[i]['domain'])
 					domains[i]['created'] = str(whoisdb.creation_date).replace(' ', 'T')
 					domains[i]['updated'] = str(whoisdb.last_updated).replace(' ', 'T')
-				except:
+				except Exception:
 					pass
 
 		if module_geoip and args.geoip:
@@ -428,7 +428,7 @@ def main():
 				gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
 				try:
 					country = gi.country_name_by_addr(domains[i]['a'])
-				except:
+				except Exception:
 					pass
 				else:
 					if country:
@@ -449,7 +449,7 @@ def main():
 				try:
 					req = requests.get('http://' + domains[i]['domain'], timeout=1)
 					fuzz_domain_ssdeep = ssdeep.hash(req.text)
-				except:
+				except Exception:
 					pass
 				else:
 					domains[i]['ssdeep'] = ssdeep.compare(orig_domain_ssdeep, fuzz_domain_ssdeep)
