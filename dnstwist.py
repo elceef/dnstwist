@@ -278,13 +278,22 @@ def fuzz_domain(domain):
 	domains = []
 
 	domains.append({ 'type':'Original*', 'domain':domain })
-	for tld in ['com', 'net', 'org']:
-                dom = domain.rsplit('.', 1)[0]
-                domtld = domain.rsplit('.', 1)[1]
-                if domain.rsplit('.', 1)[1] == tld:
+
+	dom = domain.rsplit('.', 1)[0]
+        domtld = domain.rsplit('.', 1)[1]
+
+        tldset = ['com', 'net', 'org', 'io', 'cm']
+        if not (domtld in tldset):
+                tldset.append(domtld)
+        else:
+                pass
+
+	for tld in tldset:
+                if tld == domtld:
                         pass
                 else:
                         domains.append({ 'type':'TLD Swap', 'domain':dom + '.' + tld })
+                        
                 domain = dom + '.' + tld
                 
                 for i in bitsquatting(domain):
