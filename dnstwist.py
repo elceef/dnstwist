@@ -103,6 +103,26 @@ def validate_domain(domain):
 	allowed = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
 	return allowed.match(domain)
 
+def parse_tld(domain):
+	domain = domain.rsplit('.', 2)
+
+	if len(domain) == 2:
+		return domain
+
+	# Second Level TLDs
+	canada_tlds = ['gc', 'ab', 'bc', 'mb', 'nb', 'nf', 'nl', 'ns', 'nt', 'nu', 'on', 'pe', 'qc', 'sk', 'yk']
+	uk_tlds = ['co', 'org', 'me', 'ltd', 'plc', 'net', 'sch', 'ac', 'gov', 'mod', 'mil', 'nhs', 'police']
+	australia_tlds = ['asn', 'com', 'net', 'id', 'org', 'edu', 'gov', 'csiro', 'act', 'nsw', 'nt', 'qld', 'sa', 'tas','vic', 'wa']
+
+	int_tlds = {'ca': canada_tlds, 'uk': uk_tlds, 'au': australia_tlds}
+
+	country_tld = int_tlds.get(domain[2])
+	if country_tld:
+		if domain[1] in country_tld:
+			return [domain[0], domain[1] + '.' + domain[2]]
+
+	return [domain[0] + '.' + domain[1], domain[2]]
+
 def http_banner(ip, vhost):
 	try:
 		http = socket.socket()
@@ -141,8 +161,9 @@ def smtp_banner(mx):
 
 def bitsquatting(domain):
 	out = []
-	dom = domain.rsplit('.', 1)[0]
-	tld = domain.rsplit('.', 1)[1]
+	domain = parse_tld(domain)
+	dom = domain[0]
+	tld = domain[1]
 	masks = [1, 2, 4, 8, 16, 32, 64, 128]
 
 	for i in range(0, len(dom)):
@@ -161,8 +182,9 @@ def homoglyph(domain):
 	'w':['vv'], 'n':['m'], 'b':['d'], 'i':['1', 'l'], 'g':['q'], 'q':['g']
 	}
 	out = []
-	dom = domain.rsplit('.', 1)[0]
-	tld = domain.rsplit('.', 1)[1]
+	domain = parse_tld(domain)
+	dom = domain[0]
+	tld = domain[1]
 
 	for ws in range(0, len(dom)):
 		for i in range(0, (len(dom)-ws)+1):
@@ -185,8 +207,9 @@ def homoglyph(domain):
 
 def repetition(domain):
 	out = []
-	dom = domain.rsplit('.', 1)[0]
-	tld = domain.rsplit('.', 1)[1]
+	domain = parse_tld(domain)
+	dom = domain[0]
+	tld = domain[1]
 
 	for i in range(0, len(dom)):
 		if dom[i].isalpha():
@@ -196,8 +219,9 @@ def repetition(domain):
 
 def transposition(domain):
 	out = []
-	dom = domain.rsplit('.', 1)[0]
-	tld = domain.rsplit('.', 1)[1]
+	domain = parse_tld(domain)
+	dom = domain[0]
+	tld = domain[1]
 
 	for i in range(0, len(dom)-1):
 		if dom[i+1] != dom[i]:
@@ -213,8 +237,9 @@ def replacement(domain):
 	'z':'asx', 'x':'zsdc', 'c':'xdfv', 'v':'cfgb', 'b':'vghn', 'n':'bhjm', 'm':'njk'
 	}
 	out = []
-	dom = domain.rsplit('.', 1)[0]
-	tld = domain.rsplit('.', 1)[1]
+	domain = parse_tld(domain)
+	dom = domain[0]
+	tld = domain[1]
 
 	for i in range(0, len(dom)):
 		if dom[i] in keys:
@@ -225,8 +250,9 @@ def replacement(domain):
 
 def omission(domain):
 	out = []
-	dom = domain.rsplit('.', 1)[0]
-	tld = domain.rsplit('.', 1)[1]
+	domain = parse_tld(domain)
+	dom = domain[0]
+	tld = domain[1]
 
 	for i in range(0, len(dom)):
 		out.append(dom[:i] + dom[i+1:] + '.' + tld)
@@ -240,8 +266,9 @@ def omission(domain):
 
 def hyphenation(domain):
 	out = []
-	dom = domain.rsplit('.', 1)[0]
-	tld = domain.rsplit('.', 1)[1]
+	domain = parse_tld(domain)
+	dom = domain[0]
+	tld = domain[1]
 
 	for i in range(1, len(dom)):
 		if dom[i] not in ['-', '.'] and dom[i-1] not in ['-', '.']:
@@ -251,8 +278,9 @@ def hyphenation(domain):
 
 def subdomain(domain):
 	out = []
-	dom = domain.rsplit('.', 1)[0]
-	tld = domain.rsplit('.', 1)[1]
+	domain = parse_tld(domain)
+	dom = domain[0]
+	tld = domain[1]
 
 	for i in range(1, len(dom)):
 		if dom[i] not in ['-', '.'] and dom[i-1] not in ['-', '.']:
@@ -268,8 +296,9 @@ def insertion(domain):
 	'z':'asx', 'x':'zsdc', 'c':'xdfv', 'v':'cfgb', 'b':'vghn', 'n':'bhjm', 'm':'njk'
 	}
 	out = []
-	dom = domain.rsplit('.', 1)[0]
-	tld = domain.rsplit('.', 1)[1]
+	domain = parse_tld(domain)
+	dom = domain[0]
+	tld = domain[1]
 
 	for i in range(1, len(dom)-1):
 		if dom[i] in keys:
