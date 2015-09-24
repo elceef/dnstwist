@@ -492,24 +492,41 @@ def fuzz_domain(domain):
 
 	domains.append({ 'type':'Original*', 'domain':domain })
 
-	for i in bitsquatting(domain):
-		domains.append({ 'type':'Bitsquatting', 'domain':i })
-	for i in homoglyph(domain):
-		domains.append({ 'type':'Homoglyph', 'domain':i })
-	for i in repetition(domain):
-		domains.append({ 'type':'Repetition', 'domain':i })
-	for i in transposition(domain):
-		domains.append({ 'type':'Transposition', 'domain':i })
-	for i in replacement(domain):
-		domains.append({ 'type':'Replacement', 'domain':i })
-	for i in omission(domain):
-		domains.append({ 'type':'Omission', 'domain':i })
-	for i in hyphenation(domain):
-		domains.append({ 'type':'Hyphenation', 'domain':i })
-	for i in insertion(domain):
-		domains.append({ 'type':'Insertion', 'domain':i })
-	for i in subdomain(domain):
-		domains.append({ 'type':'Subdomain', 'domain':i })
+	dom = domain.rsplit('.', 1)[0]
+	domtld = domain.rsplit('.', 1)[1]
+
+        tldset = ['com', 'net', 'org', 'io', 'cm']
+        if not (domtld in tldset):
+                tldset.append(domtld)
+        else:
+                pass
+
+	for tld in tldset:
+                if tld == domtld:
+                        pass
+                else:
+                        domains.append({ 'type':'TLD Swap', 'domain':dom + '.' + tld })
+                        
+                domain = dom + '.' + tld
+                
+                for i in bitsquatting(domain):
+                        domains.append({ 'type':'Bitsquatting', 'domain':i })
+                for i in homoglyph(domain):
+                        domains.append({ 'type':'Homoglyph', 'domain':i })
+                for i in repetition(domain):
+                        domains.append({ 'type':'Repetition', 'domain':i })
+                for i in transposition(domain):
+                        domains.append({ 'type':'Transposition', 'domain':i })
+                for i in replacement(domain):
+                        domains.append({ 'type':'Replacement', 'domain':i })
+                for i in omission(domain):
+                        domains.append({ 'type':'Omission', 'domain':i })
+                for i in hyphenation(domain):
+                        domains.append({ 'type':'Hyphenation', 'domain':i })
+                for i in insertion(domain):
+                        domains.append({ 'type':'Insertion', 'domain':i })
+                for i in subdomain(domain):
+                        domains.append({ 'type':'Subdomain', 'domain':i })
 
 	domains[:] = [x for x in domains if validate_domain(x['domain'])]
 
