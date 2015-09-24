@@ -554,15 +554,15 @@ def main():
 	domains = fuzz_domain(args.domain.lower())
 
 	if not module_dnspython:
-		sys.stderr.write('NOTICE: Missing module: dnspython - DNS features limited!\n')
+		display(FG_RED + 'NOTICE: Missing module: dnspython - DNS features limited!\n' + FG_RESET)
 	if not module_geoip and args.geoip:
-		sys.stderr.write('NOTICE: Missing module: GeoIP - geographical location not available!\n')
+		display(FG_RED + 'NOTICE: Missing module: GeoIP - geographical location not available!\n' + FG_RESET)
 	if not module_whois and args.whois:
-		sys.stderr.write('NOTICE: Missing module: whois - database not accessible!\n')
+		display(FG_RED + 'NOTICE: Missing module: whois - database not accessible!\n' + FG_RESET)
 	if not module_ssdeep and args.ssdeep:
-		sys.stderr.write('NOTICE: Missing module: ssdeep - fuzzy hashes not available!\n')
+		display(FG_RED + 'NOTICE: Missing module: ssdeep - fuzzy hashes not available!\n' + FG_RESET)
 	if not module_requests and args.ssdeep:
-		sys.stderr.write('NOTICE: Missing module: Requests - web page downloads not possible!\n')
+		display(FG_RED + 'NOTICE: Missing module: Requests - web page downloads not possible!\n' + FG_RESET)
 
 	if args.ssdeep and module_ssdeep and module_requests:
 		display('Fetching content from: http://' + args.domain.lower() + '/ [following redirects] ... ')
