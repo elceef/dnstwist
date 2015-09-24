@@ -444,7 +444,7 @@ def omission(domain):
 
 	n = re.sub(r'(.)\1+', r'\1', dom) + '.' + tld
 	
-	if n not in out:
+	if n not in out and n != domain:
 		out.append(n) 
 
 	return list(set(out))
@@ -660,7 +660,7 @@ def main():
 		if module_ssdeep and module_requests and args.ssdeep:
 			if 'a' in domains[i]:
 				try:
-					req = requests.get('http://' + domains[i]['domain'], timeout=1)
+					req = requests.get('http://' + domains[i]['domain'], timeout=2)
 					fuzz_domain_ssdeep = ssdeep.hash(req.text)
 				except Exception:
 					pass
