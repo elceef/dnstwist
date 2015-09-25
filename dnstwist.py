@@ -26,6 +26,7 @@ import sys
 import socket
 import signal
 import argparse
+
 try:
 	import dns.resolver
 	module_dnspython = True
@@ -56,42 +57,49 @@ except ImportError:
 	module_requests = False
 	pass
 
+REQUEST_TIMEOUT_DNS = 1
+REQUEST_TIMEOUT_HTTP = 2
+
 if sys.platform != 'win32' and sys.stdout.isatty():
 	FG_RED = '\x1b[31m'
-	FG_YELLOW = '\x1b[33m'
-	FG_GREEN = '\x1b[32m'
-	FG_MAGENTA = '\x1b[35m'
-	FG_CYAN = '\x1b[36m'
-	FG_BLUE = '\x1b[34m'
-	FG_RESET = '\x1b[39m'
+	FG_YEL = '\x1b[33m'
+	FG_GRE = '\x1b[32m'
+	FG_MAG = '\x1b[35m'
+	FG_CYA = '\x1b[36m'
+	FG_BLU = '\x1b[34m'
+	FG_RST = '\x1b[39m'
 
-	ST_BRIGHT = '\x1b[1m'
-	ST_RESET = '\x1b[0m'
+	ST_BRI = '\x1b[1m'
+	ST_RST = '\x1b[0m'
 else:
 	FG_RED = ''
-	FG_YELLOW = ''
-	FG_GREEN = ''
-	FG_MAGENTA = ''
-	FG_CYAN = ''
-	FG_BLUE = ''
-	FG_RESET = ''
+	FG_YEL = ''
+	FG_GRE = ''
+	FG_MAG = ''
+	FG_CYA = ''
+	FG_BLU = ''
+	FG_RST = ''
 
-	ST_BRIGHT = ''
-	ST_RESET = ''
+	ST_BRI = ''
+	ST_RST = ''
 
-def display(text):
+def p_out(data):
 	global args
 	if not args.csv:
-		sys.stdout.write(text)
+		sys.stdout.write(data)
 		sys.stdout.flush()
 
-def display_csv(text):
+def p_err(data):
+	sys.stderr.write(data)
+	sys.stderr.flush()
+
+def p_csv(data):
 	global args
 	if args.csv:
-		sys.stdout.write(text)
+		sys.stdout.write(data)
 
 def sigint_handler(signal, frame):
-	sys.stdout.write(FG_RESET + ST_RESET)
+	sys.stdout.write(FG_RST + ST_RST)
 	sys.exit(0)
 
 # Internationalized domains not supported
@@ -135,7 +143,7 @@ def parse_domain(domain):
 	bi_sld = ['co', 'com', 'edu', 'or', 'org']
 	bm_sld = ['com', 'edu', 'gov', 'net', 'org']
 	bo_sld = ['com', 'edu', 'gob', 'gov', 'int', 'mil', 'net', 'org', 'tv']
-	br_sld = ['adm', 'adv', 'agr', 'am', 'arq', 'art', 'ato', 'b', 'bio', 'bmd', 'cim', 'cng', 'cnt', 'com', 'ecn', 'eco', 'edu', 'emp', 'eng', 'esp', 'etc', 'eti', 'far', 'fm', 'fnd', 'fot', 'fst', 'ggf', 'gov', 'imb', 'ind', 'inf', 'jor', 'jus', 'leg', 'lel', 'mat', 'med', 'mil', 'mp', 'mus', 'net', 'not', 'ntr', 'odo', 'org', 'ppg', 'pro', 'psc', 'psi', 'qsl', 'rec', 'slg', 'srv', 'teo', 'tmp', 'trd', 'tur', 'tv', 'vet', 'zlg']
+	br_sld = ['adm', 'adv', 'agr', 'am', 'arq', 'art', 'ato', 'bio', 'bmd', 'cim', 'cng', 'cnt', 'com', 'ecn', 'eco', 'edu', 'emp', 'eng', 'esp', 'etc', 'eti', 'far', 'fm', 'fnd', 'fot', 'fst', 'ggf', 'gov', 'imb', 'ind', 'inf', 'jor', 'jus', 'leg', 'lel', 'mat', 'med', 'mil', 'mp', 'mus', 'net', 'not', 'ntr', 'odo', 'org', 'ppg', 'pro', 'psc', 'psi', 'qsl', 'rec', 'slg', 'srv', 'teo', 'tmp', 'trd', 'tur', 'tv', 'vet', 'zlg']
 	bs_sld = ['com', 'edu', 'gov', 'net', 'org']
 	bt_sld = ['com', 'edu', 'gov', 'net', 'org']
 	bw_sld = ['co', 'org']
@@ -199,7 +207,7 @@ def parse_domain(domain):
 	kr_sld = ['ac', 'co', 'es', 'go', 'hs', 'kg', 'mil', 'ms', 'ne', 'or', 'pe', 're', 'sc']
 	ky_sld = ['com', 'edu', 'gov', 'net', 'org']
 	kz_sld = ['com', 'edu', 'gov', 'mil', 'net', 'org']
-	la_sld = ['c', 'com', 'edu', 'gov', 'int', 'net', 'org', 'per']
+	la_sld = ['com', 'edu', 'gov', 'int', 'net', 'org', 'per']
 	lb_sld = ['com', 'edu', 'gov', 'net', 'org']
 	lc_sld = ['co', 'com', 'edu', 'gov', 'net', 'org']
 	lk_sld = ['ac', 'com', 'edu', 'gov', 'grp', 'int', 'ltd', 'net', 'ngo', 'org', 'sch', 'soc', 'web']
@@ -529,54 +537,55 @@ def main():
 	parser.add_argument('-w', '--whois', action='store_true', help='perform lookup for WHOIS creation/modification date (slow)')
 	parser.add_argument('-g', '--geoip', action='store_true', help='perform lookup for GeoIP location')
 	parser.add_argument('-b', '--banners', action='store_true', help='determine HTTP and SMTP service banners')
-	parser.add_argument('-s', '--ssdeep', action='store_true', help='fetch web pages and compare fuzzy hashes to evaluate similarity')
+	parser.add_argument('-s', '--ssdeep', action='store_true', help='fetch web pages and compare their fuzzy hashes to evaluate similarity')
 
 	if len(sys.argv) < 2:
+		sys.stdout.write('%sdnstwist (%s) by %s%s\n\n' % (ST_BRI, __version__, __email__, ST_RST))
 		parser.print_help()
 		sys.exit(0)
 
 	global args
 	args = parser.parse_args()
 
-	display(ST_BRIGHT + FG_MAGENTA + 
+	p_out(ST_BRI + FG_MAG + 
 '''     _           _            _     _   
   __| |_ __  ___| |___      _(_)___| |_ 
  / _` | '_ \/ __| __\ \ /\ / / / __| __|
 | (_| | | | \__ \ |_ \ V  V /| \__ \ |_ 
  \__,_|_| |_|___/\__| \_/\_/ |_|___/\__| {%s}
 
-''' % __version__ + FG_RESET)
+''' % __version__ + FG_RST)
 	
 	if not validate_domain(args.domain):
-		sys.stderr.write('ERROR: invalid domain name!\n')
+		p_err(FG_RED + 'ERROR: invalid domain name!\n\n' + FG_RST)
 		sys.exit(-1)
 
 	domains = fuzz_domain(args.domain.lower())
 
 	if not module_dnspython:
-		sys.stderr.write('NOTICE: Missing module: dnspython - DNS features limited!\n')
+		p_err(FG_RED + 'NOTICE: Missing module: dnspython - DNS features limited!\n\n' + FG_RST)
 	if not module_geoip and args.geoip:
-		sys.stderr.write('NOTICE: Missing module: GeoIP - geographical location not available!\n')
+		p_err(FG_RED + 'NOTICE: Missing module: GeoIP - geographical location not available!\n\n' + FG_RST)
 	if not module_whois and args.whois:
-		sys.stderr.write('NOTICE: Missing module: whois - database not accessible!\n')
+		p_err(FG_RED + 'NOTICE: Missing module: whois - database not accessible!\n\n' + FG_RST)
 	if not module_ssdeep and args.ssdeep:
-		sys.stderr.write('NOTICE: Missing module: ssdeep - fuzzy hashes not available!\n')
+		p_err(FG_RED + 'NOTICE: Missing module: ssdeep - fuzzy hashes not available!\n\n' + FG_RST)
 	if not module_requests and args.ssdeep:
-		sys.stderr.write('NOTICE: Missing module: Requests - web page downloads not possible!\n')
+		p_err(FG_RED + 'NOTICE: Missing module: Requests - web page downloads not possible!\n\n' + FG_RST)
 
 	if args.ssdeep and module_ssdeep and module_requests:
-		display('Fetching content from: http://' + args.domain.lower() + '/ [following redirects] ... ')
+		p_out('Fetching content from: http://' + args.domain.lower() + '/ [following redirects] ... ')
 		try:
-			req = requests.get('http://' + args.domain.lower(), timeout=2)
+			req = requests.get('http://' + args.domain.lower(), timeout=REQUEST_TIMEOUT_HTTP)
 		except Exception:
-			display('Failed!\n')
+			p_out('Failed!\n')
 			args.ssdeep = False			
 			pass
 		else:
-			display('%d %s (%d bytes)\n' % (req.status_code, req.reason, len(req.text)))
+			p_out('%d %s (%d bytes)\n' % (req.status_code, req.reason, len(req.text)))
 			orig_domain_ssdeep = ssdeep.hash(req.text)
 
-	display('Processing %d domains ' % len(domains))
+	p_out('Processing %d domains ' % len(domains))
 
 	signal.signal(signal.SIGINT, sigint_handler)
 
@@ -585,8 +594,8 @@ def main():
 	for i in range(0, len(domains)):
 		if module_dnspython:
 			resolv = dns.resolver.Resolver()
-			resolv.lifetime = 1
-			resolv.timeout = 1
+			#resolv.lifetime = REQUEST_TIMEOUT_DNS
+			resolv.timeout = REQUEST_TIMEOUT_DNS
 
 			try:
 				ns = resolv.query(domains[i]['domain'], 'NS')
@@ -660,7 +669,7 @@ def main():
 		if module_ssdeep and module_requests and args.ssdeep:
 			if 'a' in domains[i]:
 				try:
-					req = requests.get('http://' + domains[i]['domain'], timeout=2)
+					req = requests.get('http://' + domains[i]['domain'], timeout=REQUEST_TIMEOUT_HTTP)
 					fuzz_domain_ssdeep = ssdeep.hash(req.text)
 				except Exception:
 					pass
@@ -668,14 +677,14 @@ def main():
 					domains[i]['ssdeep'] = ssdeep.compare(orig_domain_ssdeep, fuzz_domain_ssdeep)
 
 		if 'a' in domains[i] or 'ns' in domains[i]:
-			display(FG_YELLOW + '!' + FG_RESET)
+			p_out(FG_YEL + '!' + FG_RST)
 			total_hits += 1
 		else:
-			display('.')
+			p_out('.')
 
-	display(' %d hit(s)\n\n' % total_hits)
+	p_out(' %d hit(s)\n\n' % total_hits)
 
-	display_csv('Generator,Domain,A,AAAA,MX,NS,Country,Created,Updated,SSDEEP\n')
+	p_csv('Generator,Domain,A,AAAA,MX,NS,Country,Created,Updated,SSDEEP\n')
 
 	for i in domains:
 		info = ''
@@ -683,44 +692,44 @@ def main():
 		if 'a' in i:
 			info += i['a']
 			if 'country' in i:
-				info += FG_CYAN + '/' + i['country'] + FG_RESET
+				info += FG_CYA + '/' + i['country'] + FG_RST
 			if 'banner-http' in i:
-				info += ' %sHTTP:%s"%s"%s' % (FG_GREEN, FG_CYAN, i['banner-http'], FG_RESET)
+				info += ' %sHTTP:%s"%s"%s' % (FG_GRE, FG_CYA, i['banner-http'], FG_RST)
 		elif 'ns' in i:
-			info += '%sNS:%s%s%s' % (FG_GREEN, FG_CYAN, i['ns'], FG_RESET)
+			info += '%sNS:%s%s%s' % (FG_GRE, FG_CYA, i['ns'], FG_RST)
 
 		if 'aaaa' in i:
 			info += ' ' + i['aaaa']
 
 		if 'mx' in i:
-			info += ' %sMX:%s%s%s' % (FG_GREEN, FG_CYAN, i['mx'], FG_RESET)
+			info += ' %sMX:%s%s%s' % (FG_GRE, FG_CYA, i['mx'], FG_RST)
 			if 'banner-smtp' in i:
-				info += ' %sSMTP:%s"%s"%s' % (FG_GREEN, FG_CYAN, i['banner-smtp'], FG_RESET)
+				info += ' %sSMTP:%s"%s"%s' % (FG_GRE, FG_CYA, i['banner-smtp'], FG_RST)
 
 		if 'created' in i and 'updated' in i and i['created'] == i['updated']:
-			info += ' %sCreated/Updated:%s%s%s' % (FG_GREEN, FG_CYAN, i['created'], FG_RESET)
+			info += ' %sCreated/Updated:%s%s%s' % (FG_GRE, FG_CYA, i['created'], FG_RST)
 		else:
 			if 'created' in i:
-				info += ' %sCreated:%s%s%s' % (FG_GREEN, FG_CYAN, i['created'], FG_RESET)
+				info += ' %sCreated:%s%s%s' % (FG_GRE, FG_CYA, i['created'], FG_RST)
 			if 'updated' in i:
-				info += ' %sUpdated:%s%s%s' % (FG_GREEN, FG_CYAN, i['updated'], FG_RESET)
+				info += ' %sUpdated:%s%s%s' % (FG_GRE, FG_CYA, i['updated'], FG_RST)
 
 		if 'ssdeep' in i:
 			if i['ssdeep'] > 0:
-				info += ' %sSSDEEP:%s%d%%%s' % (FG_GREEN, FG_CYAN, i['ssdeep'], FG_RESET)
+				info += ' %sSSDEEP:%s%d%%%s' % (FG_GRE, FG_CYA, i['ssdeep'], FG_RST)
 
 		if not info:
 			info = '-'
 
 		if (args.registered and info != '-') or not args.registered:
-			display('%s%-15s%s %-15s %s\n' % (FG_BLUE, i['type'], FG_RESET, i['domain'], info))
-			display_csv(
+			p_out('%s%-15s%s %-15s %s\n' % (FG_BLU, i['type'], FG_RST, i['domain'], info))
+			p_csv(
 			'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (i.get('type'), i.get('domain'), i.get('a', ''),
 			i.get('aaaa', ''), i.get('mx', ''), i.get('ns', ''), i.get('country', ''),
 			i.get('created', ''), i.get('updated', ''), str(i.get('ssdeep', '')))
 			)
 
-	display(FG_RESET + ST_RESET)
+	p_out(FG_RST + ST_RST)
 
 	return 0
 
