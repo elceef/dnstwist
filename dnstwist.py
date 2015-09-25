@@ -333,7 +333,7 @@ def http_banner(ip, vhost):
 		http = socket.socket()
 		http.settimeout(1)
 		http.connect((ip, 80))
-		http.send('HEAD / HTTP/1.1\r\nHost: %s\r\n\r\n' % str(vhost))
+		http.send('HEAD / HTTP/1.1\r\nHost: %s\r\nUser-Agent: Mozilla\\5.0\r\n\r\n' % str(vhost))
 		response = http.recv(1024)
 		http.close()
 	except Exception:
@@ -345,7 +345,9 @@ def http_banner(ip, vhost):
 		for field in headers:
 			if field.startswith('Server: '):
 				return field[8:]
-		return 'HTTP %s' % headers[0].split(' ')[1]
+		banner = headers[0].split(' ')
+		if len(banner) > 1:
+			return 'HTTP %s' % headers[0].split(' ')[1]
 
 def smtp_banner(mx):
 	try:
