@@ -325,7 +325,7 @@ def http_banner(ip, vhost):
 		http = socket.socket()
 		http.settimeout(1)
 		http.connect((ip, 80))
-		http.send('HEAD / HTTP/1.1\r\nHost: %s\r\n\r\n' % str(vhost))
+		http.send('HEAD / HTTP/1.1\r\nHost: %s\r\nUser-Agent: Mozilla\\5.0\r\n\r\n' % str(vhost))
 		response = http.recv(1024)
 		http.close()
 	except Exception:
