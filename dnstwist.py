@@ -349,6 +349,19 @@ class fuzz_domain():
 	
 		return [domain[0] + '.' + domain[1], domain[2]]
 
+	def __filter_domains(self):
+		seen = set()
+		filtered_domains = []
+
+		for d in self.domains:
+			if self.__validate_domain(d['domain']):
+				copy = d['domain']
+				if copy not in seen:
+					seen.add(copy)
+					filtered_domains.append(d)
+
+		self.domains = filtered_domains
+
 	def __bitsquatting(self):
 		result = []
 		masks = [1, 2, 4, 8, 16, 32, 64, 128]
@@ -490,7 +503,7 @@ class fuzz_domain():
 		for domain in self.__transposition():
 			self.domains.append({ 'fuzzer': 'Transposition', 'domain': domain + '.' + self.tld })
 
-		self.domains[:] = [x for x in self.domains if self.__validate_domain(x['domain'])]
+		self.__filter_domains()
 
 	def get(self):
 		return self.domains
