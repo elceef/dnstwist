@@ -2,13 +2,14 @@ dnstwist
 ========
 See what sort of trouble users can get in trying to type your domain name. Find similar-looking domains that adversaries can use to attack you. Can detect fraud, phishing attacks and corporate espionage. Useful as an additional source of targeted threat intelligence.
 
-![Screenshot](http://i.imgur.com/8IeMdXO.png)
+![Screenshot](http://i.imgur.com/76g9uQc.png)
 
 Key features
 ------------
 Just not to waste time there are several good reasons to give it a try:
 
 - Wide range of efficient domain fuzzing algorithms
+- Multithreaded job distribution
 - Resolving domain names to IPv4 and IPv6
 - Querying for NS and MX records
 - Optional: Evaluating web page similarity with fuzzy hashes
