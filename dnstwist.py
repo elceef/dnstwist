@@ -351,16 +351,14 @@ class fuzz_domain():
 
 	def __filter_domains(self):
 		seen = set()
-		filtered_domains = []
+		filtered = []
 
 		for d in self.domains:
-			if self.__validate_domain(d['domain']):
-				copy = d['domain']
-				if copy not in seen:
-					seen.add(copy)
-					filtered_domains.append(d)
+			if self.__validate_domain(d['domain']) and d['domain'] not in seen:
+				seen.add(d['domain'])
+				filtered.append(d)
 
-		self.domains = filtered_domains
+		self.domains = filtered
 
 	def __bitsquatting(self):
 		result = []
@@ -526,8 +524,7 @@ class thread_domain(threading.Thread):
 		except Exception:
 			pass
 		else:
-			if '\r\n' in response: sep = '\r\n'
-			else: sep = '\n'
+			sep = '\r\n' if '\r\n' in response else '\n'
 			headers = response.split(sep)
 			for field in headers:
 				if field.startswith('Server: '):
@@ -546,8 +543,7 @@ class thread_domain(threading.Thread):
 		except Exception:
 			pass
 		else:
-			if '\r\n' in response: sep = '\r\n'
-			else: sep = '\n'
+			sep = '\r\n' if '\r\n' in response else '\n'
 			hello = response.split(sep)[0]
 			if hello.startswith('220'):
 				return hello[4:].strip()
@@ -747,49 +743,54 @@ def main():
 
 	p_out(' %d hit(s)\n\n' % sum('ns' in d or 'a' in d for d in domains))
 
+
 	p_csv('Fuzzer,Domain,A,AAAA,MX,NS,Country,Created,Updated,SSDEEP\n')
 
-	for i in domains:
+	width_fuzz = max([len(d['fuzzer']) for d in domains]) + 2
+	width_domain = max([len(d['domain']) for d in domains]) + 2
+
+	for domain in domains:
 		info = ''
 
-		if 'a' in i:
-			info += i['a']
-			if 'country' in i:
-				info += FG_CYA + '/' + i['country'] + FG_RST
-			if 'banner-http' in i:
-				info += ' %sHTTP:%s"%s"%s' % (FG_GRE, FG_CYA, i['banner-http'], FG_RST)
-		elif 'ns' in i:
-			info += '%sNS:%s%s%s' % (FG_GRE, FG_CYA, i['ns'], FG_RST)
+		if 'a' in domain:
+			info += domain['a']
+			if 'country' in domain:
+				info += FG_CYA + '/' + domain['country'] + FG_RST
+			if 'banner-http' in domain:
+				info += ' %sHTTP:%s"%s"%s' % (FG_GRE, FG_CYA, domain['banner-http'], FG_RST)
+		elif 'ns' in domain:
+			info += '%sNS:%s%s%s' % (FG_GRE, FG_CYA, domain['ns'], FG_RST)
 
-		if 'aaaa' in i:
-			info += ' ' + i['aaaa']
+		if 'aaaa' in domain:
+			info += ' ' + domain['aaaa']
 
-		if 'mx' in i:
-			info += ' %sMX:%s%s%s' % (FG_GRE, FG_CYA, i['mx'], FG_RST)
-			if 'banner-smtp' in i:
-				info += ' %sSMTP:%s"%s"%s' % (FG_GRE, FG_CYA, i['banner-smtp'], FG_RST)
+		if 'mx' in domain:
+			info += ' %sMX:%s%s%s' % (FG_GRE, FG_CYA, domain['mx'], FG_RST)
+			if 'banner-smtp' in domain:
+				info += ' %sSMTP:%s"%s"%s' % (FG_GRE, FG_CYA, domain['banner-smtp'], FG_RST)
 
-		if 'created' in i and 'updated' in i and i['created'] == i['updated']:
-			info += ' %sCreated/Updated:%s%s%s' % (FG_GRE, FG_CYA, i['created'], FG_RST)
+		if 'created' in domain and 'updated' in domain and domain['created'] == domain['updated']:
+			info += ' %sCreated/Updated:%s%s%s' % (FG_GRE, FG_CYA, domain['created'], FG_RST)
 		else:
-			if 'created' in i:
-				info += ' %sCreated:%s%s%s' % (FG_GRE, FG_CYA, i['created'], FG_RST)
-			if 'updated' in i:
-				info += ' %sUpdated:%s%s%s' % (FG_GRE, FG_CYA, i['updated'], FG_RST)
+			if 'created' in domain:
+				info += ' %sCreated:%s%s%s' % (FG_GRE, FG_CYA, domain['created'], FG_RST)
+			if 'updated' in domain:
+				info += ' %sUpdated:%s%s%s' % (FG_GRE, FG_CYA, domain['updated'], FG_RST)
 
-		if 'ssdeep' in i:
-			if i['ssdeep'] > 0:
-				info += ' %sSSDEEP:%s%d%%%s' % (FG_GRE, FG_CYA, i['ssdeep'], FG_RST)
+		if 'ssdeep' in domain:
+			if domain['ssdeep'] > 0:
+				info += ' %sSSDEEP:%s%d%%%s' % (FG_GRE, FG_CYA, domain['ssdeep'], FG_RST)
 
 		if not info:
 			info = '-'
 
 		if (args.registered and info != '-') or not args.registered:
-			p_out('%s%-15s%s %-15s %s\n' % (FG_BLU, i['fuzzer'], FG_RST, i['domain'], info))
+			p_out('%s%s%s %s %s\n' % (FG_BLU, domain['fuzzer'].ljust(width_fuzz), FG_RST, domain['domain'].ljust(width_domain), info))
+
 			p_csv(
-			'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (i.get('fuzzer'), i.get('domain'), i.get('a', ''),
-			i.get('aaaa', ''), i.get('mx', ''), i.get('ns', ''), i.get('country', ''),
-			i.get('created', ''), i.get('updated', ''), str(i.get('ssdeep', '')))
+			'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (domain.get('fuzzer'), domain.get('domain'), domain.get('a', ''),
+			domain.get('aaaa', ''), domain.get('mx', ''), domain.get('ns', ''), domain.get('country', ''),
+			domain.get('created', ''), domain.get('updated', ''), str(domain.get('ssdeep', '')))
 			)
 
 	p_out(FG_RST + ST_RST)
