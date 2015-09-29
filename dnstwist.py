@@ -339,7 +339,7 @@ def http_banner(ip, vhost):
 				return field[8:]
 		banner = headers[0].split(' ')
 		if len(banner) > 1:
-			return 'HTTP %s' % headers[0].split(' ')[1]
+			return 'HTTP %s' % banner[1]
 
 def smtp_banner(mx):
 	try:
