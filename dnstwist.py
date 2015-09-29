@@ -18,7 +18,7 @@
 # limitations under the License.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '0.99'
+__version__ = '1.0b'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -370,6 +370,7 @@ class fuzz_domain():
 				o = ord(b)
 				if (o >= 48 and o <= 57) or (o >= 97 and o <= 122) or o == 45:
 					result.append(self.domain[:i] + b + self.domain[i+1:])
+
 		return result
 
 	def __homoglyph(self):
@@ -387,12 +388,11 @@ class fuzz_domain():
 				while j < ws:
 					c = win[j]
 					if c in glyphs:
+						win_copy = win
 						for g in glyphs[c]:
 							win = win[:j] + g + win[j+1:]
-	
-							if len(g) > 1:
-								j += len(g) - 1
 							result.append(self.domain[:i] + win + self.domain[i+ws:])
+							win = win_copy
 					j += 1
 
 		return list(set(result))
