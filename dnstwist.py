@@ -64,6 +64,12 @@ try:
 except ImportError:
 	module_requests = False
 	pass
+try:
+	import inflect
+	module_inflect = True
+except ImportError:
+	module_inflect = False
+	pass
 
 REQUEST_TIMEOUT_DNS = 1
 REQUEST_TIMEOUT_HTTP = 2
@@ -479,6 +485,15 @@ class fuzz_domain():
 
 		return result
 
+	def __pluralize(self):
+		infl = inflect.engine()
+
+		singular_form = infl.singular_noun(self.domain)
+		if singular_form:
+			return singular_form
+		else:
+			return infl.plural(self.domain)
+
 	def fuzz(self):
 		self.domains.append({ 'fuzzer': 'Original*', 'domain': self.domain + '.' + self.tld })
 
@@ -500,6 +515,10 @@ class fuzz_domain():
 			self.domains.append({ 'fuzzer': 'Subdomain', 'domain': domain + '.' + self.tld })
 		for domain in self.__transposition():
 			self.domains.append({ 'fuzzer': 'Transposition', 'domain': domain + '.' + self.tld })
+
+		if module_inflect:
+			domain = self.__pluralize()
+			self.domains.append({ 'fuzzer': 'Pluralize', 'domain': domain + '.' + self.tld })
 
 		self.__filter_domains()
 
@@ -706,6 +725,8 @@ def main():
 	if module_whois and args.whois:
 		p_out(FG_YEL + 'NOTICE: Reducing the number of threads to 1 in order to query WHOIS server\n\n' + FG_RST)
 		args.threads = 1
+	if not module_inflect:
+		p_out(FG_YEL + 'NOTICE: Missing module: inflect - pluralized fuzz not available\n\n' + FG_RST)
 
 	if args.ssdeep and module_ssdeep and module_requests:
 		p_out('Fetching content from: http://' + args.domain + '/ ... ')
