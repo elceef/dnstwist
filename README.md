@@ -35,7 +35,7 @@ $ sudo apt-get install python-dnspython python-geoip python-whois python-request
 
 ```
 
-Install the GeoIP database
+Install the GeoIP database:
 
 ```
 $ wget -N http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
