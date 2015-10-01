@@ -32,6 +32,17 @@ If running Ubuntu or Debian, you can install dependencies like this:
 
 ```
 $ sudo apt-get install python-dnspython python-geoip python-whois python-requests
+
+```
+
+Install the GeoIP database:
+
+```
+$ wget -N http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
+$ gunzip GeoIP.dat.gz
+$ sudo mkdir -p /usr/share/GeoIP/
+$ sudo mv GeoIP.dat /usr/share/GeoIP/
+$ rm GeoIP.dat.gz
 ```
 
 Installation of *ssdeep* module requires a little bit more effort:

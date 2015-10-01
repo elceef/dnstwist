@@ -29,6 +29,7 @@ import time
 import argparse
 import threading
 from random import randint
+from os import path
 
 try:
 	import queue
@@ -47,6 +48,9 @@ try:
 except ImportError:
 	module_geoip = False
 	pass
+
+geoip_db = path.exists("/usr/share/GeoIP/GeoIP.dat")
+
 try:
 	import whois
 	module_whois = True
@@ -611,7 +615,7 @@ class thread_domain(threading.Thread):
 					except Exception:
 						pass
 
-			if module_geoip and args.geoip:
+			if module_geoip and geoip_db and args.geoip:
 				if 'a' in domain:
 					gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
 					try:
@@ -697,6 +701,8 @@ def main():
 		p_out(FG_YEL + 'NOTICE: Missing module: dnspython - DNS features limited!\n\n' + FG_RST)
 	if not module_geoip and args.geoip:
 		p_out(FG_YEL + 'NOTICE: Missing module: GeoIP - geographical location not available!\n\n' + FG_RST)
+	if not geoip_db and args.geoip:
+		p_out(FG_YEL + 'NOTICE: Missing file: /usr/shareGeoIP/geoIP.dat - geographical location not available!\n\n' + FG_RST)
 	if not module_whois and args.whois:
 		p_out(FG_YEL + 'NOTICE: Missing module: whois - database not accessible!\n\n' + FG_RST)
 	if not module_ssdeep and args.ssdeep:
