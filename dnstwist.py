@@ -69,8 +69,8 @@ except ImportError:
 	module_requests = False
 	pass
 
-REQUEST_TIMEOUT_DNS = 1
-REQUEST_TIMEOUT_HTTP = 2
+REQUEST_TIMEOUT_DNS = 5
+REQUEST_TIMEOUT_HTTP = 5
 THREAD_COUNT_DEFAULT = 10
 
 if sys.platform != 'win32' and sys.stdout.isatty():
@@ -116,8 +116,10 @@ def p_csv(data):
 def sigint_handler(signal, frame):
 	sys.stdout.write(FG_RST + ST_RST)
 	sys.stdout.write('\nStopping threads... ')
+	sys.stdout.flush()
 	for worker in threads:
 		worker.stop()
+	time.sleep(1)
 	sys.stdout.write('Done\n')
 	sys.exit(0)
 
@@ -564,7 +566,7 @@ class thread_domain(threading.Thread):
 			domain = self.jobs.get()
 			if module_dnspython:
 				resolv = dns.resolver.Resolver()
-				#resolv.lifetime = REQUEST_TIMEOUT_DNS
+				resolv.lifetime = REQUEST_TIMEOUT_DNS
 				resolv.timeout = REQUEST_TIMEOUT_DNS
 
 				try:
@@ -702,7 +704,7 @@ def main():
 	if not module_geoip and args.geoip:
 		p_out(FG_YEL + 'NOTICE: Missing module: GeoIP - geographical location not available!\n\n' + FG_RST)
 	if not geoip_db and args.geoip:
-		p_out(FG_YEL + 'NOTICE: Missing file: /usr/shareGeoIP/geoIP.dat - geographical location not available!\n\n' + FG_RST)
+		p_out(FG_YEL + 'NOTICE: Missing file: /usr/share/GeoIP/geoIP.dat - geographical location not available!\n\n' + FG_RST)
 	if not module_whois and args.whois:
 		p_out(FG_YEL + 'NOTICE: Missing module: whois - database not accessible!\n\n' + FG_RST)
 	if not module_ssdeep and args.ssdeep:
@@ -747,8 +749,11 @@ def main():
 		p_out('.')
 		time.sleep(1)
 
-	p_out(' %d hit(s)\n\n' % sum('ns' in d or 'a' in d for d in domains))
+	for worker in threads:
+		worker.stop()
 
+	p_out(' %d hit(s)\n\n' % sum('ns' in d or 'a' in d for d in domains))
+	time.sleep(1)
 
 	p_csv('Fuzzer,Domain,A,AAAA,MX,NS,Country,Created,Updated,SSDEEP\n')
 

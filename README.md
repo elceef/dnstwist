@@ -1,6 +1,6 @@
 dnstwist
 ========
-See what sort of trouble users can get in trying to type your domain name. Find similar-looking domains that adversaries can use to attack you. Can detect fraud, phishing attacks and corporate espionage. Useful as an additional source of targeted threat intelligence.
+See what sort of trouble users can get in trying to type your domain name. Find similar-looking domains that adversaries can use to attack you. Can detect typosquatting, phishing attacks, fraud and corporate espionage. Useful as an additional source of targeted threat intelligence.
 
 ![Screenshot](http://i.imgur.com/76g9uQc.png)
 
@@ -32,10 +32,9 @@ If running Ubuntu or Debian, you can install dependencies like this:
 
 ```
 $ sudo apt-get install python-dnspython python-geoip python-whois python-requests
-
 ```
 
-Install the GeoIP database:
+If you do not have a GeoIP database installed:
 
 ```
 $ wget -N http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
@@ -45,7 +44,7 @@ $ sudo mv GeoIP.dat /usr/share/GeoIP/
 $ rm GeoIP.dat.gz
 ```
 
-Installation of *ssdeep* module requires a little bit more effort:
+Installation of *ssdeep* module requires just a little bit more effort:
 
 ```
 $ sudo apt-get install build-essential libffi-dev python-dev python-pip automake autoconf libtool
@@ -72,3 +71,4 @@ Special thanks
 - Piotr Chmyłkowski
 - Eugene Kogan
 - Mike Saunders
+- Charles McCauley
