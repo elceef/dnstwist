@@ -396,7 +396,7 @@ class fuzz_domain():
 					if c in glyphs:
 						win_copy = win
 						for g in glyphs[c]:
-							win = win[:j] + g + win[j+1:]
+							win = win.replace(c, g)
 							result.append(self.domain[:i] + win + self.domain[i+ws:])
 							win = win_copy
 					j += 1
