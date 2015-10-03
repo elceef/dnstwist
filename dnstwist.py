@@ -797,10 +797,14 @@ def main():
 
 		if (args.registered and info != '-') or not args.registered:
 			p_out('%s%s%s %s %s\n' % (FG_BLU, domain['fuzzer'].ljust(width_fuzz), FG_RST, domain['domain'].ljust(width_domain), info))
-
+		
+			country = domain.get('country', '')
+			if ',' in country:
+				country = '"%s"' % country
+		
 			p_csv(
 			'%s,%s,%s,%s,%s,%s,"%s",%s,%s,%s\n' % (domain.get('fuzzer'), domain.get('domain'), domain.get('a', ''),
-			domain.get('aaaa', ''), domain.get('mx', ''), domain.get('ns', ''), domain.get('country', ''),
+			domain.get('aaaa', ''), domain.get('mx', ''), domain.get('ns', ''), country,
 			domain.get('created', ''), domain.get('updated', ''), str(domain.get('ssdeep', '')))
 			)
 
