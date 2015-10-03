@@ -803,7 +803,7 @@ def main():
 				country = '"%s"' % country
 		
 			p_csv(
-			'%s,%s,%s,%s,%s,%s,"%s",%s,%s,%s\n' % (domain.get('fuzzer'), domain.get('domain'), domain.get('a', ''),
+			'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (domain.get('fuzzer'), domain.get('domain'), domain.get('a', ''),
 			domain.get('aaaa', ''), domain.get('mx', ''), domain.get('ns', ''), country,
 			domain.get('created', ''), domain.get('updated', ''), str(domain.get('ssdeep', '')))
 			)
