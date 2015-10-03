@@ -18,7 +18,7 @@
 # limitations under the License.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '1.0b'
+__version__ = '1.0c'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -799,7 +799,7 @@ def main():
 			p_out('%s%s%s %s %s\n' % (FG_BLU, domain['fuzzer'].ljust(width_fuzz), FG_RST, domain['domain'].ljust(width_domain), info))
 
 			p_csv(
-			'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (domain.get('fuzzer'), domain.get('domain'), domain.get('a', ''),
+			'%s,%s,%s,%s,%s,%s,"%s",%s,%s,%s\n' % (domain.get('fuzzer'), domain.get('domain'), domain.get('a', ''),
 			domain.get('aaaa', ''), domain.get('mx', ''), domain.get('ns', ''), domain.get('country', ''),
 			domain.get('created', ''), domain.get('updated', ''), str(domain.get('ssdeep', '')))
 			)
