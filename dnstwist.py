@@ -464,6 +464,8 @@ class fuzz_domain():
 			if self.domain[i] in keys:
 				for c in range(0, len(keys[self.domain[i]])):
 					result.append(self.domain[:i] + keys[self.domain[i]][c] + self.domain[i+1:])
+					for m in range(1,self.domain.count(self.domain[i])+1):
+                                            result.append(self.domain.replace(self.domain[i],keys[self.domain[i]][c],m))
 
 		return result
 
