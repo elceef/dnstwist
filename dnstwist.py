@@ -18,7 +18,7 @@
 # limitations under the License.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '1.0b'
+__version__ = '1.0c'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -69,7 +69,7 @@ except ImportError:
 	module_requests = False
 	pass
 
-REQUEST_TIMEOUT_DNS = 5
+REQUEST_TIMEOUT_DNS = 15
 REQUEST_TIMEOUT_HTTP = 5
 THREAD_COUNT_DEFAULT = 10
 
@@ -537,7 +537,7 @@ class thread_domain(threading.Thread):
 					return field[8:]
 			banner = headers[0].split(' ')
 			if len(banner) > 1:
-				return 'HTTP %s' % headers[0].split(' ')[1]
+				return 'HTTP %s' % banner[1]
 
 	def __banner_smtp(self, mx):
 		try:
@@ -571,26 +571,27 @@ class thread_domain(threading.Thread):
 
 				try:
 					ns = resolv.query(domain['domain'], 'NS')
-					domain['ns'] = str(ns[0])[:-1].lower()
+					domain['ns'] = str(sorted(ns)[0])[:-1].lower()
 				except Exception:
 					pass
 
 				if 'ns' in domain:
 					try:
 						ns = resolv.query(domain['domain'], 'A')
-						domain['a'] = str(ns[0])
+						domain['a'] = str(sorted(ns)[0])
 					except Exception:
 						pass
 	
 					try:
 						ns = resolv.query(domain['domain'], 'AAAA')
-						domain['aaaa'] = str(ns[0])
+						domain['aaaa'] = str(sorted(ns)[0])
 					except Exception:
 						pass
 
 					try:
-						mx = resolv.query(domain['domain'], 'MX')
-						domain['mx'] = str(mx[0].exchange)[:-1].lower()
+						ns = resolv.query(domain['domain'], 'MX')
+						mx = str(sorted(ns)[0].exchange)[:-1].lower()
+						if mx: domain['mx'] = mx
 					except Exception:
 						pass
 			else:
@@ -626,7 +627,7 @@ class thread_domain(threading.Thread):
 						pass
 					else:
 						if country:
-							domain['country'] = country
+							domain['country'] = country.split(',')[0]
 
 			if args.banners:
 				if 'a' in domain:
@@ -767,30 +768,37 @@ def main():
 			info += domain['a']
 			if 'country' in domain:
 				info += FG_CYA + '/' + domain['country'] + FG_RST
-			if 'banner-http' in domain:
-				info += ' %sHTTP:%s"%s"%s' % (FG_GRE, FG_CYA, domain['banner-http'], FG_RST)
-		elif 'ns' in domain:
-			info += '%sNS:%s%s%s' % (FG_GRE, FG_CYA, domain['ns'], FG_RST)
+			info += ' '
 
 		if 'aaaa' in domain:
-			info += ' ' + domain['aaaa']
+			info += domain['aaaa'] + ' '
+
+		if 'ns' in domain:
+			info += '%sNS:%s%s%s ' % (FG_GRE, FG_CYA, domain['ns'], FG_RST)
 
 		if 'mx' in domain:
-			info += ' %sMX:%s%s%s' % (FG_GRE, FG_CYA, domain['mx'], FG_RST)
-			if 'banner-smtp' in domain:
-				info += ' %sSMTP:%s"%s"%s' % (FG_GRE, FG_CYA, domain['banner-smtp'], FG_RST)
+			info += '%sMX:%s%s%s ' % (FG_GRE, FG_CYA, domain['mx'], FG_RST)
 
-		if 'created' in domain and 'updated' in domain and domain['created'] == domain['updated']:
-			info += ' %sCreated/Updated:%s%s%s' % (FG_GRE, FG_CYA, domain['created'], FG_RST)
-		else:
-			if 'created' in domain:
-				info += ' %sCreated:%s%s%s' % (FG_GRE, FG_CYA, domain['created'], FG_RST)
-			if 'updated' in domain:
-				info += ' %sUpdated:%s%s%s' % (FG_GRE, FG_CYA, domain['updated'], FG_RST)
+		if 'banner-http' in domain:
+			info += '%sHTTP:%s"%s"%s ' % (FG_GRE, FG_CYA, domain['banner-http'], FG_RST)
+
+		if 'banner-smtp' in domain:
+			info += '%sSMTP:%s"%s"%s ' % (FG_GRE, FG_CYA, domain['banner-smtp'], FG_RST)
+
+		if 'created' in domain and 'updated' in domain:
+			if domain['created'] == domain['updated']:
+				info += '%sCreated/Updated:%s%s%s ' % (FG_GRE, FG_CYA, domain['created'], FG_RST)
+			else:
+				if 'created' in domain:
+					info += '%sCreated:%s%s%s ' % (FG_GRE, FG_CYA, domain['created'], FG_RST)
+				if 'updated' in domain:
+					info += '%sUpdated:%s%s%s ' % (FG_GRE, FG_CYA, domain['updated'], FG_RST)
 
 		if 'ssdeep' in domain:
 			if domain['ssdeep'] > 0:
-				info += ' %sSSDEEP:%s%d%%%s' % (FG_GRE, FG_CYA, domain['ssdeep'], FG_RST)
+				info += '%sSSDEEP:%s%d%%%s ' % (FG_GRE, FG_CYA, domain['ssdeep'], FG_RST)
+
+		info = info.strip()
 
 		if not info:
 			info = '-'
