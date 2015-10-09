@@ -18,7 +18,7 @@
 # limitations under the License.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '1.0c'
+__version__ = '1.00'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -49,7 +49,7 @@ except ImportError:
 	module_geoip = False
 	pass
 
-geoip_db = path.exists("/usr/share/GeoIP/GeoIP.dat")
+geoip_db = path.exists('/usr/share/GeoIP/GeoIP.dat')
 
 try:
 	import whois
@@ -69,7 +69,7 @@ except ImportError:
 	module_requests = False
 	pass
 
-REQUEST_TIMEOUT_DNS = 15
+REQUEST_TIMEOUT_DNS = 5
 REQUEST_TIMEOUT_HTTP = 5
 THREAD_COUNT_DEFAULT = 10
 
@@ -654,7 +654,7 @@ class thread_domain(threading.Thread):
 def main():
 	parser = argparse.ArgumentParser(
 	description='''Find similar-looking domain names that adversaries can use to attack you.  
-	Can detect typosquatting, phishing attacks, fraud and corporate espionage. Useful as an
+	Can detect typosquatters, phishing attacks, fraud and corporate espionage. Useful as an
 	additional source of targeted threat intelligence.'''
 	)
 
@@ -796,7 +796,7 @@ def main():
 
 		if 'ssdeep' in domain:
 			if domain['ssdeep'] > 0:
-				info += '%sSSDEEP:%s%d%%%s ' % (FG_GRE, FG_CYA, domain['ssdeep'], FG_RST)
+				info += '%sSSDEEP:%s%d%%%s ' % (FG_YEL, FG_CYA, domain['ssdeep'], FG_RST)
 
 		info = info.strip()
 

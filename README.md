@@ -1,8 +1,8 @@
 dnstwist
 ========
-See what sort of trouble users can get in trying to type your domain name. Find similar-looking domains that adversaries can use to attack you. Can detect typosquatting, phishing attacks, fraud and corporate espionage. Useful as an additional source of targeted threat intelligence.
+See what sort of trouble users can get in trying to type your domain name. Find similar-looking domains that adversaries can use to attack you. Can detect typosquatters, phishing attacks, fraud and corporate espionage. Useful as an additional source of targeted threat intelligence.
 
-![Screenshot](http://i.imgur.com/76g9uQc.png)
+![Screenshot](http://i.imgur.com/RILUsjY.png)
 
 Key features
 ------------
@@ -72,3 +72,4 @@ Special thanks
 - Eugene Kogan
 - Mike Saunders
 - Charles McCauley
+- Sean Whalen
