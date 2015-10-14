@@ -71,11 +71,14 @@ except ImportError:
 	pass
 
 DIR = path.abspath(path.dirname(sys.argv[0]))
-FILE_GEOIP = path.join(DIR, 'GeoIP.dat')
-FILE_TLD = path.join(DIR, 'effective_tld_names.dat')
+DIR_DB = 'database'
+FILE_GEOIP = path.join(DIR, DIR_DB, 'GeoIP.dat')
+FILE_TLD = path.join(DIR, DIR_DB, 'effective_tld_names.dat')
+FILE_DICT = path.join(DIR, DIR_DB, 'default.dict')
 
 DB_GEOIP = path.exists(FILE_GEOIP)
 DB_TLD = path.exists(FILE_TLD)
+DB_DICT = path.exists(FILE_DICT)
 
 REQUEST_TIMEOUT_DNS = 5
 REQUEST_TIMEOUT_HTTP = 5
@@ -358,11 +361,39 @@ class fuzz_domain():
 
 		return result
 
+	def __dictionary(self):
+		result = []
+
+		if DB_DICT:
+			domain = self.domain.rsplit('.', 1)
+			if len(domain) > 1:
+				prefix = domain[0] + '.'
+				name = domain[1]
+			else:
+				prefix = ''
+				name = domain[0]
+
+			wordlist = []
+			for word in open(FILE_DICT):
+				word = word.strip('\n')
+				if word.isalpha():
+					wordlist.append(word)
+
+			for word in wordlist:
+				result.append(prefix + name + '-' + word)
+				result.append(prefix + word + '-' + name)
+				result.append(prefix + name + word)
+				result.append(prefix + word + name)
+
+		return result
+
 	def fuzz(self):
 		self.domains.append({ 'fuzzer': 'Original*', 'domain': self.domain + '.' + self.tld })
 
 		for domain in self.__bitsquatting():
 			self.domains.append({ 'fuzzer': 'Bitsquatting', 'domain': domain + '.' + self.tld })
+		for domain in self.__dictionary():
+			self.domains.append({ 'fuzzer': 'Dictionary', 'domain': domain + '.' + self.tld })
 		for domain in self.__homoglyph():
 			self.domains.append({ 'fuzzer': 'Homoglyph', 'domain': domain + '.' + self.tld })
 		for domain in self.__hyphenation():
