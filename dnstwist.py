@@ -18,7 +18,7 @@
 # limitations under the License.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '1.00'
+__version__ = '1.01b'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -38,36 +38,44 @@ except ImportError:
 
 try:
 	import dns.resolver
-	module_dnspython = True
+	MODULE_DNSPYTHON = True
 except ImportError:
-	module_dnspython = False
-	pass
-try:
-	import GeoIP
-	module_geoip = True
-except ImportError:
-	module_geoip = False
+	MODULE_DNSPYTHON = False
 	pass
 
-geoip_db = path.exists('/usr/share/GeoIP/GeoIP.dat')
+try:
+	import GeoIP
+	MODULE_GEOIP = True
+except ImportError:
+	MODULE_GEOIP = False
+	pass
 
 try:
 	import whois
-	module_whois = True
+	MODULE_WHOIS = True
 except ImportError:
-	module_whois = False
+	MODULE_WHOIS = False
 	pass
+
 try:
 	import ssdeep
-	module_ssdeep = True
+	MODULE_SSDEEP = True
 except ImportError:
-	module_ssdeep = False
+	MODULE_SSDEEP = False
+
 try:
 	import requests
-	module_requests = True
+	MODULE_REQUESTS = True
 except ImportError:
-	module_requests = False
+	MODULE_REQUESTS = False
 	pass
+
+DIR = path.abspath(path.dirname(sys.argv[0]))
+FILE_GEOIP = path.join(DIR, 'GeoIP.dat')
+FILE_TLD = path.join(DIR, 'effective_tld_names.dat')
+
+DB_GEOIP = path.exists(FILE_GEOIP)
+DB_TLD = path.exists(FILE_TLD)
 
 REQUEST_TIMEOUT_DNS = 5
 REQUEST_TIMEOUT_HTTP = 5
@@ -96,11 +104,13 @@ else:
 	ST_BRI = ''
 	ST_RST = ''
 
+
 def p_out(data):
 	global args
 	if not args.csv:
 		sys.stdout.write(data)
 		sys.stdout.flush()
+
 
 def p_err(data):
 	global args
@@ -108,27 +118,107 @@ def p_err(data):
 		sys.stderr.write(data)
 		sys.stderr.flush()
 
+
 def p_csv(data):
 	global args
 	if args.csv:
 		sys.stdout.write(data)
 
-def sigint_handler(signal, frame):
+
+def bye(code):
 	sys.stdout.write(FG_RST + ST_RST)
+	sys.exit(code)
+
+
+def sigint_handler(signal, frame):
 	sys.stdout.write('\nStopping threads... ')
 	sys.stdout.flush()
 	for worker in threads:
 		worker.stop()
 	time.sleep(1)
 	sys.stdout.write('Done\n')
-	sys.exit(0)
+	bye(0)
+
+
+class parse_url():
+
+	def __init__(self, url):
+		if '://' not in url:
+			self.url = 'http://' + url
+		else:
+			self.url = url
+		self.scheme = ''
+		self.authority = ''
+		self.domain = ''
+		self.path = ''
+		self.query = ''
+
+	def parse(self):
+		re_rfc3986_enhanced = re.compile(
+		r'''
+		^
+		(?:(?P<scheme>[^:/?#\s]+):)?
+		(?://(?P<authority>[^/?#\s]*))?
+		(?P<path>[^?#\s]*)
+		(?:\?(?P<query>[^#\s]*))?
+		(?:\#(?P<fragment>[^\s]*))?
+		$
+		''', re.MULTILINE | re.VERBOSE
+		)
+
+		m_uri = re_rfc3986_enhanced.match(self.url)
+
+		if m_uri:
+			if m_uri.group('scheme'):
+				if m_uri.group('scheme').startswith('http'):
+					self.scheme = m_uri.group('scheme')
+				else:
+					self.scheme = 'http'
+			if m_uri.group('authority'):
+				self.authority = m_uri.group('authority')
+				self.domain = self.authority.split(':')[0].lower()
+			if m_uri.group('path'):
+				self.path = m_uri.group('path')
+			if m_uri.group('query'):
+				if len(m_uri.group('query')):
+					self.query = '?' + m_uri.group('query')
+
+	def get_full_uri(self):
+		return self.scheme + '://' + self.domain + self.path + self.query
+
 
 class fuzz_domain():
+
 	def __init__(self, domain):
 		if not self.__validate_domain(domain):
 			raise Exception('Invalid domain name')
-		self.domain, self.tld = self.__parse_domain(domain)
+		self.domain, self.tld = self.__domain_tld(domain)
 		self.domains = []
+
+	def __domain_tld(self, domain):
+		domain = domain.rsplit('.', 2)
+
+		if len(domain) == 2:
+			return domain[0], domain[1]
+
+		if DB_TLD:
+			cc_tld = {}
+			re_tld = re.compile('^[a-z]{2,4}\.[a-z]{2}$', re.IGNORECASE)
+
+			for line in open(FILE_TLD):
+				line = line[:-1]
+				if re_tld.match(line):
+					sld, tld = line.split('.')
+					if not tld in cc_tld:
+						cc_tld[tld] = []
+					cc_tld[tld].append(sld)
+
+			sld_tld = cc_tld.get(domain[2])
+			if sld_tld:
+				if domain[1] in sld_tld:
+					return domain[0], domain[1] + '.' + domain[2]
+
+		return domain[0] + '.' + domain[1], domain[2]
 
 	def __validate_domain(self, domain):
 		if len(domain) > 255:
@@ -137,223 +227,6 @@ class fuzz_domain():
 			domain = domain[:-1]
 		allowed = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
 		return allowed.match(domain)
-
-	def __parse_domain(self, domain):
-		domain = domain.rsplit('.', 2)
-	
-		if len(domain) == 2:
-			return domain
-	
-		# Source: https://publicsuffix.org/list/effective_tld_names.dat
-		# Parsed with the following regexp: ^[a-z]{2,3}\.[a-z]{2}$
-	
-		ac_sld = ['com', 'edu', 'gov', 'mil', 'net', 'org']
-		ad_sld = ['nom']
-		ae_sld = ['ac', 'co', 'gov', 'mil', 'net', 'org', 'sch']
-		af_sld = ['com', 'edu', 'gov', 'net', 'org']
-		ag_sld = ['co', 'com', 'net', 'nom', 'org']
-		ai_sld = ['com', 'net', 'off', 'org']
-		al_sld = ['com', 'edu', 'gov', 'mil', 'net', 'org']
-		an_sld = ['com', 'edu', 'net', 'org']
-		ao_sld = ['co', 'ed', 'gv', 'it', 'og', 'pb']
-		ar_sld = ['com', 'edu', 'gob', 'gov', 'int', 'mil', 'net', 'org', 'tur']
-		as_sld = ['gov']
-		at_sld = ['ac', 'biz', 'co', 'gv', 'or']
-		au_sld = ['act', 'asn', 'com', 'edu', 'gov', 'id', 'net', 'nsw', 'nt', 'org', 'oz', 'qld', 'sa', 'tas', 'vic', 'wa']
-		aw_sld = ['com']
-		az_sld = ['biz', 'com', 'edu', 'gov', 'int', 'mil', 'net', 'org', 'pp', 'pro']
-		ba_sld = ['co', 'com', 'edu', 'gov', 'mil', 'net', 'org', 'rs']
-		bb_sld = ['biz', 'co', 'com', 'edu', 'gov', 'net', 'org', 'tv']
-		be_sld = ['ac']
-		bf_sld = ['gov']
-		bh_sld = ['com', 'edu', 'gov', 'net', 'org']
-		bi_sld = ['co', 'com', 'edu', 'or', 'org']
-		bm_sld = ['com', 'edu', 'gov', 'net', 'org']
-		bo_sld = ['com', 'edu', 'gob', 'gov', 'int', 'mil', 'net', 'org', 'tv']
-		br_sld = ['adm', 'adv', 'agr', 'am', 'arq', 'art', 'ato', 'bio', 'bmd', 'cim', 'cng', 'cnt', 'com', 'ecn', 'eco', 'edu', 'emp', 'eng', 'esp', 'etc', 'eti', 'far', 'fm', 'fnd', 'fot', 'fst', 'ggf', 'gov', 'imb', 'ind', 'inf', 'jor', 'jus', 'leg', 'lel', 'mat', 'med', 'mil', 'mp', 'mus', 'net', 'not', 'ntr', 'odo', 'org', 'ppg', 'pro', 'psc', 'psi', 'qsl', 'rec', 'slg', 'srv', 'teo', 'tmp', 'trd', 'tur', 'tv', 'vet', 'zlg']
-		bs_sld = ['com', 'edu', 'gov', 'net', 'org']
-		bt_sld = ['com', 'edu', 'gov', 'net', 'org']
-		bw_sld = ['co', 'org']
-		by_sld = ['com', 'gov', 'mil', 'of']
-		bz_sld = ['com', 'edu', 'gov', 'net', 'org', 'za']
-		ca_sld = ['ab', 'bc', 'co', 'gc', 'mb', 'nb', 'nf', 'nl', 'ns', 'nt', 'nu', 'on', 'pe', 'qc', 'sk', 'yk']
-		cd_sld = ['gov']
-		ci_sld = ['ac', 'co', 'com', 'ed', 'edu', 'go', 'int', 'md', 'net', 'or', 'org']
-		cl_sld = ['co', 'gob', 'gov', 'mil']
-		cm_sld = ['co', 'com', 'gov', 'net']
-		cn_sld = ['ac', 'ah', 'bj', 'com', 'cq', 'edu', 'fj', 'gd', 'gov', 'gs', 'gx', 'gz', 'ha', 'hb', 'he', 'hi', 'hk', 'hl', 'hn', 'jl', 'js', 'jx', 'ln', 'mil', 'mo', 'net', 'nm', 'nx', 'org', 'qh', 'sc', 'sd', 'sh', 'sn', 'sx', 'tj', 'tw', 'xj', 'xz', 'yn', 'zj']
-		co_sld = ['com', 'edu', 'gov', 'int', 'mil', 'net', 'nom', 'org', 'rec', 'web']
-		cr_sld = ['ac', 'co', 'ed', 'fi', 'go', 'or', 'sa']
-		cu_sld = ['com', 'edu', 'gov', 'inf', 'net', 'org']
-		cw_sld = ['com', 'edu', 'net', 'org']
-		cx_sld = ['ath', 'gov']
-		cy_sld = ['ac', 'biz', 'com', 'gov', 'ltd', 'net', 'org', 'pro', 'tm']
-		de_sld = ['com']
-		dm_sld = ['com', 'edu', 'gov', 'net', 'org']
-		do_sld = ['art', 'com', 'edu', 'gob', 'gov', 'mil', 'net', 'org', 'sld', 'web']
-		dz_sld = ['art', 'com', 'edu', 'gov', 'net', 'org', 'pol']
-		ec_sld = ['com', 'edu', 'fin', 'gob', 'gov', 'med', 'mil', 'net', 'org', 'pro']
-		ee_sld = ['aip', 'com', 'edu', 'fie', 'gov', 'lib', 'med', 'org', 'pri']
-		eg_sld = ['com', 'edu', 'eun', 'gov', 'mil', 'net', 'org', 'sci']
-		es_sld = ['com', 'edu', 'gob', 'nom', 'org']
-		et_sld = ['biz', 'com', 'edu', 'gov', 'net', 'org']
-		fi_sld = ['iki']
-		fr_sld = ['cci', 'com', 'nom', 'prd', 'tm']
-		ge_sld = ['com', 'edu', 'gov', 'mil', 'net', 'org', 'pvt']
-		gg_sld = ['co', 'net', 'org']
-		gh_sld = ['com', 'edu', 'gov', 'mil', 'org']
-		gi_sld = ['com', 'edu', 'gov', 'ltd', 'mod', 'org']
-		gl_sld = ['co', 'com', 'edu', 'net', 'org']
-		gn_sld = ['ac', 'com', 'edu', 'gov', 'net', 'org']
-		gp_sld = ['com', 'edu', 'net', 'org']
-		gr_sld = ['com', 'edu', 'gov', 'net', 'org']
-		gt_sld = ['com', 'edu', 'gob', 'ind', 'mil', 'net', 'org']
-		gy_sld = ['co', 'com', 'net']
-		hk_sld = ['com', 'edu', 'gov', 'idv', 'inc', 'ltd', 'net', 'org']
-		hn_sld = ['com', 'edu', 'gob', 'mil', 'net', 'org']
-		hr_sld = ['com', 'iz']
-		ht_sld = ['art', 'com', 'edu', 'med', 'net', 'org', 'pol', 'pro', 'rel']
-		hu_sld = ['co', 'org', 'sex', 'tm']
-		id_sld = ['ac', 'biz', 'co', 'go', 'mil', 'my', 'net', 'or', 'sch', 'web']
-		ie_sld = ['gov']
-		im_sld = ['ac', 'co', 'com', 'net', 'org', 'tt', 'tv']
-		in_sld = ['ac', 'co', 'edu', 'gen', 'gov', 'ind', 'mil', 'net', 'nic', 'org', 'res']
-		io_sld = ['com', 'nid']
-		iq_sld = ['com', 'edu', 'gov', 'mil', 'net', 'org']
-		ir_sld = ['ac', 'co', 'gov', 'id', 'net', 'org', 'sch']
-		is_sld = ['com', 'edu', 'gov', 'int', 'net', 'org']
-		it_sld = ['abr', 'ag', 'al', 'an', 'ao', 'ap', 'aq', 'ar', 'at', 'av', 'ba', 'bas', 'bg', 'bi', 'bl', 'bn', 'bo', 'br', 'bs', 'bt', 'bz', 'ca', 'cal', 'cam', 'cb', 'ce', 'ch', 'ci', 'cl', 'cn', 'co', 'cr', 'cs', 'ct', 'cz', 'edu', 'emr', 'en', 'fc', 'fe', 'fg', 'fi', 'fm', 'fr', 'fvg', 'ge', 'go', 'gov', 'gr', 'im', 'is', 'kr', 'laz', 'lc', 'le', 'lig', 'li', 'lo', 'lom', 'lt', 'lu', 'mar', 'mb', 'mc', 'me', 'mi', 'mn', 'mo', 'mol', 'ms', 'mt', 'na', 'no', 'nu', 'og', 'or', 'ot', 'pa', 'pc', 'pd', 'pe', 'pg', 'pi', 'pmn', 'pn', 'po', 'pr', 'pt', 'pug', 'pu', 'pv', 'pz', 'ra', 'rc', 're', 'rg', 'ri', 'rm', 'rn', 'ro', 'sa', 'sar', 'sic', 'si', 'so', 'sp', 'sr', 'ss', 'sv', 'taa', 'ta', 'te', 'tn', 'to', 'tos', 'tp', 'tr', 'ts', 'tv', 'ud', 'umb', 'va', 'vao', 'vb', 'vc', 'vda', 've', 'ven', 'vi', 'vr', 'vs', 'vt', 'vv']
-		je_sld = ['co', 'net', 'org']
-		jo_sld = ['com', 'edu', 'gov', 'mil', 'net', 'org', 'sch']
-		jp_sld = ['ac', 'ad', 'co', 'ed', 'go', 'gr', 'lg', 'mie', 'ne', 'or']
-		kg_sld = ['com', 'edu', 'gov', 'mil', 'net', 'org']
-		ki_sld = ['biz', 'com', 'edu', 'gov', 'net', 'org']
-		km_sld = ['ass', 'com', 'edu', 'gov', 'mil', 'nom', 'org', 'prd', 'tm']
-		kn_sld = ['edu', 'gov', 'net', 'org']
-		kp_sld = ['com', 'edu', 'gov', 'org', 'rep', 'tra']
-		kr_sld = ['ac', 'co', 'es', 'go', 'hs', 'kg', 'mil', 'ms', 'ne', 'or', 'pe', 're', 'sc']
-		ky_sld = ['com', 'edu', 'gov', 'net', 'org']
-		kz_sld = ['com', 'edu', 'gov', 'mil', 'net', 'org']
-		la_sld = ['com', 'edu', 'gov', 'int', 'net', 'org', 'per']
-		lb_sld = ['com', 'edu', 'gov', 'net', 'org']
-		lc_sld = ['co', 'com', 'edu', 'gov', 'net', 'org']
-		lk_sld = ['ac', 'com', 'edu', 'gov', 'grp', 'int', 'ltd', 'net', 'ngo', 'org', 'sch', 'soc', 'web']
-		lr_sld = ['com', 'edu', 'gov', 'net', 'org']
-		ls_sld = ['co', 'org']
-		lt_sld = ['gov']
-		lv_sld = ['asn', 'com', 'edu', 'gov', 'id', 'mil', 'net', 'org']
-		ly_sld = ['com', 'edu', 'gov', 'id', 'med', 'net', 'org', 'plc', 'sch']
-		ma_sld = ['ac', 'co', 'gov', 'net', 'org']
-		mc_sld = ['tm']
-		me_sld = ['ac', 'co', 'edu', 'gov', 'its', 'net', 'org']
-		mg_sld = ['co', 'com', 'edu', 'gov', 'mil', 'nom', 'org', 'prd', 'tm']
-		mk_sld = ['com', 'edu', 'gov', 'inf', 'net', 'org']
-		ml_sld = ['com', 'edu', 'gov', 'net', 'org']
-		mn_sld = ['edu', 'gov', 'nyc', 'org']
-		mo_sld = ['com', 'edu', 'gov', 'net', 'org']
-		mr_sld = ['gov']
-		ms_sld = ['com', 'edu', 'gov', 'net', 'org']
-		mt_sld = ['com', 'edu', 'net', 'org']
-		mu_sld = ['ac', 'com', 'co', 'gov', 'net', 'org', 'or']
-		mv_sld = ['biz', 'com', 'edu', 'gov', 'int', 'mil', 'net', 'org', 'pro']
-		mw_sld = ['ac', 'biz', 'com', 'co', 'edu', 'gov', 'int', 'net', 'org']
-		mx_sld = ['com', 'edu', 'gob', 'net', 'org']
-		my_sld = ['com', 'edu', 'gov', 'mil', 'net', 'org']
-		na_sld = ['ca', 'cc', 'com', 'co', 'dr', 'in', 'mx', 'org', 'or', 'pro', 'tv', 'us', 'ws']
-		nf_sld = ['com', 'net', 'per', 'rec', 'web']
-		ng_sld = ['com', 'edu', 'gov', 'mil', 'net', 'org', 'sch']
-		nl_sld = ['bv', 'co']
-		no_sld = ['aa', 'ah', 'al', 'bu', 'co', 'dep', 'eid', 'fet', 'fhs', 'fla', 'fm', 'gol', 'ha', 'hl', 'hm', 'hof', 'hol', 'lom', 'mil', 'mr', 'nl', 'nt', 'of', 'ol', 'rl', 'sel', 'sf', 'ski', 'st', 'tm', 'tr', 'va', 'vf', 'vgs', 'vik']
-		nr_sld = ['biz', 'com', 'edu', 'gov', 'net', 'org']
-		nz_sld = ['ac', 'co', 'cri', 'gen', 'iwi', 'mil', 'net', 'org']
-		om_sld = ['com', 'co', 'edu', 'gov', 'med', 'net', 'org', 'pro']
-		pa_sld = ['abo', 'ac', 'com', 'edu', 'gob', 'ing', 'med', 'net', 'nom', 'org', 'sld']
-		pe_sld = ['com', 'edu', 'gob', 'mil', 'net', 'nom', 'org']
-		pf_sld = ['com', 'edu', 'org']
-		ph_sld = ['com', 'edu', 'gov', 'mil', 'net', 'ngo', 'org']
-		pk_sld = ['biz', 'com', 'edu', 'fam', 'gob', 'gok', 'gon', 'gop', 'gos', 'gov', 'net', 'org', 'web']
-		pl_sld = ['aid', 'art', 'atm', 'biz', 'com', 'co', 'edu', 'elk', 'gda', 'gov', 'gsm', 'med', 'mil', 'net', 'nom', 'org', 'pc', 'rel', 'sex', 'sos', 'tm', 'waw']
-		pn_sld = ['co', 'edu', 'gov', 'net', 'org']
-		pr_sld = ['ac', 'biz', 'com', 'edu', 'est', 'gov', 'net', 'org', 'pro']
-		ps_sld = ['com', 'edu', 'gov', 'net', 'org', 'plo', 'sec']
-		pt_sld = ['com', 'edu', 'gov', 'int', 'net', 'org']
-		pw_sld = ['co', 'ed', 'go', 'ne', 'or']
-		py_sld = ['com', 'edu', 'gov', 'mil', 'net', 'org']
-		qa_sld = ['com', 'edu', 'gov', 'mil', 'net', 'org', 'sch']
-		re_sld = ['com', 'nom']
-		ro_sld = ['com', 'nom', 'nt', 'org', 'rec', 'tm', 'www']
-		rs_sld = ['ac', 'co', 'edu', 'gov', 'in', 'org']
-		ru_sld = ['ac', 'bir', 'cbg', 'cmw', 'com', 'edu', 'gov', 'int', 'jar', 'khv', 'kms', 'mil', 'msk', 'net', 'nkz', 'nov', 'nsk', 'org', 'pp', 'ptz', 'rnd', 'snz', 'spb', 'stv', 'tom', 'tsk', 'udm', 'vrn']
-		rw_sld = ['ac', 'com', 'co', 'edu', 'gov', 'int', 'mil', 'net']
-		sa_sld = ['com', 'edu', 'gov', 'med', 'net', 'org', 'pub', 'sch']
-		sb_sld = ['com', 'edu', 'gov', 'net', 'org']
-		sc_sld = ['com', 'edu', 'gov', 'net', 'org']
-		sd_sld = ['com', 'edu', 'gov', 'med', 'net', 'org', 'tv']
-		se_sld = ['ac', 'bd', 'com', 'fh', 'fhv', 'org', 'pp', 'tm']
-		sg_sld = ['com', 'edu', 'gov', 'net', 'org', 'per']
-		sh_sld = ['com', 'gov', 'mil', 'net', 'org']
-		sl_sld = ['com', 'edu', 'gov', 'net', 'org']
-		sn_sld = ['art', 'com', 'edu', 'org']
-		so_sld = ['com', 'net', 'org']
-		st_sld = ['com', 'co', 'edu', 'gov', 'mil', 'net', 'org']
-		su_sld = ['msk', 'nov', 'spb']
-		sv_sld = ['com', 'edu', 'gob', 'org', 'red']
-		sx_sld = ['gov']
-		sy_sld = ['com', 'edu', 'gov', 'mil', 'net', 'org']
-		sz_sld = ['ac', 'co', 'org']
-		th_sld = ['ac', 'co', 'go', 'in', 'mi', 'net', 'or']
-		tj_sld = ['ac', 'biz', 'com', 'co', 'edu', 'go', 'gov', 'int', 'mil', 'net', 'nic', 'org', 'web']
-		tl_sld = ['gov']
-		tm_sld = ['com', 'co', 'edu', 'gov', 'mil', 'net', 'nom', 'org']
-		tn_sld = ['com', 'ens', 'fin', 'gov', 'ind', 'nat', 'net', 'org', 'rns', 'rnu']
-		to_sld = ['com', 'edu', 'gov', 'mil', 'net', 'org']
-		tr_sld = ['av', 'bbs', 'bel', 'biz', 'com', 'dr', 'edu', 'gen', 'gov', 'kep', 'mil', 'nc', 'net', 'org', 'pol', 'tel', 'tv', 'web']
-		tt_sld = ['biz', 'com', 'co', 'edu', 'gov', 'int', 'net', 'org', 'pro']
-		tw_sld = ['com', 'edu', 'gov', 'idv', 'mil', 'net', 'org']
-		tz_sld = ['ac', 'co', 'go', 'me', 'mil', 'ne', 'or', 'sc', 'tv']
-		ua_sld = ['biz', 'ck', 'cn', 'com', 'co', 'cr', 'cv', 'dn', 'dp', 'edu', 'gov', 'if', 'in', 'kh', 'km', 'kr', 'ks', 'kv', 'lg', 'lt', 'lv', 'mk', 'net', 'od', 'org', 'pl', 'pp', 'rv', 'sb', 'sm', 'te', 'uz', 'vn', 'zp', 'zt']
-		ug_sld = ['ac', 'com', 'co', 'go', 'ne', 'org', 'or', 'sc']
-		uk_sld = ['ac', 'co', 'gov', 'ltd', 'me', 'net', 'nhs', 'org', 'plc']
-		us_sld = ['ak', 'al', 'ar', 'as', 'az', 'ca', 'co', 'ct', 'dc', 'de', 'dni', 'fed', 'fl', 'ga', 'gu', 'hi', 'ia', 'id', 'il', 'in', 'isa', 'ks', 'ky', 'la', 'ma', 'md', 'me', 'mi', 'mn', 'mo', 'ms', 'mt', 'nc', 'nd', 'ne', 'nh', 'nj', 'nm', 'nsn', 'nv', 'ny', 'oh', 'ok', 'or', 'pa', 'pr', 'ri', 'sc', 'sd', 'tn', 'tx', 'ut', 'va', 'vi', 'vt', 'wa', 'wi', 'wv', 'wy']
-		uy_sld = ['com', 'edu', 'gub', 'mil', 'net', 'org']
-		uz_sld = ['com', 'co', 'net', 'org']
-		vc_sld = ['com', 'edu', 'gov', 'mil', 'net', 'org']
-		ve_sld = ['com', 'co', 'edu', 'gob', 'gov', 'int', 'mil', 'net', 'org', 'rec', 'tec', 'web']
-		vi_sld = ['com', 'co', 'net', 'org']
-		vn_sld = ['ac', 'biz', 'com', 'edu', 'gov', 'int', 'net', 'org', 'pro']
-		vu_sld = ['com', 'edu', 'net', 'org']
-		ws_sld = ['com', 'edu', 'gov', 'net', 'org']
-		za_sld = ['ac', 'alt', 'co', 'edu', 'gov', 'law', 'mil', 'net', 'ngo', 'nis', 'nom', 'org', 'tm', 'web']
-	
-		cc_tld = {
-		'ac': ac_sld, 'ad': ad_sld, 'ae': ae_sld, 'af': af_sld, 'ag': ag_sld, 'ai': ai_sld, 'al': al_sld, 'an': an_sld, 'ao': ao_sld,
-		'ar': ar_sld, 'as': as_sld, 'at': at_sld, 'au': au_sld, 'aw': aw_sld, 'az': az_sld, 'ba': ba_sld, 'bb': bb_sld, 'be': be_sld,
-		'bf': bf_sld, 'bh': bh_sld, 'bi': bi_sld, 'bm': bm_sld, 'bo': bo_sld, 'br': br_sld, 'bs': bs_sld, 'bt': bt_sld, 'bw': bw_sld,
-		'by': by_sld, 'bz': bz_sld, 'ca': ca_sld, 'cd': cd_sld, 'ci': ci_sld, 'cl': cl_sld, 'cm': cm_sld, 'cn': cn_sld, 'co': co_sld,
-		'cr': cr_sld, 'cu': cu_sld, 'cw': cw_sld, 'cx': cx_sld, 'cy': cy_sld, 'de': de_sld, 'dm': dm_sld, 'do': do_sld, 'dz': dz_sld,
-		'ec': ec_sld, 'ee': ee_sld, 'eg': eg_sld, 'es': es_sld, 'et': et_sld, 'fi': fi_sld, 'fr': fr_sld, 'ge': ge_sld, 'gg': gg_sld,
-		'gh': gh_sld, 'gi': gi_sld, 'gl': gl_sld, 'gn': gn_sld, 'gp': gp_sld, 'gr': gr_sld, 'gt': gt_sld, 'gy': gy_sld, 'hk': hk_sld,
-		'hn': hn_sld, 'hr': hr_sld, 'ht': ht_sld, 'hu': hu_sld, 'id': id_sld, 'ie': ie_sld, 'im': im_sld, 'in': in_sld, 'io': io_sld,
-		'iq': iq_sld, 'ir': ir_sld, 'is': is_sld, 'it': it_sld, 'je': je_sld, 'jo': jo_sld, 'jp': jp_sld, 'kg': kg_sld, 'ki': ki_sld,
-		'km': km_sld, 'kn': kn_sld, 'kp': kp_sld, 'kr': kr_sld, 'ky': ky_sld, 'kz': kz_sld, 'la': la_sld, 'lb': lb_sld, 'lc': lc_sld,
-		'lk': lk_sld, 'lr': lr_sld, 'ls': ls_sld, 'lt': lt_sld, 'lv': lv_sld, 'ly': ly_sld, 'ma': ma_sld, 'mc': mc_sld, 'me': me_sld,
-		'mg': mg_sld, 'mk': mk_sld, 'ml': ml_sld, 'mn': mn_sld, 'mo': mo_sld, 'mr': mr_sld, 'ms': ms_sld, 'mt': mt_sld, 'mu': mu_sld,
-		'mv': mv_sld, 'mw': mw_sld, 'mx': mx_sld, 'my': my_sld, 'na': na_sld, 'nf': nf_sld, 'ng': ng_sld, 'nl': nl_sld, 'no': no_sld,
-		'nr': nr_sld, 'nz': nz_sld, 'om': om_sld, 'pa': pa_sld, 'pe': pe_sld, 'pf': pf_sld, 'ph': ph_sld, 'pk': pk_sld, 'pl': pl_sld,
-		'pn': pn_sld, 'pr': pr_sld, 'ps': ps_sld, 'pt': pt_sld, 'pw': pw_sld, 'py': py_sld, 'qa': qa_sld, 're': re_sld, 'ro': ro_sld,
-		'rs': rs_sld, 'ru': ru_sld, 'rw': rw_sld, 'sa': sa_sld, 'sb': sb_sld, 'sc': sc_sld, 'sd': sd_sld, 'se': se_sld, 'sg': sg_sld,
-		'sh': sh_sld, 'sl': sl_sld, 'sn': sn_sld, 'so': so_sld, 'st': st_sld, 'su': su_sld, 'sv': sv_sld, 'sx': sx_sld, 'sy': sy_sld,
-		'sz': sz_sld, 'th': th_sld, 'tj': tj_sld, 'tl': tl_sld, 'tm': tm_sld, 'tn': tn_sld, 'to': to_sld, 'tr': tr_sld, 'tt': tt_sld,
-		'tw': tw_sld, 'tz': tz_sld, 'ua': ua_sld, 'ug': ug_sld, 'uk': uk_sld, 'us': us_sld, 'uy': uy_sld, 'uz': uz_sld, 'vc': vc_sld,
-		've': ve_sld, 'vi': vi_sld, 'vn': vn_sld, 'vu': vu_sld, 'ws': ws_sld, 'za': za_sld
-		}
-	
-		sld_tld = cc_tld.get(domain[2])
-		if sld_tld:
-			if domain[1] in sld_tld:
-				return [domain[0], domain[1] + '.' + domain[2]]
-	
-		return [domain[0] + '.' + domain[1], domain[2]]
 
 	def __filter_domains(self):
 		seen = set()
@@ -436,7 +309,7 @@ class fuzz_domain():
 			result.append(self.domain[:i] + self.domain[i+1:])
 
 		n = re.sub(r'(.)\1+', r'\1', self.domain)
-	
+
 		if n not in result and n != self.domain:
 			result.append(n) 
 
@@ -509,15 +382,17 @@ class fuzz_domain():
 
 		self.__filter_domains()
 
-	def get(self):
-		return self.domains
 
 class thread_domain(threading.Thread):
+
 	def __init__(self, queue):
 		threading.Thread.__init__(self)
 		self.jobs = queue
 		self.kill_received = False
 		self.orig_domain_ssdeep = ''
+		self.uri_scheme = 'http'
+		self.uri_path = ''
+		self.uri_query = ''
 
 	def __banner_http(self, ip, vhost):
 		try:
@@ -555,42 +430,39 @@ class thread_domain(threading.Thread):
 				return hello[4:].strip()
 			return hello[:40]
 
-	def orig_ssdeep(self, hash):
-		self.orig_domain_ssdeep = hash
-
 	def stop(self):
 		self.kill_received = True
 
 	def run(self):
 		while not self.kill_received:
 			domain = self.jobs.get()
-			if module_dnspython:
+			if MODULE_DNSPYTHON:
 				resolv = dns.resolver.Resolver()
 				resolv.lifetime = REQUEST_TIMEOUT_DNS
 				resolv.timeout = REQUEST_TIMEOUT_DNS
 
 				try:
-					ns = resolv.query(domain['domain'], 'NS')
-					domain['ns'] = str(sorted(ns)[0])[:-1].lower()
+					ans = resolv.query(domain['domain'], 'SOA')
+					domain['ns'] = str(sorted(ans)[0]).split(' ')[0][:-1].lower()
 				except Exception:
 					pass
 
 				if 'ns' in domain:
 					try:
-						ns = resolv.query(domain['domain'], 'A')
-						domain['a'] = str(sorted(ns)[0])
-					except Exception:
-						pass
-	
-					try:
-						ns = resolv.query(domain['domain'], 'AAAA')
-						domain['aaaa'] = str(sorted(ns)[0])
+						ans = resolv.query(domain['domain'], 'A')
+						domain['a'] = str(sorted(ans)[0])
 					except Exception:
 						pass
 
 					try:
-						ns = resolv.query(domain['domain'], 'MX')
-						mx = str(sorted(ns)[0].exchange)[:-1].lower()
+						ans = resolv.query(domain['domain'], 'AAAA')
+						domain['aaaa'] = str(sorted(ans)[0])
+					except Exception:
+						pass
+
+					try:
+						ans = resolv.query(domain['domain'], 'MX')
+						mx = str(sorted(ans)[0].exchange)[:-1].lower()
 						if mx: domain['mx'] = mx
 					except Exception:
 						pass
@@ -609,7 +481,7 @@ class thread_domain(threading.Thread):
 							domain['aaaa'] = j[4][0]
 							break
 
-			if module_whois and args.whois:
+			if MODULE_WHOIS and args.whois:
 				if 'ns' in domain and 'a' in domain:
 					try:
 						whoisdb = whois.query(domain['domain'])
@@ -618,9 +490,9 @@ class thread_domain(threading.Thread):
 					except Exception:
 						pass
 
-			if module_geoip and geoip_db and args.geoip:
+			if MODULE_GEOIP and DB_GEOIP and args.geoip:
 				if 'a' in domain:
-					gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
+					gi = GeoIP.open(FILE_GEOIP, GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
 					try:
 						country = gi.country_name_by_addr(domain['a'])
 					except Exception:
@@ -639,10 +511,10 @@ class thread_domain(threading.Thread):
 					if banner:
 						domain['banner-smtp'] = banner
 
-			if args.ssdeep and module_requests and module_ssdeep and self.orig_domain_ssdeep:
+			if args.ssdeep and MODULE_REQUESTS and MODULE_SSDEEP and self.orig_domain_ssdeep:
 				if 'a' in domain:
 					try:
-						req = requests.get('http://' + domain['domain'], timeout=REQUEST_TIMEOUT_HTTP)
+						req = requests.get(self.uri_scheme + '://' + domain['domain'] + self.uri_path + self.uri_query, timeout=REQUEST_TIMEOUT_HTTP)
 						fuzz_domain_ssdeep = ssdeep.hash(req.text)
 					except Exception:
 						pass
@@ -651,6 +523,7 @@ class thread_domain(threading.Thread):
 
 			self.jobs.task_done()
 
+
 def main():
 	parser = argparse.ArgumentParser(
 	description='''Find similar-looking domain names that adversaries can use to attack you.  
@@ -658,7 +531,7 @@ def main():
 	additional source of targeted threat intelligence.'''
 	)
 
-	parser.add_argument('domain', help='domain name to check')
+	parser.add_argument('domain', help='domain name or URL to check')
 	parser.add_argument('-c', '--csv', action='store_true', help='print output in CSV format')
 	parser.add_argument('-r', '--registered', action='store_true', help='show only registered domain names')
 	parser.add_argument('-w', '--whois', action='store_true', help='perform lookup for WHOIS creation/update time (slow)')
@@ -670,12 +543,10 @@ def main():
 	if len(sys.argv) < 2:
 		sys.stdout.write('%sdnstwist %s by <%s>%s\n\n' % (ST_BRI, __version__, __email__, ST_RST))
 		parser.print_help()
-		sys.exit(0)
+		bye(0)
 
 	global args
 	args = parser.parse_args()
-
-	args.domain = args.domain.lower()
 
 	if args.threads < 1 or args.threads > 100:
 		args.threads = THREAD_COUNT_DEFAULT
@@ -689,37 +560,42 @@ def main():
 
 ''' % __version__ + FG_RST)
 
+	url = parse_url(args.domain)
+	url.parse()
+
 	try:
-		fuzzer = fuzz_domain(args.domain)
+		fuzzer = fuzz_domain(url.domain)
 	except Exception:
-		p_err(FG_RED + 'ERROR: invalid domain name!\n\n' + FG_RST)
-		sys.exit(-1)
+		p_err(FG_RED + 'ERROR: Invalid domain name!\n\n' + FG_RST)
+		bye(-1)
 
 	signal.signal(signal.SIGINT, sigint_handler)
 
 	fuzzer.fuzz()
-	domains = fuzzer.get()
+	domains = fuzzer.domains
 
-	if not module_dnspython:
+	if not DB_TLD:
+		p_out(FG_YEL + 'NOTICE: Missing file: ' + FILE_TLD + ' - TLD database not available!\n\n' + FG_RST)
+	if not DB_GEOIP and args.geoip:
+		p_out(FG_YEL + 'NOTICE: Missing file: ' + FILE_GEOIP + ' - geographical location not available!\n\n' + FG_RST)
+	if not MODULE_DNSPYTHON:
 		p_out(FG_YEL + 'NOTICE: Missing module: dnspython - DNS features limited!\n\n' + FG_RST)
-	if not module_geoip and args.geoip:
+	if not MODULE_GEOIP and args.geoip:
 		p_out(FG_YEL + 'NOTICE: Missing module: GeoIP - geographical location not available!\n\n' + FG_RST)
-	if not geoip_db and args.geoip:
-		p_out(FG_YEL + 'NOTICE: Missing file: /usr/share/GeoIP/geoIP.dat - geographical location not available!\n\n' + FG_RST)
-	if not module_whois and args.whois:
+	if not MODULE_WHOIS and args.whois:
 		p_out(FG_YEL + 'NOTICE: Missing module: whois - database not accessible!\n\n' + FG_RST)
-	if not module_ssdeep and args.ssdeep:
+	if not MODULE_SSDEEP and args.ssdeep:
 		p_out(FG_YEL + 'NOTICE: Missing module: ssdeep - fuzzy hashes not available!\n\n' + FG_RST)
-	if not module_requests and args.ssdeep:
+	if not MODULE_REQUESTS and args.ssdeep:
 		p_out(FG_YEL + 'NOTICE: Missing module: Requests - web page downloads not possible!\n\n' + FG_RST)
-	if module_whois and args.whois:
+	if MODULE_WHOIS and args.whois:
 		p_out(FG_YEL + 'NOTICE: Reducing the number of threads to 1 in order to query WHOIS server\n\n' + FG_RST)
 		args.threads = 1
 
-	if args.ssdeep and module_ssdeep and module_requests:
-		p_out('Fetching content from: http://' + args.domain + '/ ... ')
+	if args.ssdeep and MODULE_SSDEEP and MODULE_REQUESTS:
+		p_out('Fetching content from: ' + url.get_full_uri() + ' ... ')
 		try:
-			req = requests.get('http://' + args.domain, timeout=REQUEST_TIMEOUT_HTTP)
+			req = requests.get(url.get_full_uri(), timeout=REQUEST_TIMEOUT_HTTP)
 		except Exception:
 			p_out('Failed!\n')
 			args.ssdeep = False
@@ -728,7 +604,7 @@ def main():
 			p_out('%d %s (%d bytes)\n' % (req.status_code, req.reason, len(req.text)))
 			orig_domain_ssdeep = ssdeep.hash(req.text)
 
-	p_out('Processing %d domains ' % len(domains))
+	p_out('Processing %d domain variants ' % len(domains))
 
 	jobs = queue.Queue()
 
@@ -738,11 +614,14 @@ def main():
 	for i in range(args.threads):
 		worker = thread_domain(jobs)
 		worker.setDaemon(True)
+		worker.uri_scheme = url.scheme
+		worker.uri_path = url.path
+		worker.uri_query = url.query
 		if 'orig_domain_ssdeep' in locals():
-			worker.orig_ssdeep(orig_domain_ssdeep)
+			worker.orig_domain_ssdeep = orig_domain_ssdeep
 		worker.start()
 		threads.append(worker)
-	
+
 	for i in range(len(domains)):
 		jobs.put(domains[i])
 
@@ -812,9 +691,8 @@ def main():
 			domain.get('created', ''), domain.get('updated', ''), str(domain.get('ssdeep', '')))
 			)
 
-	p_out(FG_RST + ST_RST)
+	bye(0)
 
-	return 0
 
 if __name__ == '__main__':
 	main()
