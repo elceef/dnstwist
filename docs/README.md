@@ -17,6 +17,7 @@ Just not to waste time there are several good reasons to give it a try:
 - Resolving domain names to IPv4 and IPv6
 - Querying for NS and MX records
 - Optional: Evaluating web page similarity with fuzzy hashes
+- Optional: Testing if MX host can be used to intercept e-mails
 - Optional: GeoIP location information
 - Optional: Banner grabbing for HTTP and SMTP services
 - Optional: WHOIS lookups for creation and modification date

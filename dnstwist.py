@@ -30,6 +30,7 @@ import argparse
 import threading
 from random import randint
 from os import path
+import smtplib
 
 try:
 	import queue
@@ -376,13 +377,13 @@ class fuzz_domain():
 			wordlist = []
 			for word in open(FILE_DICT):
 				word = word.strip('\n')
-				if word.isalpha():
+				if word.isalpha() and word not in wordlist:
 					wordlist.append(word)
 
 			for word in wordlist:
 				result.append(prefix + name + '-' + word)
-				result.append(prefix + word + '-' + name)
 				result.append(prefix + name + word)
+				result.append(prefix + word + '-' + name)
 				result.append(prefix + word + name)
 
 		return result
@@ -420,10 +421,20 @@ class thread_domain(threading.Thread):
 		threading.Thread.__init__(self)
 		self.jobs = queue
 		self.kill_received = False
-		self.orig_domain_ssdeep = ''
+
+		self.ssdeep_orig = ''
+		self.domain_orig = ''
+
 		self.uri_scheme = 'http'
 		self.uri_path = ''
 		self.uri_query = ''
+
+		self.option_extdns = False
+		self.option_geoip = False
+		self.option_whois = False
+		self.option_ssdeep = False
+		self.option_banners = False
+		self.option_mxcheck = False
 
 	def __banner_http(self, ip, vhost):
 		try:
@@ -461,13 +472,26 @@ class thread_domain(threading.Thread):
 				return hello[4:].strip()
 			return hello[:40]
 
+	def __mxcheck(self, mx, from_domain, to_domain):
+		from_addr = 'postmaster@' + from_domain
+		to_addr = 'twistedguy' + str(randint(1, 9)) + '@' + to_domain
+		try:
+			smtp = smtplib.SMTP(mx)
+			smtp.sendmail(from_addr, to_addr, 'QUIT\n')
+			smtp.quit()
+		except Exception:
+			return False
+		else:
+			return True
+
 	def stop(self):
 		self.kill_received = True
 
 	def run(self):
 		while not self.kill_received:
 			domain = self.jobs.get()
-			if MODULE_DNSPYTHON:
+
+			if self.option_extdns:
 				resolv = dns.resolver.Resolver()
 				resolv.lifetime = REQUEST_TIMEOUT_DNS
 				resolv.timeout = REQUEST_TIMEOUT_DNS
@@ -512,7 +536,13 @@ class thread_domain(threading.Thread):
 							domain['aaaa'] = j[4][0]
 							break
 
-			if MODULE_WHOIS and args.whois:
+			if self.option_mxcheck:
+				if 'mx' in domain:
+					if domain['domain'] is not self.domain_orig: 
+						if self.__mxcheck(domain['mx'], self.domain_orig, domain['domain']):
+							domain['mx-intercept'] = True
+
+			if self.option_whois:
 				if 'ns' in domain and 'a' in domain:
 					try:
 						whoisdb = whois.query(domain['domain'])
@@ -521,7 +551,7 @@ class thread_domain(threading.Thread):
 					except Exception:
 						pass
 
-			if MODULE_GEOIP and DB_GEOIP and args.geoip:
+			if self.option_geoip:
 				if 'a' in domain:
 					gi = GeoIP.open(FILE_GEOIP, GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
 					try:
@@ -532,7 +562,7 @@ class thread_domain(threading.Thread):
 						if country:
 							domain['country'] = country.split(',')[0]
 
-			if args.banners:
+			if self.option_banners:
 				if 'a' in domain:
 					banner = self.__banner_http(domain['a'], domain['domain'])
 					if banner:
@@ -542,15 +572,15 @@ class thread_domain(threading.Thread):
 					if banner:
 						domain['banner-smtp'] = banner
 
-			if args.ssdeep and MODULE_REQUESTS and MODULE_SSDEEP and self.orig_domain_ssdeep:
+			if self.option_ssdeep:
 				if 'a' in domain:
 					try:
 						req = requests.get(self.uri_scheme + '://' + domain['domain'] + self.uri_path + self.uri_query, timeout=REQUEST_TIMEOUT_HTTP)
-						fuzz_domain_ssdeep = ssdeep.hash(req.text)
+						ssdeep_fuzz = ssdeep.hash(req.text)
 					except Exception:
 						pass
 					else:
-						domain['ssdeep'] = ssdeep.compare(self.orig_domain_ssdeep, fuzz_domain_ssdeep)
+						domain['ssdeep'] = ssdeep.compare(self.ssdeep_orig, ssdeep_fuzz)
 
 			self.jobs.task_done()
 
@@ -569,6 +599,7 @@ def main():
 	parser.add_argument('-g', '--geoip', action='store_true', help='perform lookup for GeoIP location')
 	parser.add_argument('-b', '--banners', action='store_true', help='determine HTTP and SMTP service banners')
 	parser.add_argument('-s', '--ssdeep', action='store_true', help='fetch web pages and compare their fuzzy hashes to evaluate similarity')
+	parser.add_argument('-m', '--mxcheck', action='store_true', help='check if MX host can be used to intercept e-mails')
 	parser.add_argument('-t', '--threads', type=int, default=THREAD_COUNT_DEFAULT, help='number of threads to run (default: %d)' % THREAD_COUNT_DEFAULT)
 
 	if len(sys.argv) < 2:
@@ -633,7 +664,7 @@ def main():
 			pass
 		else:
 			p_out('%d %s (%d bytes)\n' % (req.status_code, req.reason, len(req.text)))
-			orig_domain_ssdeep = ssdeep.hash(req.text)
+			ssdeep_orig = ssdeep.hash(req.text)
 
 	p_out('Processing %d domain variants ' % len(domains))
 
@@ -645,11 +676,27 @@ def main():
 	for i in range(args.threads):
 		worker = thread_domain(jobs)
 		worker.setDaemon(True)
+
 		worker.uri_scheme = url.scheme
 		worker.uri_path = url.path
 		worker.uri_query = url.query
-		if 'orig_domain_ssdeep' in locals():
-			worker.orig_domain_ssdeep = orig_domain_ssdeep
+
+		worker.domain_orig = url.domain
+
+		if MODULE_DNSPYTHON:
+			worker.option_extdns = True
+		if MODULE_WHOIS and args.whois:
+			worker.option_whois = True
+		if MODULE_GEOIP and DB_GEOIP and args.geoip:
+			worker.option_geoip = True
+		if args.banners:
+			worker.option_banners = True
+		if args.ssdeep and MODULE_REQUESTS and MODULE_SSDEEP and 'ssdeep_orig' in locals():
+			worker.option_ssdeep = True
+			worker.ssdeep_orig = ssdeep_orig
+		if args.mxcheck:
+			worker.option_mxcheck = True
+
 		worker.start()
 		threads.append(worker)
 
@@ -687,7 +734,10 @@ def main():
 			info += '%sNS:%s%s%s ' % (FG_GRE, FG_CYA, domain['ns'], FG_RST)
 
 		if 'mx' in domain:
-			info += '%sMX:%s%s%s ' % (FG_GRE, FG_CYA, domain['mx'], FG_RST)
+			if 'mx-intercept' in domain:
+				info += '%sMX/INTERCEPT:%s%s%s' % (FG_YEL, FG_CYA, domain['mx'], FG_RST)
+			else:
+				info += '%sMX:%s%s%s ' % (FG_GRE, FG_CYA, domain['mx'], FG_RST)
 
 		if 'banner-http' in domain:
 			info += '%sHTTP:%s"%s"%s ' % (FG_GRE, FG_CYA, domain['banner-http'], FG_RST)
