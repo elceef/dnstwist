@@ -75,11 +75,9 @@ DIR = path.abspath(path.dirname(sys.argv[0]))
 DIR_DB = 'database'
 FILE_GEOIP = path.join(DIR, DIR_DB, 'GeoIP.dat')
 FILE_TLD = path.join(DIR, DIR_DB, 'effective_tld_names.dat')
-FILE_DICT = path.join(DIR, DIR_DB, 'default.dict')
 
 DB_GEOIP = path.exists(FILE_GEOIP)
 DB_TLD = path.exists(FILE_TLD)
-DB_DICT = path.exists(FILE_DICT)
 
 REQUEST_TIMEOUT_DNS = 5
 REQUEST_TIMEOUT_HTTP = 5
@@ -362,39 +360,11 @@ class fuzz_domain():
 
 		return result
 
-	def __dictionary(self):
-		result = []
-
-		if DB_DICT:
-			domain = self.domain.rsplit('.', 1)
-			if len(domain) > 1:
-				prefix = domain[0] + '.'
-				name = domain[1]
-			else:
-				prefix = ''
-				name = domain[0]
-
-			wordlist = []
-			for word in open(FILE_DICT):
-				word = word.strip('\n')
-				if word.isalpha() and word not in wordlist:
-					wordlist.append(word)
-
-			for word in wordlist:
-				result.append(prefix + name + '-' + word)
-				result.append(prefix + name + word)
-				result.append(prefix + word + '-' + name)
-				result.append(prefix + word + name)
-
-		return result
-
 	def fuzz(self):
 		self.domains.append({ 'fuzzer': 'Original*', 'domain': self.domain + '.' + self.tld })
 
 		for domain in self.__bitsquatting():
 			self.domains.append({ 'fuzzer': 'Bitsquatting', 'domain': domain + '.' + self.tld })
-		for domain in self.__dictionary():
-			self.domains.append({ 'fuzzer': 'Dictionary', 'domain': domain + '.' + self.tld })
 		for domain in self.__homoglyph():
 			self.domains.append({ 'fuzzer': 'Homoglyph', 'domain': domain + '.' + self.tld })
 		for domain in self.__hyphenation():
@@ -413,6 +383,44 @@ class fuzz_domain():
 			self.domains.append({ 'fuzzer': 'Transposition', 'domain': domain + '.' + self.tld })
 
 		self.__filter_domains()
+
+
+class dict_domain(fuzz_domain):
+
+	def __init__(self, domain):
+		fuzz_domain.__init__(self, domain)
+
+		self.dictionary = []
+
+	def load_dict(self, file):
+		if path.exists(file):
+			for word in open(file):
+				word = word.strip('\n')
+				if word.isalpha() and word not in self.dictionary:
+					self.dictionary.append(word)
+
+	def __dictionary(self):
+		result = []
+
+		domain = self.domain.rsplit('.', 1)
+		if len(domain) > 1:
+			prefix = domain[0] + '.'
+			name = domain[1]
+		else:
+			prefix = ''
+			name = domain[0]
+
+		for word in self.dictionary:
+			result.append(prefix + name + '-' + word)
+			result.append(prefix + name + word)
+			result.append(prefix + word + '-' + name)
+			result.append(prefix + word + name)
+
+		return result
+
+	def fuzz(self):
+		for domain in self.__dictionary():
+			self.domains.append({ 'fuzzer': 'Dictionary', 'domain': domain + '.' + self.tld })
 
 
 class thread_domain(threading.Thread):
@@ -540,7 +548,7 @@ class thread_domain(threading.Thread):
 				if 'mx' in domain:
 					if domain['domain'] is not self.domain_orig: 
 						if self.__mxcheck(domain['mx'], self.domain_orig, domain['domain']):
-							domain['mx-intercept'] = True
+							domain['mx-spy'] = True
 
 			if self.option_whois:
 				if 'ns' in domain and 'a' in domain:
@@ -586,6 +594,8 @@ class thread_domain(threading.Thread):
 
 
 def main():
+	signal.signal(signal.SIGINT, sigint_handler)
+
 	parser = argparse.ArgumentParser(
 	description='''Find similar-looking domain names that adversaries can use to attack you.  
 	Can detect typosquatters, phishing attacks, fraud and corporate espionage. Useful as an
@@ -600,7 +610,8 @@ def main():
 	parser.add_argument('-b', '--banners', action='store_true', help='determine HTTP and SMTP service banners')
 	parser.add_argument('-s', '--ssdeep', action='store_true', help='fetch web pages and compare their fuzzy hashes to evaluate similarity')
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='check if MX host can be used to intercept e-mails')
-	parser.add_argument('-t', '--threads', type=int, default=THREAD_COUNT_DEFAULT, help='number of threads to run (default: %d)' % THREAD_COUNT_DEFAULT)
+	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='generate additional domains using dictionary file')
+	parser.add_argument('-t', '--threads', type=int, metavar='COUNT', default=THREAD_COUNT_DEFAULT, help='number of threads to run (default: %d)' % THREAD_COUNT_DEFAULT)
 
 	if len(sys.argv) < 2:
 		sys.stdout.write('%sdnstwist %s by <%s>%s\n\n' % (ST_BRI, __version__, __email__, ST_RST))
@@ -610,8 +621,35 @@ def main():
 	global args
 	args = parser.parse_args()
 
-	if args.threads < 1 or args.threads > 100:
+	if args.threads < 1:
 		args.threads = THREAD_COUNT_DEFAULT
+
+	if args.dictionary:
+		if not path.exists(args.dictionary):
+			p_err('ERROR: File not found: %s\n' % args.dictionary)
+			bye(-1)
+
+	url = parse_url(args.domain)
+	url.parse()
+
+	try:
+		fuzzer = fuzz_domain(url.domain)
+	except Exception:
+		p_err('ERROR: Invalid domain name: %s\n' % url.domain)
+		bye(-1)
+
+	fuzzer.fuzz()
+	domains = fuzzer.domains
+
+	if args.dictionary:
+		try:
+			dict = dict_domain(url.domain)
+		except Exception:
+			p_err('ERROR: Invalid domain name: %s\n' % url.domain)
+			bye(-1)
+		dict.load_dict(args.dictionary)
+		dict.fuzz()
+		domains += dict.domains
 
 	p_out(ST_BRI + FG_RND +
 '''     _           _            _     _   
@@ -621,20 +659,6 @@ def main():
  \__,_|_| |_|___/\__| \_/\_/ |_|___/\__| {%s}
 
 ''' % __version__ + FG_RST)
-
-	url = parse_url(args.domain)
-	url.parse()
-
-	try:
-		fuzzer = fuzz_domain(url.domain)
-	except Exception:
-		p_err(FG_RED + 'ERROR: Invalid domain name!\n\n' + FG_RST)
-		bye(-1)
-
-	signal.signal(signal.SIGINT, sigint_handler)
-
-	fuzzer.fuzz()
-	domains = fuzzer.domains
 
 	if not DB_TLD:
 		p_out(FG_YEL + 'NOTICE: Missing file: ' + FILE_TLD + ' - TLD database not available!\n\n' + FG_RST)
@@ -734,8 +758,8 @@ def main():
 			info += '%sNS:%s%s%s ' % (FG_GRE, FG_CYA, domain['ns'], FG_RST)
 
 		if 'mx' in domain:
-			if 'mx-intercept' in domain:
-				info += '%sMX/INTERCEPT:%s%s%s' % (FG_YEL, FG_CYA, domain['mx'], FG_RST)
+			if 'mx-spy' in domain:
+				info += '%sSPY-MX:%s%s%s' % (FG_YEL, FG_CYA, domain['mx'], FG_RST)
 			else:
 				info += '%sMX:%s%s%s ' % (FG_GRE, FG_CYA, domain['mx'], FG_RST)
 

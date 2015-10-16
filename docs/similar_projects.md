@@ -1,6 +1,7 @@
 Similar projects
 ================
-This document lists some of the projects that make use of dnstwist in any way.
+This document lists some of the projects that are inspired by or that make use
+of dnstwist code in any way.
 
 
 CrazyParser
@@ -21,7 +22,7 @@ https://github.com/brianwarehime/goldphish
 
 gfyp
 ----
-Unification of dnstwist + SQLite + Email reporting. Set it as a cron job that
+Unification of dnstwist + SQLite + email reporting. Set it as a cron job that
 runs every hour, give it a list of domains and email addresses for reporting,
 then watch it go find stuff.
 
