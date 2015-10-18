@@ -1,5 +1,6 @@
 // Ten słownik powinien zawierać najczęściej wykorzystywane słowa podczas
 // kampanii phishing-owych. Można go dopasować do swoich potrzeb.
 
-logowanie
 autoryzacja
+logowanie
+ssl

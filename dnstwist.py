@@ -481,11 +481,11 @@ class thread_domain(threading.Thread):
 			return hello[:40]
 
 	def __mxcheck(self, mx, from_domain, to_domain):
-		from_addr = 'postmaster@' + from_domain
-		to_addr = 'twistedguy' + str(randint(1, 9)) + '@' + to_domain
+		from_addr = 'randombob' + str(randint(1, 9)) + '@' + from_domain
+		to_addr = 'randomalice' + str(randint(1, 9)) + '@' + to_domain
 		try:
 			smtp = smtplib.SMTP(mx)
-			smtp.sendmail(from_addr, to_addr, 'QUIT\n')
+			smtp.sendmail(from_addr, to_addr, 'And that\'s how the cookie crumbles')
 			smtp.quit()
 		except Exception:
 			return False
@@ -548,7 +548,7 @@ class thread_domain(threading.Thread):
 				if 'mx' in domain:
 					if domain['domain'] is not self.domain_orig: 
 						if self.__mxcheck(domain['mx'], self.domain_orig, domain['domain']):
-							domain['mx-spy'] = True
+							domain['mx-rogue'] = True
 
 			if self.option_whois:
 				if 'ns' in domain and 'a' in domain:
@@ -758,8 +758,8 @@ def main():
 			info += '%sNS:%s%s%s ' % (FG_GRE, FG_CYA, domain['ns'], FG_RST)
 
 		if 'mx' in domain:
-			if 'mx-spy' in domain:
-				info += '%sSPY-MX:%s%s%s' % (FG_YEL, FG_CYA, domain['mx'], FG_RST)
+			if 'mx-rogue' in domain:
+				info += '%sROGUE-MX:%s%s%s' % (FG_YEL, FG_CYA, domain['mx'], FG_RST)
 			else:
 				info += '%sMX:%s%s%s ' % (FG_GRE, FG_CYA, domain['mx'], FG_RST)
 
