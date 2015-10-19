@@ -256,8 +256,9 @@ class fuzz_domain():
 
 	def __homoglyph(self):
 		glyphs = {
-		'd': ['b', 'cl'], 'm': ['n', 'nn', 'rn'], 'l': ['1', 'i'], 'o': ['0'],
-		'w': ['vv'], 'n': ['m'], 'b': ['d'], 'i': ['1', 'l'], 'g': ['q'], 'q': ['g']
+		'd': ['b', 'cl', 'dl', 'di'], 'm': ['n', 'nn', 'rn'], 'l': ['1', 'i'],
+		'o': ['0'], 'k': ['lk', 'ik', 'lc'], 'h': ['lh', 'ih'], 'w': ['vv'],
+		'n': ['m'], 'b': ['d', 'lb', 'ib'], 'i': ['1', 'l'], 'g': ['q'], 'q': ['g']
 		}
 		result = []
 
