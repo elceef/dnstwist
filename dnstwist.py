@@ -548,7 +548,7 @@ class thread_domain(threading.Thread):
 				if 'mx' in domain:
 					if domain['domain'] is not self.domain_orig: 
 						if self.__mxcheck(domain['mx'], self.domain_orig, domain['domain']):
-							domain['mx-rogue'] = True
+							domain['mx-spy'] = True
 
 			if self.option_whois:
 				if 'ns' in domain and 'a' in domain:
@@ -734,7 +734,9 @@ def main():
 	for worker in threads:
 		worker.stop()
 
-	p_out(' %d hit(s)\n\n' % sum('ns' in d or 'a' in d for d in domains))
+	hits_total = sum('ns' in d or 'a' in d for d in domains)
+	hits_percent = 100 * hits_total / len(domains)
+	p_out(' %d hits (%d%%)\n\n' % (hits_total, hits_percent))
 	time.sleep(1)
 
 	p_csv('Fuzzer,Domain,A,AAAA,MX,NS,Country,Created,Updated,SSDEEP\n')
@@ -758,8 +760,8 @@ def main():
 			info += '%sNS:%s%s%s ' % (FG_GRE, FG_CYA, domain['ns'], FG_RST)
 
 		if 'mx' in domain:
-			if 'mx-rogue' in domain:
-				info += '%sROGUE-MX:%s%s%s' % (FG_YEL, FG_CYA, domain['mx'], FG_RST)
+			if 'mx-spy' in domain:
+				info += '%sSPYING-MX:%s%s%s' % (FG_YEL, FG_CYA, domain['mx'], FG_RST)
 			else:
 				info += '%sMX:%s%s%s ' % (FG_GRE, FG_CYA, domain['mx'], FG_RST)
 
