@@ -606,9 +606,12 @@ def main():
 	signal.signal(signal.SIGINT, sigint_handler)
 
 	parser = argparse.ArgumentParser(
-	description='''Find similar-looking domain names that adversaries can use to attack you.  
-	Can detect typosquatters, phishing attacks, fraud and corporate espionage. Useful as an
-	additional source of targeted threat intelligence.'''
+	usage='%s [OPTION]... DOMAIN' % sys.argv[0],
+	add_help = False,
+	description=
+	'''Find similar-looking domain names that adversaries can use to attack you. '''
+	'''Can detect typosquatters, phishing attacks, fraud and corporate espionage. '''
+	'''Useful as an additional source of targeted threat intelligence.'''
 	)
 
 	parser.add_argument('domain', help='domain name or URL to check')
@@ -619,8 +622,8 @@ def main():
 	parser.add_argument('-b', '--banners', action='store_true', help='determine HTTP and SMTP service banners')
 	parser.add_argument('-s', '--ssdeep', action='store_true', help='fetch web pages and compare their fuzzy hashes to evaluate similarity')
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='check if MX host can be used to intercept e-mails')
-	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='generate additional domains using dictionary file')
-	parser.add_argument('-t', '--threads', type=int, metavar='COUNT', default=THREAD_COUNT_DEFAULT, help='number of threads to run (default: %d)' % THREAD_COUNT_DEFAULT)
+	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='generate additional domains using dictionary FILE')
+	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT, help='start specified NUMBER of threads (default: %d)' % THREAD_COUNT_DEFAULT)
 
 	if len(sys.argv) < 2:
 		sys.stdout.write('%sdnstwist %s by <%s>%s\n\n' % (ST_BRI, __version__, __email__, ST_RST))
