@@ -10,8 +10,8 @@ The idea is quite straightforward: *dnstwist* takes in your domain name as a
 seed, generates a list of potential phishing domains and then checks to see if
 they are registered.
 Additionally it can test if the mail server from MX record can be used to
-intercept misdirected corporate e-mails and generate fuzzy hashes of the web
-pages to see if they are live phishing sites.
+intercept misdirected corporate e-mails and it can generate fuzzy hashes of the
+web pages to see if they are live phishing sites.
 
 ![Screenshot](docs/screens/dnstwist_v1.00.png)
 
@@ -150,21 +150,14 @@ Contact
 To send questions, comments or a chocolate, just drop an e-mail at
 [marcin@ulikowski.pl](mailto:marcin@ulikowski.pl)
 
+You can also reach me via:
+
+- Twitter: [@elceef](https://twitter.com/elceef)
+- LinkedIn: [Marcin Ulikowski](https://pl.linkedin.com/in/elceef)
+
 Any feedback is appreciated. I like to receive notifications from satisfied
 customers so if you were able to run the tool and you are happy with the
 results after just let me know.
 
-- LinkedIn: [Marcin Ulikowski](https://pl.linkedin.com/in/elceef)
-- Twitter: [@elceef](https://twitter.com/elceef)
-
-Special thanks
---------------
-- Patricia Lipp
-- Steve Steiner
-- Christopher Schmidt
-- James Lane
-- Piotr Chmyłkowski
-- Eugene Kogan
-- Mike Saunders
-- Charles McCauley
-- Sean Whalen
+If you find some confirmed phishing domains with *dnstwist* and are comfortable
+with sharing them, please send me a message. Thank you.
