@@ -81,6 +81,7 @@ DB_TLD = path.exists(FILE_TLD)
 
 REQUEST_TIMEOUT_DNS = 5
 REQUEST_TIMEOUT_HTTP = 5
+REQUEST_TIMEOUT_SMTP = 5
 THREAD_COUNT_DEFAULT = 10
 
 if sys.platform != 'win32' and sys.stdout.isatty():
@@ -383,6 +384,13 @@ class fuzz_domain():
 		for domain in self.__transposition():
 			self.domains.append({ 'fuzzer': 'Transposition', 'domain': domain + '.' + self.tld })
 
+		if not self.domain.startswith('www.'):
+			self.domains.append({ 'fuzzer': 'Various', 'domain': 'www' + self.domain + '.' + self.tld })
+		if '.' in self.tld:
+			self.domains.append({ 'fuzzer': 'Various', 'domain': self.domain + '.' + self.tld.split('.')[-1] })
+		if self.tld != 'com' and '.' not in self.tld:
+			self.domains.append({ 'fuzzer': 'Various', 'domain': self.domain + '-' + self.tld + '.com' })
+
 		self.__filter_domains()
 
 
@@ -485,7 +493,7 @@ class thread_domain(threading.Thread):
 		from_addr = 'randombob' + str(randint(1, 9)) + '@' + from_domain
 		to_addr = 'randomalice' + str(randint(1, 9)) + '@' + to_domain
 		try:
-			smtp = smtplib.SMTP(mx)
+			smtp = smtplib.SMTP(mx, 25, timeout=REQUEST_TIMEOUT_SMTP)
 			smtp.sendmail(from_addr, to_addr, 'And that\'s how the cookie crumbles')
 			smtp.quit()
 		except Exception:
