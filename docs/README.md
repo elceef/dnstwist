@@ -13,7 +13,7 @@ Additionally it can test if the mail server from MX record can be used to
 intercept misdirected corporate e-mails and it can generate fuzzy hashes of the
 web pages to see if they are live phishing sites.
 
-![Screenshot](docs/screens/dnstwist_v1.00.png)
+![Demo](/docs/screens/demo.gif)
 
 Key features
 ------------
