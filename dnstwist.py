@@ -694,6 +694,18 @@ def main():
 		p_out('Fetching content from: ' + url.get_full_uri() + ' ... ')
 		try:
 			req = requests.get(url.get_full_uri(), timeout=REQUEST_TIMEOUT_HTTP)
+		except requests.exceptions.ConnectionError:
+			p_out('Connection error\n')
+			args.ssdeep = False
+			pass
+		except requests.exceptions.HTTPError:
+			p_out('Invalid HTTP response\n')
+			args.ssdeep = False
+			pass
+		except requests.exceptions.Timeout:
+			p_out('Timeout (%d seconds)\n' % REQUEST_TIMEOUT_HTTP)
+			args.ssdeep = False
+			pass
 		except Exception:
 			p_out('Failed!\n')
 			args.ssdeep = False
