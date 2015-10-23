@@ -34,8 +34,8 @@ There are several pretty good reasons to give it a try:
 Requirements
 ------------
 If you want *dnstwist* to develop full power, please make sure the following
-Python modules are present on your system. If missing, *dnstwist* **will still
-work**, but without many cool features. You'll get a notification in absence of
+Python modules are present on your system. If missing, *dnstwist* will still
+work, but without many cool features. You'll get a notification in absence of
 required module.
 
 - [A DNS toolkit for Python](http://www.dnspython.org/)
@@ -44,17 +44,14 @@ required module.
 - [Requests: HTTP for Humans](http://www.python-requests.org/)
 - [ssdeep Python wrapper](https://pypi.python.org/pypi/ssdeep)
 
-If running Ubuntu or Debian, you can install dependencies like this:
+Ubuntu Linux is the primary development platform, however *dnstwist* is
+confirmed to work also on Windows and MacOSX.
+
+If running Ubuntu 15.04 or newer, you can install dependencies like this:
 
 ```
-$ sudo apt-get install python-dnspython python-geoip python-whois python-requests
-```
-
-Installation of *ssdeep* module requires just a little bit more effort:
-
-```
-$ sudo apt-get install build-essential libffi-dev python-dev python-pip automake autoconf libtool
-$ sudo BUILD_LIB=1 pip install ssdeep
+$ sudo apt-get install python-dnspython python-geoip python-whois \
+python-requests python-ssdeep
 ```
 
 Now it is fully equipped and ready for action.
