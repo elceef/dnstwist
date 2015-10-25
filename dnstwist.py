@@ -592,12 +592,14 @@ class thread_domain(threading.Thread):
 			if self.option_ssdeep:
 				if 'a' in domain:
 					try:
-						req = requests.get(self.uri_scheme + '://' + domain['domain'] + self.uri_path + self.uri_query, timeout=REQUEST_TIMEOUT_HTTP)
+						req = requests.get(self.uri_scheme + '://' + domain['domain'] + self.uri_path + self.uri_query, timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': 'Mozilla/5.0 (dnstwist)'})
+						#ssdeep_fuzz = ssdeep.hash(req.text.replace(' ', '').replace('\n', ''))
 						ssdeep_fuzz = ssdeep.hash(req.text)
 					except Exception:
 						pass
 					else:
-						domain['ssdeep'] = ssdeep.compare(self.ssdeep_orig, ssdeep_fuzz)
+						if req.status_code / 100 == 2:
+							domain['ssdeep'] = ssdeep.compare(self.ssdeep_orig, ssdeep_fuzz)
 
 			self.jobs.task_done()
 
@@ -693,7 +695,7 @@ def main():
 	if args.ssdeep and MODULE_SSDEEP and MODULE_REQUESTS:
 		p_out('Fetching content from: ' + url.get_full_uri() + ' ... ')
 		try:
-			req = requests.get(url.get_full_uri(), timeout=REQUEST_TIMEOUT_HTTP)
+			req = requests.get(url.get_full_uri(), timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': 'Mozilla/5.0 (dnstwist)'})
 		except requests.exceptions.ConnectionError:
 			p_out('Connection error\n')
 			args.ssdeep = False
@@ -711,8 +713,12 @@ def main():
 			args.ssdeep = False
 			pass
 		else:
-			p_out('%d %s (%d bytes)\n' % (req.status_code, req.reason, len(req.text)))
-			ssdeep_orig = ssdeep.hash(req.text)
+			p_out('%d %s (%.1f Kbytes)\n' % (req.status_code, req.reason, float(len(req.text))/1000))
+			if req.status_code / 100 == 2:
+				#ssdeep_orig = ssdeep.hash(req.text.replace(' ', '').replace('\n', ''))
+				ssdeep_orig = ssdeep.hash(req.text)
+			else:
+				args.ssdeep = False
 
 	p_out('Processing %d domain variants ' % len(domains))
 
