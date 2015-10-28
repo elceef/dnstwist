@@ -3,8 +3,8 @@ Change log
 
 This is the list of all noteworthy changes made in every release of the tool.
 
-dnstwist 1.1
-------------
+dnstwist 1.01
+-------------
 
 - Added --mxcheck option to test if SMTP servers from DNS MX record can be used
   to intercept misdirected e-mails.
@@ -14,8 +14,8 @@ dnstwist 1.1
 - Added local copies of GeoIP and TLD databases.
 - Added a few various and common phishing domain transforms.
 
-dnstwist 1.0
-------------
+dnstwist 1.00
+-------------
 
 - First stable release with multithreaded job distribution.
 - Extra features include: evaluating web pages similarity with fuzzy hashes,
