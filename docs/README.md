@@ -15,8 +15,10 @@ web pages to see if they are live phishing sites.
 
 ![Demo](/docs/screens/demo.gif)
 
+
 Key features
 ------------
+
 There are several pretty good reasons to give it a try:
 
 - Wide range of efficient domain fuzzing algorithms
@@ -24,15 +26,18 @@ There are several pretty good reasons to give it a try:
 - Resolves domain names to IPv4 and IPv6
 - Queries for NS and MX records
 - Evaluates web page similarity with fuzzy hashes to find live phising sites
-- Tests if MX host (mail server) can be used to intercept misdirected e-mails (espionage)
+- Tests if MX host (mail server) can be used to intercept misdirected e-mails
+  (espionage)
 - Generates additional domain variants using dictionary files
 - GeoIP location information
 - Grabs HTTP and SMTP service banners
 - WHOIS lookups for creation and modification date
 - Prints output in CSV format
 
+
 Requirements
 ------------
+
 If you want *dnstwist* to develop full power, please make sure the following
 Python modules are present on your system. If missing, *dnstwist* will still
 work, but without many cool features. You'll get a notification in absence of
@@ -43,6 +48,7 @@ required module.
 - [Python WHOIS](https://pypi.python.org/pypi/whois)
 - [Requests: HTTP for Humans](http://www.python-requests.org/)
 - [ssdeep Python wrapper](https://pypi.python.org/pypi/ssdeep)
+
 
 Installation
 ------------
@@ -56,17 +62,21 @@ python-requests python-ssdeep
 
 Now it is fully equipped and ready for action.
 
-If you're on a Mac, you can install dnstwist via [Homebrew](https://github.com/Homebrew/homebrew) like so:
+If you're on a Mac, you can install dnstwist via
+[Homebrew](https://github.com/Homebrew/homebrew) like so:
 
 ```
 brew install dnstwist
 ```
 
-This is going to install `dnstwist.py` as `dnstwist` only, along with all requirements mentioned above.
-The usage is the same, you can just omit the file extension, and the binary will be added to `PATH`.
+This is going to install `dnstwist.py` as `dnstwist` only, along with all
+requirements mentioned above. The usage is the same, you can just omit the
+file extension, and the binary will be added to `PATH`.
+
 
 How to use
 ----------
+
 To start, it's a good idea to enter only the domain name as an argument. The
 tool will run it through its fuzzing algorithms and generate a list of
 potential phishing domains with the following DNS records: A, AAAA, NS and MX.
@@ -151,8 +161,10 @@ $ dnstwist.py --help
 
 Good luck!
 
+
 Contact
 -------
+
 To send questions, comments or a chocolate, just drop an e-mail at
 [marcin@ulikowski.pl](mailto:marcin@ulikowski.pl)
 
