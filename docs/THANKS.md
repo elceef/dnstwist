@@ -12,6 +12,7 @@ you'd prefer a different name be used, please let me know.
 - Christopher Schmidt
 - Eugene Kogan
 - James Lane
+- Mario Uher
 - Mike Saunders
 - Patricia Lipp
 - Piotr Chmyłkowski
