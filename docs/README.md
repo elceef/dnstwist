@@ -44,8 +44,8 @@ required module.
 - [Requests: HTTP for Humans](http://www.python-requests.org/)
 - [ssdeep Python wrapper](https://pypi.python.org/pypi/ssdeep)
 
-Ubuntu Linux is the primary development platform, however *dnstwist* is
-confirmed to work also on Windows and MacOSX.
+Installation
+------------
 
 If running Ubuntu 15.04 or newer, you can install dependencies like this:
 
@@ -55,6 +55,15 @@ python-requests python-ssdeep
 ```
 
 Now it is fully equipped and ready for action.
+
+If you're on a Mac, you can install dnstwist via [Homebrew](https://github.com/Homebrew/homebrew) like so:
+
+```
+brew install dnstwist
+```
+
+This is going to install `dnstwist.py` as `dnstwist` only, along with all requirements mentioned above.
+The usage is the same, you can just omit the file extension, and the binary will be added to `PATH`.
 
 How to use
 ----------
