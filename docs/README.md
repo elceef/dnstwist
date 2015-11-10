@@ -16,7 +16,7 @@ There are several pretty good reasons to give it a try:
 -	Multithreaded job distribution
 -	Resolves domain names to IPv4 and IPv6
 -	Queries for NS and MX records
--	Evaluates web page similarity with fuzzy hashes to find live phising sites
+-	Evaluates web page similarity with fuzzy hashes to find live phishing sites
 -	Tests if MX host (mail server) can be used to intercept misdirected e-mails (espionage)
 -	Generates additional domain variants using dictionary files
 -	GeoIP location information
@@ -38,8 +38,7 @@ If you want *dnstwist* to develop full power, please make sure the following Pyt
 Installation
 ------------
 
-Linux (Ubuntu)
---------------
+### Linux (Ubuntu)
 
 If running Ubuntu 15.04 or newer, you can install dependencies like this:
 
