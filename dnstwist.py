@@ -18,7 +18,7 @@
 # limitations under the License.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '1.01'
+__version__ = '1.02b'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -609,7 +609,7 @@ def main():
 
 	parser = argparse.ArgumentParser(
 	usage='%s [OPTION]... DOMAIN' % sys.argv[0],
-	add_help = False,
+	add_help = True,
 	description=
 	'''Find similar-looking domain names that adversaries can use to attack you. '''
 	'''Can detect typosquatters, phishing attacks, fraud and corporate espionage. '''
