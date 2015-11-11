@@ -25,7 +25,7 @@ There are several pretty good reasons to give it a try:
 - Multithreaded job distribution
 - Resolves domain names to IPv4 and IPv6
 - Queries for NS and MX records
-- Evaluates web page similarity with fuzzy hashes to find live phising sites
+- Evaluates web page similarity with fuzzy hashes to find live phishing sites
 - Tests if MX host (mail server) can be used to intercept misdirected e-mails
   (espionage)
 - Generates additional domain variants using dictionary files
@@ -118,7 +118,7 @@ enabled with *--ssdeep* argument. For each generated domain, *dnstwist* will
 fetch content from responding HTTP server (following possible redirects) and
 compare its fuzzy hash with the one for the original (initial) domain. The
 level of similarity will be expressed as a percentage. Please keep in mind it's
-rather unlikely to get 100% match for a dynamicaly generated web page, but each
+rather unlikely to get 100% match for a dynamically generated web page, but each
 notification should be inspected carefully regardless of the percentage level.
 
 ```
