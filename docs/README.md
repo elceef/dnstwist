@@ -6,14 +6,14 @@ Find similar-looking domains that adversaries can use to attack you. Can detect
 typosquatters, phishing attacks, fraud and corporate espionage. Useful as an
 additional source of targeted threat intelligence.
 
+![Demo](/docs/screens/demo.gif)
+
 The idea is quite straightforward: *dnstwist* takes in your domain name as a
 seed, generates a list of potential phishing domains and then checks to see if
 they are registered.
 Additionally it can test if the mail server from MX record can be used to
 intercept misdirected corporate e-mails and it can generate fuzzy hashes of the
 web pages to see if they are live phishing sites.
-
-![Demo](/docs/screens/demo.gif)
 
 
 Key features
@@ -25,7 +25,7 @@ There are several pretty good reasons to give it a try:
 - Multithreaded job distribution
 - Resolves domain names to IPv4 and IPv6
 - Queries for NS and MX records
-- Evaluates web page similarity with fuzzy hashes to find live phising sites
+- Evaluates web page similarity with fuzzy hashes to find live phishing sites
 - Tests if MX host (mail server) can be used to intercept misdirected e-mails
   (espionage)
 - Generates additional domain variants using dictionary files
@@ -53,7 +53,10 @@ required module.
 Installation
 ------------
 
-If running Ubuntu 15.04 or newer, you can install dependencies like this:
+**Linux**
+
+Ubuntu Linux is the primary development platform. If running Ubuntu 15.04 or
+newer, you can install dependencies like this:
 
 ```
 $ sudo apt-get install python-dnspython python-geoip python-whois \
@@ -62,16 +65,37 @@ python-requests python-ssdeep
 
 Now it is fully equipped and ready for action.
 
+**OSX**
+
 If you're on a Mac, you can install dnstwist via
 [Homebrew](https://github.com/Homebrew/homebrew) like so:
 
 ```
-brew install dnstwist
+$ brew install dnstwist
 ```
 
 This is going to install `dnstwist.py` as `dnstwist` only, along with all
 requirements mentioned above. The usage is the same, you can just omit the
 file extension, and the binary will be added to `PATH`.
+
+**Docker**
+
+If you use Docker, you can build a local copy:
+
+```
+$ docker build -t dnstwist .
+```
+
+Then run that local image:
+
+```
+$ docker run dnstwist example.com
+```
+
+If you don't want to build locally here is a list of community maintained
+images:
+
+- [jrottenberg/dnstwist](https://hub.docker.com/r/jrottenberg/dnstwist/)
 
 
 How to use
@@ -94,7 +118,7 @@ enabled with *--ssdeep* argument. For each generated domain, *dnstwist* will
 fetch content from responding HTTP server (following possible redirects) and
 compare its fuzzy hash with the one for the original (initial) domain. The
 level of similarity will be expressed as a percentage. Please keep in mind it's
-rather unlikely to get 100% match for a dynamicaly generated web page, but each
+rather unlikely to get 100% match for a dynamically generated web page, but each
 notification should be inspected carefully regardless of the percentage level.
 
 ```
