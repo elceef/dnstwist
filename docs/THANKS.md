@@ -12,11 +12,14 @@ you'd prefer a different name be used, please let me know.
 - Christopher Schmidt
 - Eugene Kogan
 - James Lane
+- Julien Rottenberg
 - Mario Uher
 - Mike Saunders
 - Patricia Lipp
 - Piotr Chmyłkowski
+- Piotr Wojtyła
 - Sean Whalen
 - Steve Steiner
+- Wojtek Słowik
 
 Thank you!
