@@ -63,6 +63,13 @@ $ sudo apt-get install python-dnspython python-geoip python-whois \
 python-requests python-ssdeep
 ```
 
+Alternately, you can use Python tooling but will still need to install some development libraries.
+
+```
+$ sudo apt-get install libgeoip-dev libffi-dev
+$ pip install -r requirements.txt
+```
+
 Now it is fully equipped and ready for action.
 
 **OSX**
