@@ -1,0 +1,3 @@
+dnspython==1.12.0
+requests==2.8.1
+whois==0.7
