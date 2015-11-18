@@ -143,7 +143,7 @@ def sigint_handler(signal, frame):
 	bye(0)
 
 
-class parse_url():
+class UrlParser():
 
 	def __init__(self, url):
 		if '://' not in url:
@@ -156,7 +156,9 @@ class parse_url():
 		self.path = ''
 		self.query = ''
 
-	def parse(self):
+		self.__parse()
+
+	def __parse(self):
 		re_rfc3986_enhanced = re.compile(
 		r'''
 		^
@@ -190,7 +192,7 @@ class parse_url():
 		return self.scheme + '://' + self.domain + self.path + self.query
 
 
-class fuzz_domain():
+class DomainFuzz():
 
 	def __init__(self, domain):
 		if not self.__validate_domain(domain):
@@ -362,7 +364,7 @@ class fuzz_domain():
 
 		return result
 
-	def fuzz(self):
+	def generate(self):
 		self.domains.append({ 'fuzzer': 'Original*', 'domain': self.domain + '.' + self.tld })
 
 		for domain in self.__bitsquatting():
@@ -394,10 +396,10 @@ class fuzz_domain():
 		self.__filter_domains()
 
 
-class dict_domain(fuzz_domain):
+class DomainDict(DomainFuzz):
 
 	def __init__(self, domain):
-		fuzz_domain.__init__(self, domain)
+		DomainFuzz.__init__(self, domain)
 
 		self.dictionary = []
 
@@ -427,12 +429,12 @@ class dict_domain(fuzz_domain):
 
 		return result
 
-	def fuzz(self):
+	def generate(self):
 		for domain in self.__dictionary():
 			self.domains.append({ 'fuzzer': 'Dictionary', 'domain': domain + '.' + self.tld })
 
 
-class thread_domain(threading.Thread):
+class DomainThread(threading.Thread):
 
 	def __init__(self, queue):
 		threading.Thread.__init__(self)
@@ -643,27 +645,26 @@ def main():
 			p_err('ERROR: File not found: %s\n' % args.dictionary)
 			bye(-1)
 
-	url = parse_url(args.domain)
-	url.parse()
+	url = UrlParser(args.domain)
 
 	try:
-		fuzzer = fuzz_domain(url.domain)
+		dfuzz = DomainFuzz(url.domain)
 	except Exception:
 		p_err('ERROR: Invalid domain name: %s\n' % url.domain)
 		bye(-1)
 
-	fuzzer.fuzz()
-	domains = fuzzer.domains
+	dfuzz.generate()
+	domains = dfuzz.domains
 
 	if args.dictionary:
 		try:
-			dict = dict_domain(url.domain)
+			ddict = DomainDict(url.domain)
 		except Exception:
 			p_err('ERROR: Invalid domain name: %s\n' % url.domain)
 			bye(-1)
-		dict.load_dict(args.dictionary)
-		dict.fuzz()
-		domains += dict.domains
+		ddict.load_dict(args.dictionary)
+		ddict.generate()
+		domains += ddict.domains
 
 	p_out(ST_BRI + FG_RND +
 '''     _           _            _     _   
@@ -728,7 +729,7 @@ def main():
 	threads = []
 
 	for i in range(args.threads):
-		worker = thread_domain(jobs)
+		worker = DomainThread(jobs)
 		worker.setDaemon(True)
 
 		worker.uri_scheme = url.scheme
