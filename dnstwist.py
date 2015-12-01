@@ -666,31 +666,31 @@ def main():
 		ddict.generate()
 		domains += ddict.domains
 
-	p_out(ST_BRI + FG_RND +
+	p_out(FG_RND + ST_BRI +
 '''     _           _            _     _   
   __| |_ __  ___| |___      _(_)___| |_ 
  / _` | '_ \/ __| __\ \ /\ / / / __| __|
 | (_| | | | \__ \ |_ \ V  V /| \__ \ |_ 
  \__,_|_| |_|___/\__| \_/\_/ |_|___/\__| {%s}
 
-''' % __version__ + FG_RST)
+''' % __version__ + FG_RST + ST_RST)
 
 	if not DB_TLD:
-		p_out(FG_YEL + 'NOTICE: Missing file: ' + FILE_TLD + ' - TLD database not available!\n\n' + FG_RST)
+		p_out(FG_RED + 'NOTICE: Missing file: ' + FILE_TLD + ' - TLD database not available!\n\n' + FG_RST)
 	if not DB_GEOIP and args.geoip:
-		p_out(FG_YEL + 'NOTICE: Missing file: ' + FILE_GEOIP + ' - geographical location not available!\n\n' + FG_RST)
+		p_out(FG_RED + 'NOTICE: Missing file: ' + FILE_GEOIP + ' - geographical location not available!\n\n' + FG_RST)
 	if not MODULE_DNSPYTHON:
-		p_out(FG_YEL + 'NOTICE: Missing module: dnspython - DNS features limited!\n\n' + FG_RST)
+		p_out(FG_RED + 'NOTICE: Missing module: dnspython - DNS features limited!\n\n' + FG_RST)
 	if not MODULE_GEOIP and args.geoip:
-		p_out(FG_YEL + 'NOTICE: Missing module: GeoIP - geographical location not available!\n\n' + FG_RST)
+		p_out(FG_RED + 'NOTICE: Missing module: GeoIP - geographical location not available!\n\n' + FG_RST)
 	if not MODULE_WHOIS and args.whois:
-		p_out(FG_YEL + 'NOTICE: Missing module: whois - database not accessible!\n\n' + FG_RST)
+		p_out(FG_RED + 'NOTICE: Missing module: whois - database not accessible!\n\n' + FG_RST)
 	if not MODULE_SSDEEP and args.ssdeep:
-		p_out(FG_YEL + 'NOTICE: Missing module: ssdeep - fuzzy hashes not available!\n\n' + FG_RST)
+		p_out(FG_RED + 'NOTICE: Missing module: ssdeep - fuzzy hashes not available!\n\n' + FG_RST)
 	if not MODULE_REQUESTS and args.ssdeep:
-		p_out(FG_YEL + 'NOTICE: Missing module: Requests - web page downloads not possible!\n\n' + FG_RST)
+		p_out(FG_RED + 'NOTICE: Missing module: Requests - web page downloads not possible!\n\n' + FG_RST)
 	if MODULE_WHOIS and args.whois:
-		p_out(FG_YEL + 'NOTICE: Reducing the number of threads to 1 in order to query WHOIS server\n\n' + FG_RST)
+		p_out(FG_RED + 'NOTICE: Reducing the number of threads to 1 in order to query WHOIS server\n\n' + FG_RST)
 		args.threads = 1
 
 	if args.ssdeep and MODULE_SSDEEP and MODULE_REQUESTS:
@@ -788,32 +788,32 @@ def main():
 			info += domain['aaaa'] + ' '
 
 		if 'ns' in domain:
-			info += '%sNS:%s%s%s ' % (FG_GRE, FG_CYA, domain['ns'], FG_RST)
+			info += '%sNS:%s%s%s ' % (FG_YEL, FG_CYA, domain['ns'], FG_RST)
 
 		if 'mx' in domain:
 			if 'mx-spy' in domain:
-				info += '%sSPYING-MX:%s%s%s' % (FG_YEL, FG_CYA, domain['mx'], FG_RST)
+				info += '%sSPYING-MX:%s%s' % (FG_YEL, domain['mx'], FG_RST)
 			else:
-				info += '%sMX:%s%s%s ' % (FG_GRE, FG_CYA, domain['mx'], FG_RST)
+				info += '%sMX:%s%s%s ' % (FG_YEL, FG_CYA, domain['mx'], FG_RST)
 
 		if 'banner-http' in domain:
-			info += '%sHTTP:%s"%s"%s ' % (FG_GRE, FG_CYA, domain['banner-http'], FG_RST)
+			info += '%sHTTP:%s"%s"%s ' % (FG_YEL, FG_CYA, domain['banner-http'], FG_RST)
 
 		if 'banner-smtp' in domain:
-			info += '%sSMTP:%s"%s"%s ' % (FG_GRE, FG_CYA, domain['banner-smtp'], FG_RST)
+			info += '%sSMTP:%s"%s"%s ' % (FG_YEL, FG_CYA, domain['banner-smtp'], FG_RST)
 
 		if 'created' in domain and 'updated' in domain:
 			if domain['created'] == domain['updated']:
-				info += '%sCreated/Updated:%s%s%s ' % (FG_GRE, FG_CYA, domain['created'], FG_RST)
+				info += '%sCreated/Updated:%s%s%s ' % (FG_YEL, FG_CYA, domain['created'], FG_RST)
 			else:
 				if 'created' in domain:
-					info += '%sCreated:%s%s%s ' % (FG_GRE, FG_CYA, domain['created'], FG_RST)
+					info += '%sCreated:%s%s%s ' % (FG_YEL, FG_CYA, domain['created'], FG_RST)
 				if 'updated' in domain:
-					info += '%sUpdated:%s%s%s ' % (FG_GRE, FG_CYA, domain['updated'], FG_RST)
+					info += '%sUpdated:%s%s%s ' % (FG_YEL, FG_CYA, domain['updated'], FG_RST)
 
 		if 'ssdeep' in domain:
 			if domain['ssdeep'] > 0:
-				info += '%sSSDEEP:%s%d%%%s ' % (FG_YEL, FG_CYA, domain['ssdeep'], FG_RST)
+				info += '%sSSDEEP:%d%%%s ' % (FG_YEL, domain['ssdeep'], FG_RST)
 
 		info = info.strip()
 
