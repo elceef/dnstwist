@@ -13,12 +13,16 @@ echo "dnstwist - Full TLD scan script"
 echo "==============================="
 echo
 
-if [ $# -ne 1 ]
+if [ $# -lt 1 ]
 then
 	echo "This script checks a domain name against all the top-level domains (TLD)."
-	echo "For each TLD will be created a distinct file in the current directory."
+	echo "Optionally it can be run only against the country code top-level domains"
+	echo "(ccTLD) or the generic top-level domains (gTLD)."
+	echo "For each TLD a distinct file will be created in the current directory."
 	echo
-	echo "Usage: $0 DOMAIN"
+	echo "Usage: $0 DOMAIN [gtld|cctld]"
+	echo
+	echo "Example: $0 google cctld"
 	echo
 	exit
 fi
@@ -40,8 +44,18 @@ then
 	exit 1
 fi
 
-TLDS=$(egrep -o "^[a-z]{2,}$" "$EFFECTIVE_TLD_NAMES")
 DOMAIN="$1"
+
+case $2 in
+	gtld)
+		TLDS="com org net edu info"
+		;;
+	cctld)
+		TLDS=$(egrep -o "^[a-z]{2}$" "$EFFECTIVE_TLD_NAMES")
+		;;
+	*|full)
+		TLDS=$(egrep -o "^[a-z]{2,}$" "$EFFECTIVE_TLD_NAMES")
+esac
 
 for tld in $TLDS
 do
