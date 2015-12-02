@@ -387,9 +387,14 @@ class DomainFuzz():
 			self.domains.append({ 'fuzzer': 'Transposition', 'domain': domain + '.' + self.tld })
 
 		if not self.domain.startswith('www.'):
+			self.domains.append({ 'fuzzer': 'Various', 'domain': 'ww' + self.domain + '.' + self.tld })
 			self.domains.append({ 'fuzzer': 'Various', 'domain': 'www' + self.domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Various', 'domain': 'www-' + self.domain + '.' + self.tld })
 		if '.' in self.tld:
 			self.domains.append({ 'fuzzer': 'Various', 'domain': self.domain + '.' + self.tld.split('.')[-1] })
+			self.domains.append({ 'fuzzer': 'Various', 'domain': self.domain + self.tld })
+		if '.' not in self.tld:
+			self.domains.append({ 'fuzzer': 'Various', 'domain': self.domain + self.tld + '.' + self.tld })
 		if self.tld != 'com' and '.' not in self.tld:
 			self.domains.append({ 'fuzzer': 'Various', 'domain': self.domain + '-' + self.tld + '.com' })
 
