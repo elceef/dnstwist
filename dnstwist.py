@@ -770,7 +770,7 @@ def main():
 	p_out(' %d hits (%d%%)\n\n' % (hits_total, hits_percent))
 	time.sleep(1)
 
-	p_csv('Fuzzer,Domain,A,AAAA,MX,NS,Country,Created,Updated,SSDEEP\n')
+	p_csv('fuzzer,domain-name,dns-a,dns-aaaa,dns-mx,dns-ns,country-name,whois-created,whois-updated,ssdeep-score\n')
 
 	width_fuzz = max([len(d['fuzzer']) for d in domains]) + 2
 	width_domain = max([len(d['domain']) for d in domains]) + 2
