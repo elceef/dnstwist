@@ -183,11 +183,21 @@ class UrlParser():
 			if m_uri.group('authority'):
 				self.authority = m_uri.group('authority')
 				self.domain = self.authority.split(':')[0].lower()
+				if not self.__validate_domain(self.domain):
+					raise ValueError('Invalid domain name.')
 			if m_uri.group('path'):
 				self.path = m_uri.group('path')
 			if m_uri.group('query'):
 				if len(m_uri.group('query')):
 					self.query = '?' + m_uri.group('query')
+
+	def __validate_domain(self, domain):
+		if len(domain) > 255:
+			return False
+		if domain[-1] == '.':
+			domain = domain[:-1]
+		allowed = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
+		return allowed.match(domain)
 
 	def get_full_uri(self):
 		return self.scheme + '://' + self.domain + self.path + self.query
@@ -196,8 +206,6 @@ class UrlParser():
 class DomainFuzz():
 
 	def __init__(self, domain):
-		if not self.__validate_domain(domain):
-			raise Exception('Invalid domain name')
 		self.domain, self.tld = self.__domain_tld(domain)
 		self.domains = []
 
@@ -646,28 +654,21 @@ def main():
 	if args.threads < 1:
 		args.threads = THREAD_COUNT_DEFAULT
 
-	if args.dictionary:
-		if not path.exists(args.dictionary):
-			p_err('ERROR: File not found: %s\n' % args.dictionary)
-			bye(-1)
-
-	url = UrlParser(args.domain)
-
 	try:
-		dfuzz = DomainFuzz(url.domain)
-	except Exception:
-		p_err('ERROR: Invalid domain name: %s\n' % url.domain)
+		url = UrlParser(args.domain)
+	except ValueError as err:
+		p_err('ERROR: %s\n' % err)
 		bye(-1)
 
+	dfuzz = DomainFuzz(url.domain)
 	dfuzz.generate()
 	domains = dfuzz.domains
 
 	if args.dictionary:
-		try:
-			ddict = DomainDict(url.domain)
-		except Exception:
-			p_err('ERROR: Invalid domain name: %s\n' % url.domain)
+		if not path.exists(args.dictionary):
+			p_err('ERROR: Dictionary not found: %s\n' % args.dictionary)
 			bye(-1)
+		ddict = DomainDict(url.domain)
 		ddict.load_dict(args.dictionary)
 		ddict.generate()
 		domains += ddict.domains
