@@ -109,9 +109,9 @@ else:
 	ST_RST = ''
 
 
-def p_out(data):
+def p_cli(data):
 	global args
-	if not args.csv:
+	if not args.csv and not args.json:
 		sys.stdout.write(data)
 		sys.stdout.flush()
 
@@ -128,6 +128,10 @@ def p_csv(data):
 	if args.csv:
 		sys.stdout.write(data)
 
+def p_json(data):
+	global args
+	if args.json:
+		sys.stdout.write(data)
 
 def bye(code):
 	sys.stdout.write(FG_RST + ST_RST)
@@ -620,166 +624,25 @@ class DomainThread(threading.Thread):
 			self.jobs.task_done()
 
 
-def main():
-	signal.signal(signal.SIGINT, sigint_handler)
+def generate_json(domains):
+	return json.dumps(domains, indent=4, sort_keys=True)
 
-	parser = argparse.ArgumentParser(
-	usage='%s [OPTION]... DOMAIN' % sys.argv[0],
-	add_help = True,
-	description=
-	'''Find similar-looking domain names that adversaries can use to attack you. '''
-	'''Can detect typosquatters, phishing attacks, fraud and corporate espionage. '''
-	'''Useful as an additional source of targeted threat intelligence.'''
-	)
 
-	parser.add_argument('domain', help='domain name or URL to check')
-	parser.add_argument('-c', '--csv', action='store_true', help='print output in CSV format')
-	parser.add_argument('-r', '--registered', action='store_true', help='show only registered domain names')
-	parser.add_argument('-w', '--whois', action='store_true', help='perform lookup for WHOIS creation/update time (slow)')
-	parser.add_argument('-g', '--geoip', action='store_true', help='perform lookup for GeoIP location')
-	parser.add_argument('-b', '--banners', action='store_true', help='determine HTTP and SMTP service banners')
-	parser.add_argument('-s', '--ssdeep', action='store_true', help='fetch web pages and compare their fuzzy hashes to evaluate similarity')
-	parser.add_argument('-m', '--mxcheck', action='store_true', help='check if MX host can be used to intercept e-mails')
-	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='generate additional domains using dictionary FILE')
-	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT, help='start specified NUMBER of threads (default: %d)' % THREAD_COUNT_DEFAULT)
+def generate_csv(domains):
+	output = 'fuzzer,domain-name,dns-a,dns-aaaa,dns-mx,dns-ns,geoip-country,whois-created,whois-updated,ssdeep-score\n'
 
-	if len(sys.argv) < 2:
-		sys.stdout.write('%sdnstwist %s by <%s>%s\n\n' % (ST_BRI, __version__, __email__, ST_RST))
-		parser.print_help()
-		bye(0)
+	for domain in domains:
+		output += '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (domain.get('fuzzer'), domain.get('domain-name'), domain.get('dns-a', ''),
+		domain.get('dns-aaaa', ''), domain.get('dns-mx', ''), domain.get('dns-ns', ''), domain.get('geoip-country', ''),
+		domain.get('whois-created', ''), domain.get('whois-updated', ''), str(domain.get('ssdeep-score', '')))
 
-	global args
-	args = parser.parse_args()
+	return output
 
-	if args.threads < 1:
-		args.threads = THREAD_COUNT_DEFAULT
 
-	try:
-		url = UrlParser(args.domain)
-	except ValueError as err:
-		p_err('ERROR: %s\n' % err)
-		bye(-1)
+def generate_cli(domains):
+	output = ''
 
-	dfuzz = DomainFuzz(url.domain)
-	dfuzz.generate()
-	domains = dfuzz.domains
-
-	if args.dictionary:
-		if not path.exists(args.dictionary):
-			p_err('ERROR: Dictionary not found: %s\n' % args.dictionary)
-			bye(-1)
-		ddict = DomainDict(url.domain)
-		ddict.load_dict(args.dictionary)
-		ddict.generate()
-		domains += ddict.domains
-
-	p_out(FG_RND + ST_BRI +
-'''     _           _            _     _   
-  __| |_ __  ___| |___      _(_)___| |_ 
- / _` | '_ \/ __| __\ \ /\ / / / __| __|
-| (_| | | | \__ \ |_ \ V  V /| \__ \ |_ 
- \__,_|_| |_|___/\__| \_/\_/ |_|___/\__| {%s}
-
-''' % __version__ + FG_RST + ST_RST)
-
-	if not DB_TLD:
-		p_out(FG_RED + 'NOTICE: Missing file: ' + FILE_TLD + ' - TLD database not available!\n\n' + FG_RST)
-	if not DB_GEOIP and args.geoip:
-		p_out(FG_RED + 'NOTICE: Missing file: ' + FILE_GEOIP + ' - geographical location not available!\n\n' + FG_RST)
-	if not MODULE_DNSPYTHON:
-		p_out(FG_RED + 'NOTICE: Missing module: dnspython - DNS features limited!\n\n' + FG_RST)
-	if not MODULE_GEOIP and args.geoip:
-		p_out(FG_RED + 'NOTICE: Missing module: GeoIP - geographical location not available!\n\n' + FG_RST)
-	if not MODULE_WHOIS and args.whois:
-		p_out(FG_RED + 'NOTICE: Missing module: whois - database not accessible!\n\n' + FG_RST)
-	if not MODULE_SSDEEP and args.ssdeep:
-		p_out(FG_RED + 'NOTICE: Missing module: ssdeep - fuzzy hashes not available!\n\n' + FG_RST)
-	if not MODULE_REQUESTS and args.ssdeep:
-		p_out(FG_RED + 'NOTICE: Missing module: Requests - web page downloads not possible!\n\n' + FG_RST)
-	if MODULE_WHOIS and args.whois:
-		p_out(FG_RED + 'NOTICE: Reducing the number of threads to 1 in order to query WHOIS server\n\n' + FG_RST)
-		args.threads = 1
-
-	if args.ssdeep and MODULE_SSDEEP and MODULE_REQUESTS:
-		p_out('Fetching content from: ' + url.get_full_uri() + ' ... ')
-		try:
-			req = requests.get(url.get_full_uri(), timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': 'Mozilla/5.0 (dnstwist)'})
-		except requests.exceptions.ConnectionError:
-			p_out('Connection error\n')
-			args.ssdeep = False
-			pass
-		except requests.exceptions.HTTPError:
-			p_out('Invalid HTTP response\n')
-			args.ssdeep = False
-			pass
-		except requests.exceptions.Timeout:
-			p_out('Timeout (%d seconds)\n' % REQUEST_TIMEOUT_HTTP)
-			args.ssdeep = False
-			pass
-		except Exception:
-			p_out('Failed!\n')
-			args.ssdeep = False
-			pass
-		else:
-			p_out('%d %s (%.1f Kbytes)\n' % (req.status_code, req.reason, float(len(req.text))/1000))
-			if req.status_code / 100 == 2:
-				#ssdeep_orig = ssdeep.hash(req.text.replace(' ', '').replace('\n', ''))
-				ssdeep_orig = ssdeep.hash(req.text)
-			else:
-				args.ssdeep = False
-
-	p_out('Processing %d domain variants ' % len(domains))
-
-	jobs = queue.Queue()
-
-	global threads
-	threads = []
-
-	for i in range(args.threads):
-		worker = DomainThread(jobs)
-		worker.setDaemon(True)
-
-		worker.uri_scheme = url.scheme
-		worker.uri_path = url.path
-		worker.uri_query = url.query
-
-		worker.domain_orig = url.domain
-
-		if MODULE_DNSPYTHON:
-			worker.option_extdns = True
-		if MODULE_WHOIS and args.whois:
-			worker.option_whois = True
-		if MODULE_GEOIP and DB_GEOIP and args.geoip:
-			worker.option_geoip = True
-		if args.banners:
-			worker.option_banners = True
-		if args.ssdeep and MODULE_REQUESTS and MODULE_SSDEEP and 'ssdeep_orig' in locals():
-			worker.option_ssdeep = True
-			worker.ssdeep_orig = ssdeep_orig
-		if args.mxcheck:
-			worker.option_mxcheck = True
-
-		worker.start()
-		threads.append(worker)
-
-	for i in range(len(domains)):
-		jobs.put(domains[i])
-
-	while not jobs.empty():
-		p_out('.')
-		time.sleep(1)
-
-	for worker in threads:
-		worker.stop()
-
-	hits_total = sum('dns-ns' in d or 'dns-a' in d for d in domains)
-	hits_percent = 100 * hits_total / len(domains)
-	p_out(' %d hits (%d%%)\n\n' % (hits_total, hits_percent))
-	time.sleep(1)
-
-	p_csv('fuzzer,domain-name,dns-a,dns-aaaa,dns-mx,dns-ns,geoip-country,whois-created,whois-updated,ssdeep-score\n')
-
-	width_fuzz = max([len(d['fuzzer']) for d in domains]) + 2
+	width_fuzzer = max([len(d['fuzzer']) for d in domains]) + 2
 	width_domain = max([len(d['domain-name']) for d in domains]) + 2
 
 	for domain in domains:
@@ -827,16 +690,188 @@ def main():
 		if not info:
 			info = '-'
 
-		if (args.registered and info != '-') or not args.registered:
-			p_out('%s%s%s %s %s\n' % (FG_BLU, domain['fuzzer'].ljust(width_fuzz), FG_RST, domain['domain-name'].ljust(width_domain), info))
+		output += '%s%s%s %s %s\n' % (FG_BLU, domain['fuzzer'].ljust(width_fuzzer), FG_RST, domain['domain-name'].ljust(width_domain), info)
 
-			p_csv(
-			'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (domain.get('fuzzer'), domain.get('domain-name'), domain.get('dns-a', ''),
-			domain.get('dns-aaaa', ''), domain.get('dns-mx', ''), domain.get('dns-ns', ''), domain.get('geoip-country', ''),
-			domain.get('whois-created', ''), domain.get('whois-updated', ''), str(domain.get('ssdeep-score', '')))
-			)
+	return output
 
-	#print(json.dumps(domains, indent=4, sort_keys=True))
+
+def main():
+	signal.signal(signal.SIGINT, sigint_handler)
+
+	parser = argparse.ArgumentParser(
+	usage='%s [OPTION]... DOMAIN' % sys.argv[0],
+	add_help = True,
+	description=
+	'''Find similar-looking domain names that adversaries can use to attack you. '''
+	'''Can detect typosquatters, phishing attacks, fraud and corporate espionage. '''
+	'''Useful as an additional source of targeted threat intelligence.'''
+	)
+
+	parser.add_argument('domain', help='domain name or URL to check')
+	parser.add_argument('-c', '--csv', action='store_true', help='print output in CSV format')
+	parser.add_argument('-j', '--json', action='store_true', help='print output in JSON format')
+	parser.add_argument('-r', '--registered', action='store_true', help='show only registered domain names')
+	parser.add_argument('-w', '--whois', action='store_true', help='perform lookup for WHOIS creation/update time (slow)')
+	parser.add_argument('-g', '--geoip', action='store_true', help='perform lookup for GeoIP location')
+	parser.add_argument('-b', '--banners', action='store_true', help='determine HTTP and SMTP service banners')
+	parser.add_argument('-s', '--ssdeep', action='store_true', help='fetch web pages and compare their fuzzy hashes to evaluate similarity')
+	parser.add_argument('-m', '--mxcheck', action='store_true', help='check if MX host can be used to intercept e-mails')
+	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='generate additional domains using dictionary FILE')
+	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT, help='start specified NUMBER of threads (default: %d)' % THREAD_COUNT_DEFAULT)
+
+	if len(sys.argv) < 2:
+		sys.stdout.write('%sdnstwist %s by <%s>%s\n\n' % (ST_BRI, __version__, __email__, ST_RST))
+		parser.print_help()
+		bye(0)
+
+	global args
+	args = parser.parse_args()
+
+	if args.csv and args.json:
+		p_err('ERROR: Cannot use both CSV and JSON as output.\n')
+		bye(-1)
+
+	if args.threads < 1:
+		args.threads = THREAD_COUNT_DEFAULT
+
+	try:
+		url = UrlParser(args.domain)
+	except ValueError as err:
+		p_err('ERROR: %s\n' % err)
+		bye(-1)
+
+	dfuzz = DomainFuzz(url.domain)
+	dfuzz.generate()
+	domains = dfuzz.domains
+
+	if args.dictionary:
+		if not path.exists(args.dictionary):
+			p_err('ERROR: Dictionary not found: %s\n' % args.dictionary)
+			bye(-1)
+		ddict = DomainDict(url.domain)
+		ddict.load_dict(args.dictionary)
+		ddict.generate()
+		domains += ddict.domains
+
+	p_cli(FG_RND + ST_BRI +
+'''     _           _            _     _   
+  __| |_ __  ___| |___      _(_)___| |_ 
+ / _` | '_ \/ __| __\ \ /\ / / / __| __|
+| (_| | | | \__ \ |_ \ V  V /| \__ \ |_ 
+ \__,_|_| |_|___/\__| \_/\_/ |_|___/\__| {%s}
+
+''' % __version__ + FG_RST + ST_RST)
+
+	if not DB_TLD:
+		p_cli(FG_RED + 'NOTICE: Missing file: ' + FILE_TLD + ' - TLD database not available!\n\n' + FG_RST)
+	if not DB_GEOIP and args.geoip:
+		p_cli(FG_RED + 'NOTICE: Missing file: ' + FILE_GEOIP + ' - geographical location not available!\n\n' + FG_RST)
+	if not MODULE_DNSPYTHON:
+		p_cli(FG_RED + 'NOTICE: Missing module: dnspython - DNS features limited!\n\n' + FG_RST)
+	if not MODULE_GEOIP and args.geoip:
+		p_cli(FG_RED + 'NOTICE: Missing module: GeoIP - geographical location not available!\n\n' + FG_RST)
+	if not MODULE_WHOIS and args.whois:
+		p_cli(FG_RED + 'NOTICE: Missing module: whois - database not accessible!\n\n' + FG_RST)
+	if not MODULE_SSDEEP and args.ssdeep:
+		p_cli(FG_RED + 'NOTICE: Missing module: ssdeep - fuzzy hashes not available!\n\n' + FG_RST)
+	if not MODULE_REQUESTS and args.ssdeep:
+		p_cli(FG_RED + 'NOTICE: Missing module: Requests - web page downloads not possible!\n\n' + FG_RST)
+	if MODULE_WHOIS and args.whois:
+		p_cli(FG_RED + 'NOTICE: Reducing the number of threads to 1 in order to query WHOIS server\n\n' + FG_RST)
+		args.threads = 1
+
+	if args.ssdeep and MODULE_SSDEEP and MODULE_REQUESTS:
+		p_cli('Fetching content from: ' + url.get_full_uri() + ' ... ')
+		try:
+			req = requests.get(url.get_full_uri(), timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': 'Mozilla/5.0 (dnstwist)'})
+		except requests.exceptions.ConnectionError:
+			p_cli('Connection error\n')
+			args.ssdeep = False
+			pass
+		except requests.exceptions.HTTPError:
+			p_cli('Invalid HTTP response\n')
+			args.ssdeep = False
+			pass
+		except requests.exceptions.Timeout:
+			p_cli('Timeout (%d seconds)\n' % REQUEST_TIMEOUT_HTTP)
+			args.ssdeep = False
+			pass
+		except Exception:
+			p_cli('Failed!\n')
+			args.ssdeep = False
+			pass
+		else:
+			p_cli('%d %s (%.1f Kbytes)\n' % (req.status_code, req.reason, float(len(req.text))/1000))
+			if req.status_code / 100 == 2:
+				#ssdeep_orig = ssdeep.hash(req.text.replace(' ', '').replace('\n', ''))
+				ssdeep_orig = ssdeep.hash(req.text)
+			else:
+				args.ssdeep = False
+
+	p_cli('Processing %d domain variants ' % len(domains))
+
+	jobs = queue.Queue()
+
+	global threads
+	threads = []
+
+	for i in range(args.threads):
+		worker = DomainThread(jobs)
+		worker.setDaemon(True)
+
+		worker.uri_scheme = url.scheme
+		worker.uri_path = url.path
+		worker.uri_query = url.query
+
+		worker.domain_orig = url.domain
+
+		if MODULE_DNSPYTHON:
+			worker.option_extdns = True
+		if MODULE_WHOIS and args.whois:
+			worker.option_whois = True
+		if MODULE_GEOIP and DB_GEOIP and args.geoip:
+			worker.option_geoip = True
+		if args.banners:
+			worker.option_banners = True
+		if args.ssdeep and MODULE_REQUESTS and MODULE_SSDEEP and 'ssdeep_orig' in locals():
+			worker.option_ssdeep = True
+			worker.ssdeep_orig = ssdeep_orig
+		if args.mxcheck:
+			worker.option_mxcheck = True
+
+		worker.start()
+		threads.append(worker)
+
+	for i in range(len(domains)):
+		jobs.put(domains[i])
+
+	while not jobs.empty():
+		p_cli('.')
+		time.sleep(1)
+
+	for worker in threads:
+		worker.stop()
+
+	hits_total = sum('dns-ns' in d or 'dns-a' in d for d in domains)
+	hits_percent = 100 * hits_total / len(domains)
+	p_cli(' %d hits (%d%%)\n\n' % (hits_total, hits_percent))
+	time.sleep(1)
+
+	if args.registered:
+		domains_registered = []
+		for d in domains:
+			if 'dns-ns' in d or 'dns-a' in d:
+				domains_registered.append(d)
+		domains = domains_registered
+		del domains_registered
+
+	if args.csv:
+		p_csv(generate_csv(domains))
+	elif args.json:
+		p_json(generate_json(domains))
+	else:
+		p_cli(generate_cli(domains))
+
 	bye(0)
 
 
