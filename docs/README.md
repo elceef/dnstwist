@@ -32,7 +32,7 @@ There are several pretty good reasons to give it a try:
 - GeoIP location information
 - Grabs HTTP and SMTP service banners
 - WHOIS lookups for creation and modification date
-- Prints output in CSV format
+- Prints output in CSV and JSON format
 
 
 Requirements
@@ -169,6 +169,15 @@ needs.
 ```
 $ dnstwist.py --dictionary dictionaries/english.dict example.com
 ``` 
+
+Apart from the default nice and colorful text terminal output, the tool
+provides two well known and easy to parse output formats: CSV and JSON. Use it
+for data interchange.
+
+```
+$ dnstwist.py --csv example.com > out.csv
+$ dnstwist.py --json example.com > out.json
+```
 
 Usually generated list of domains has more than a hundred of rows - especially
 for longer domain names. In such cases, it may be practical to display only
