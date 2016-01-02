@@ -27,3 +27,19 @@ runs every hour, give it a list of domains and email addresses for reporting,
 then watch it go find stuff.
 
 https://github.com/0xd34db33f/gfyp
+
+
+DomainAware
+-----------
+A dnstwist wrapper for monitoring for possible typo sqatting/spear phishing
+domains.
+
+https://github.com/seanthegeek/domainaware
+
+
+DNS Twister
+-----------
+A Google App Engine-hosted version of the very excellent dnstwist.
+
+https://github.com/thisismyrobot/dnstwister
+https://dnstwister.appspot.com/
