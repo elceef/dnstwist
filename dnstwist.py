@@ -117,10 +117,8 @@ def p_cli(data):
 
 
 def p_err(data):
-	global args
-	if not args.csv:
-		sys.stderr.write(data)
-		sys.stderr.flush()
+	sys.stderr.write(path.basename(sys.argv[0]) + ': ' + data)
+	sys.stderr.flush()
 
 
 def p_csv(data):
@@ -128,10 +126,12 @@ def p_csv(data):
 	if args.csv:
 		sys.stdout.write(data)
 
+
 def p_json(data):
 	global args
 	if args.json:
 		sys.stdout.write(data)
+
 
 def bye(code):
 	sys.stdout.write(FG_RST + ST_RST)
@@ -548,7 +548,7 @@ class DomainThread(threading.Thread):
 
 					try:
 						ans = resolv.query(domain['domain-name'], 'AAAA')
-						domain['aaaa'] = str(sorted(ans)[0])
+						domain['dns-aaaa'] = str(sorted(ans)[0])
 					except Exception:
 						pass
 
@@ -570,7 +570,7 @@ class DomainThread(threading.Thread):
 							break
 					for j in ip:
 						if ':' in j[4][0]:
-							domain['aaaa'] = j[4][0]
+							domain['dns-aaaa'] = j[4][0]
 							break
 
 			if self.option_mxcheck:
@@ -580,7 +580,7 @@ class DomainThread(threading.Thread):
 							domain['mx-spy'] = True
 
 			if self.option_whois:
-				if 'dns-ns' in domain and 'a' in domain:
+				if 'dns-ns' in domain or 'dns-a' in domain:
 					try:
 						whoisdb = whois.query(domain['domain-name'])
 						domain['whois-created'] = str(whoisdb.creation_date).replace(' ', 'T')
@@ -728,7 +728,7 @@ def main():
 	args = parser.parse_args()
 
 	if args.csv and args.json:
-		p_err('ERROR: Cannot use both CSV and JSON as output.\n')
+		p_err('error: cannot use both CSV and JSON as output\n')
 		bye(-1)
 
 	if args.threads < 1:
@@ -737,7 +737,7 @@ def main():
 	try:
 		url = UrlParser(args.domain)
 	except ValueError as err:
-		p_err('ERROR: %s\n' % err)
+		p_err('error: %s\n' % err)
 		bye(-1)
 
 	dfuzz = DomainFuzz(url.domain)
@@ -746,12 +746,30 @@ def main():
 
 	if args.dictionary:
 		if not path.exists(args.dictionary):
-			p_err('ERROR: Dictionary not found: %s\n' % args.dictionary)
+			p_err('error: dictionary not found: %s\n' % args.dictionary)
 			bye(-1)
 		ddict = DomainDict(url.domain)
 		ddict.load_dict(args.dictionary)
 		ddict.generate()
 		domains += ddict.domains
+
+	if not DB_TLD:
+		p_err('error: missing TLD database file: %s\n' % FILE_TLD)
+		bye(-1)
+	if not DB_GEOIP and args.geoip:
+		p_err('error: missing GeoIP database file: %\n' % FILE_GEOIP)
+		bye(-1)
+
+	if not MODULE_DNSPYTHON:
+		p_err('notice: missing module: dnspython (DNS features limited)\n')
+	if not MODULE_GEOIP and args.geoip:
+		p_err('notice: missing module: GeoIP (geographical location not available)\n')
+	if not MODULE_WHOIS and args.whois:
+		p_err('notice: missing module: whois (WHOIS database not accessible)\n')
+	if not MODULE_SSDEEP and args.ssdeep:
+		p_err('notice: missing module: ssdeep (fuzzy hashes not available)\n')
+	if not MODULE_REQUESTS and args.ssdeep:
+		p_err('notice: missing module: Requests (web page downloads not possible)\n')
 
 	p_cli(FG_RND + ST_BRI +
 '''     _           _            _     _   
@@ -762,22 +780,8 @@ def main():
 
 ''' % __version__ + FG_RST + ST_RST)
 
-	if not DB_TLD:
-		p_cli(FG_RED + 'NOTICE: Missing file: ' + FILE_TLD + ' - TLD database not available!\n\n' + FG_RST)
-	if not DB_GEOIP and args.geoip:
-		p_cli(FG_RED + 'NOTICE: Missing file: ' + FILE_GEOIP + ' - geographical location not available!\n\n' + FG_RST)
-	if not MODULE_DNSPYTHON:
-		p_cli(FG_RED + 'NOTICE: Missing module: dnspython - DNS features limited!\n\n' + FG_RST)
-	if not MODULE_GEOIP and args.geoip:
-		p_cli(FG_RED + 'NOTICE: Missing module: GeoIP - geographical location not available!\n\n' + FG_RST)
-	if not MODULE_WHOIS and args.whois:
-		p_cli(FG_RED + 'NOTICE: Missing module: whois - database not accessible!\n\n' + FG_RST)
-	if not MODULE_SSDEEP and args.ssdeep:
-		p_cli(FG_RED + 'NOTICE: Missing module: ssdeep - fuzzy hashes not available!\n\n' + FG_RST)
-	if not MODULE_REQUESTS and args.ssdeep:
-		p_cli(FG_RED + 'NOTICE: Missing module: Requests - web page downloads not possible!\n\n' + FG_RST)
 	if MODULE_WHOIS and args.whois:
-		p_cli(FG_RED + 'NOTICE: Reducing the number of threads to 1 in order to query WHOIS server\n\n' + FG_RST)
+		p_cli('Disabling multithreaded job distribution in order to query WHOIS servers\n')
 		args.threads = 1
 
 	if args.ssdeep and MODULE_SSDEEP and MODULE_REQUESTS:
