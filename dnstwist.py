@@ -859,8 +859,13 @@ def main():
 	for i in range(len(domains)):
 		jobs.put(domains[i])
 
+	qperc = 0
 	while not jobs.empty():
 		p_cli('.')
+		qcurr = 100 * (len(domains) - jobs.qsize()) / len(domains)
+		if qcurr - 20 >= qperc:
+			qperc = qcurr
+			p_cli('%u%%' % qperc)
 		time.sleep(1)
 
 	for worker in threads:
