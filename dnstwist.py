@@ -32,7 +32,6 @@ from random import randint
 from os import path
 import smtplib
 import json
-from string import ascii_lowercase
 
 try:
 	import queue
@@ -377,17 +376,20 @@ class DomainFuzz():
 				result.append(self.domain[:i] + self.domain[i+1] + self.domain[i] + self.domain[i+2:])
 
 		return result
-        
-        def __addition(self):
-                result = []
 
-                for i in ascii_lowercase:
-                        result.append(self.domain + i)
-                return result
+	def __addition(self):
+		result = []
+
+		for i in range(97, 123):
+			result.append(self.domain + chr(i))
+
+		return result
 
 	def generate(self):
 		self.domains.append({ 'fuzzer': 'Original*', 'domain-name': self.domain + '.' + self.tld })
 
+		for domain in self.__addition():
+			self.domains.append({ 'fuzzer': 'Addition', 'domain-name': domain + '.' + self.tld })
 		for domain in self.__bitsquatting():
 			self.domains.append({ 'fuzzer': 'Bitsquatting', 'domain-name': domain + '.' + self.tld })
 		for domain in self.__homoglyph():
@@ -406,8 +408,6 @@ class DomainFuzz():
 			self.domains.append({ 'fuzzer': 'Subdomain', 'domain-name': domain + '.' + self.tld })
 		for domain in self.__transposition():
 			self.domains.append({ 'fuzzer': 'Transposition', 'domain-name': domain + '.' + self.tld })
-                for domain in self.__addition():
-                        self.domains.append({ 'fuzzer': 'Addition', 'domain-name': domain + '.' + self.tld })
 
 		if not self.domain.startswith('www.'):
 			self.domains.append({ 'fuzzer': 'Various', 'domain-name': 'ww' + self.domain + '.' + self.tld })
