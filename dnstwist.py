@@ -212,6 +212,25 @@ class DomainFuzz():
 	def __init__(self, domain):
 		self.domain, self.tld = self.__domain_tld(domain)
 		self.domains = []
+		self.qwerty = {
+		'1': '2q', '2': '3wq1', '3': '4ew2', '4': '5re3', '5': '6tr4', '6': '7yt5', '7': '8uy6', '8': '9iu7', '9': '0oi8', '0': 'po9',
+		'q': '12wa', 'w': '3esaq2', 'e': '4rdsw3', 'r': '5tfde4', 't': '6ygfr5', 'y': '7uhgt6', 'u': '8ijhy7', 'i': '9okju8', 'o': '0plki9', 'p': 'lo0',
+		'a': 'qwsz', 's': 'edxzaw', 'd': 'rfcxse', 'f': 'tgvcdr', 'g': 'yhbvft', 'h': 'ujnbgy', 'j': 'ikmnhu', 'k': 'olmji', 'l': 'kop',
+		'z': 'asx', 'x': 'zsdc', 'c': 'xdfv', 'v': 'cfgb', 'b': 'vghn', 'n': 'bhjm', 'm': 'njk'
+		}
+		self.qwertz = {
+		'1': '2q', '2': '3wq1', '3': '4ew2', '4': '5re3', '5': '6tr4', '6': '7zt5', '7': '8uz6', '8': '9iu7', '9': '0oi8', '0': 'po9',
+		'q': '12wa', 'w': '3esaq2', 'e': '4rdsw3', 'r': '5tfde4', 't': '6zgfr5', 'z': '7uhgt6', 'u': '8ijhz7', 'i': '9okju8', 'o': '0plki9', 'p': 'lo0',
+		'a': 'qwsy', 's': 'edxyaw', 'd': 'rfcxse', 'f': 'tgvcdr', 'g': 'zhbvft', 'h': 'ujnbgz', 'j': 'ikmnhu', 'k': 'olmji', 'l': 'kop',
+		'y': 'asx', 'x': 'ysdc', 'c': 'xdfv', 'v': 'cfgb', 'b': 'vghn', 'n': 'bhjm', 'm': 'njk'
+		}
+		self.azerty = {
+		'1': '2a', '2': '3za1', '3': '4ez2', '4': '5re3', '5': '6tr4', '6': '7yt5', '7': '8uy6', '8': '9iu7', '9': '0oi8', '0': 'po9',
+		'a': '2zq1', 'z': '3esqa2', 'e': '4rdsz3', 'r': '5tfde4', 't': '6ygfr5', 'y': '7uhgt6', 'u': '8ijhy7', 'i': '9okju8', 'o': '0plki9', 'p': 'lo0m',
+		'q': 'zswa', 's': 'edxwqz', 'd': 'rfcxse', 'f': 'tgvcdr', 'g': 'yhbvft', 'h': 'ujnbgy', 'j': 'iknhu', 'k': 'olji', 'l': 'kopm', 'm': 'lp',
+		'w': 'sxq', 'x': 'zsdc', 'c': 'xdfv', 'v': 'cfgb', 'b': 'vghn', 'n': 'bhj'
+		}
+		self.keyboards = [ self.qwerty, self.qwertz, self.azerty ]
 
 	def __domain_tld(self, domain):
 		domain = domain.rsplit('.', 2)
@@ -305,21 +324,16 @@ class DomainFuzz():
 		return result
 
 	def __insertion(self):
-		keys = {
-		'1': '2q', '2': '3wq1', '3': '4ew2', '4': '5re3', '5': '6tr4', '6': '7yt5', '7': '8uy6', '8': '9iu7', '9': '0oi8', '0': 'po9',
-		'q': '12wa', 'w': '3esaq2', 'e': '4rdsw3', 'r': '5tfde4', 't': '6ygfr5', 'y': '7uhgt6', 'u': '8ijhy7', 'i': '9okju8', 'o': '0plki9', 'p': 'lo0',
-		'a': 'qwsz', 's': 'edxzaw', 'd': 'rfcxse', 'f': 'tgvcdr', 'g': 'yhbvft', 'h': 'ujnbgy', 'j': 'ikmnhu', 'k': 'olmji', 'l': 'kop',
-		'z': 'asx', 'x': 'zsdc', 'c': 'xdfv', 'v': 'cfgb', 'b': 'vghn', 'n': 'bhjm', 'm': 'njk'
-		}
 		result = []
 
 		for i in range(1, len(self.domain)-1):
-			if self.domain[i] in keys:
-				for c in range(0, len(keys[self.domain[i]])):
-					result.append(self.domain[:i] + keys[self.domain[i]][c] + self.domain[i] + self.domain[i+1:])
-					result.append(self.domain[:i] + self.domain[i] + keys[self.domain[i]][c] + self.domain[i+1:])
+			for keys in self.keyboards:
+				if self.domain[i] in keys:
+					for c in keys[self.domain[i]]:
+						result.append(self.domain[:i] + c + self.domain[i] + self.domain[i+1:])
+						result.append(self.domain[:i] + self.domain[i] + c + self.domain[i+1:])
 
-		return result
+		return list(set(result))
 
 	def __omission(self):
 		result = []
@@ -344,20 +358,15 @@ class DomainFuzz():
 		return list(set(result))
 
 	def __replacement(self):
-		keys = {
-		'1': '2q', '2': '3wq1', '3': '4ew2', '4': '5re3', '5': '6tr4', '6': '7yt5', '7': '8uy6', '8': '9iu7', '9': '0oi8', '0': 'po9',
-		'q': '12wa', 'w': '3esaq2', 'e': '4rdsw3', 'r': '5tfde4', 't': '6ygfr5', 'y': '7uhgt6', 'u': '8ijhy7', 'i': '9okju8', 'o': '0plki9', 'p': 'lo0',
-		'a': 'qwsz', 's': 'edxzaw', 'd': 'rfcxse', 'f': 'tgvcdr', 'g': 'yhbvft', 'h': 'ujnbgy', 'j': 'ikmnhu', 'k': 'olmji', 'l': 'kop',
-		'z': 'asx', 'x': 'zsdc', 'c': 'xdfv', 'v': 'cfgb', 'b': 'vghn', 'n': 'bhjm', 'm': 'njk'
-		}
 		result = []
 
 		for i in range(0, len(self.domain)):
-			if self.domain[i] in keys:
-				for c in range(0, len(keys[self.domain[i]])):
-					result.append(self.domain[:i] + keys[self.domain[i]][c] + self.domain[i+1:])
+			for keys in self.keyboards:
+				if self.domain[i] in keys:
+					for c in keys[self.domain[i]]:
+						result.append(self.domain[:i] + c + self.domain[i+1:])
 
-		return result
+		return list(set(result))
 
 	def __subdomain(self):
 		result = []
