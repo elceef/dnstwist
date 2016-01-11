@@ -3,6 +3,16 @@ Change log
 
 This is the list of all noteworthy changes made in every release of the tool.
 
+dnstwist 1.02
+-------------
+
+- Added Docker and MacOSX support
+- Added JSON output
+- Added new fuzzer: "Addition"
+- Changed CLI output: new colors and percentage progress indicator
+- Added QWERTZ and AZERTY keyboard layouts for wider typo coverage
+- Added full-tld-scan.sh script
+
 dnstwist 1.01
 -------------
 
