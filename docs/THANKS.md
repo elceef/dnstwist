@@ -13,6 +13,7 @@ you'd prefer a different name be used, please let me know.
 - Eugene Kogan
 - James Lane
 - Julien Rottenberg
+- Luke Snyder
 - Mario Uher
 - Mike Saunders
 - Patricia Lipp
