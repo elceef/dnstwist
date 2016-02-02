@@ -837,6 +837,9 @@ def main():
 
 	global threads
 	threads = []
+	
+	for i in range(len(domains)):
+		jobs.put(domains[i])
 
 	for i in range(args.threads):
 		worker = DomainThread(jobs)
@@ -864,9 +867,6 @@ def main():
 
 		worker.start()
 		threads.append(worker)
-
-	for i in range(len(domains)):
-		jobs.put(domains[i])
 
 	qperc = 0
 	while not jobs.empty():
