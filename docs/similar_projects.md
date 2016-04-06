@@ -39,7 +39,7 @@ https://github.com/seanthegeek/domainaware
 
 DNS Twister
 -----------
-A Google App Engine-hosted version of the very excellent dnstwist.
+A Heroku-hosted application presenting the core dnstwist functionality via
+a web application.
 
-https://github.com/thisismyrobot/dnstwister
-https://dnstwister.appspot.com/
+https://dnstwister.report/
