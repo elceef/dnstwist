@@ -37,9 +37,10 @@ domains.
 https://github.com/seanthegeek/domainaware
 
 
-DNS Twister
------------
-A Google App Engine-hosted version of the very excellent dnstwist.
+dnstwister
+----------
+A Heroku-hosted version of the very excellent dnstwist.
 
 https://github.com/thisismyrobot/dnstwister
-https://dnstwister.appspot.com/
+
+https://dnstwister.report/
