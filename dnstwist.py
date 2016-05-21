@@ -295,7 +295,7 @@ class DomainFuzz():
 		'o': ['0'], 'k': ['lk', 'ik', 'lc'], 'h': ['lh', 'ih'], 'w': ['vv'],
 		'n': ['m', 'r'], 'b': ['d', 'lb', 'ib'], 'i': ['1', 'l'], 'g': ['q'], 'q': ['g']
 		}
-		result = []
+		result = set()
 
 		for ws in range(1, len(self.domain)):
 			for i in range(0, (len(self.domain)-ws)+1):
@@ -308,11 +308,11 @@ class DomainFuzz():
 						win_copy = win
 						for g in glyphs[c]:
 							win = win.replace(c, g)
-							result.append(self.domain[:i] + win + self.domain[i+ws:])
+							result.add(self.domain[:i] + win + self.domain[i+ws:])
 							win = win_copy
 					j += 1
 
-		return list(set(result))
+		return list(result)
 
 	def __hyphenation(self):
 		result = []
