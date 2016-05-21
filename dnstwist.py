@@ -297,7 +297,7 @@ class DomainFuzz():
 		}
 		result = []
 
-		for ws in range(0, len(self.domain)):
+		for ws in range(1, len(self.domain)):
 			for i in range(0, (len(self.domain)-ws)+1):
 				win = self.domain[i:i+ws]
 
