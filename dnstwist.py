@@ -147,6 +147,13 @@ def sigint_handler(signal, frame):
 	sys.stdout.write('Done\n')
 	bye(0)
 
+ALLOWED_DOMAINS = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
+def valid_domain(domain):
+	if len(domain) > 255:
+		return False
+	if domain[-1] == '.':
+		domain = domain[:-1]
+	return ALLOWED_DOMAINS.match(domain)
 
 class UrlParser():
 
@@ -187,21 +194,13 @@ class UrlParser():
 			if m_uri.group('authority'):
 				self.authority = m_uri.group('authority')
 				self.domain = self.authority.split(':')[0].lower()
-				if not self.__validate_domain(self.domain):
+				if not valid_domain(self.domain):
 					raise ValueError('Invalid domain name.')
 			if m_uri.group('path'):
 				self.path = m_uri.group('path')
 			if m_uri.group('query'):
 				if len(m_uri.group('query')):
 					self.query = '?' + m_uri.group('query')
-
-	def __validate_domain(self, domain):
-		if len(domain) > 255:
-			return False
-		if domain[-1] == '.':
-			domain = domain[:-1]
-		allowed = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
-		return allowed.match(domain)
 
 	def get_full_uri(self):
 		return self.scheme + '://' + self.domain + self.path + self.query
@@ -268,22 +267,8 @@ class DomainFuzz():
 
 		return domain[0] + '.' + domain[1], domain[2]
 
-	def __validate_domain(self, domain):
-		if len(domain) > 255:
-			return False
-		if domain[-1] == '.':
-			domain = domain[:-1]
-		allowed = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
-		return allowed.match(domain)
-
-	def __filter_domains(self):
-		filtered = set()
-
-		for d in self.domains:
-			if self.__validate_domain(d['domain-name']):
-				filtered.add(d)
-
-		self.domains = filtered
+	def _filter_domains(self):
+		self.domains = set(d for d in self.domains if valid_domain(d['domain-name']))
 
 	def __bitsquatting(self):
 		result = []
@@ -436,7 +421,7 @@ class DomainFuzz():
 		if self.tld != 'com' and '.' not in self.tld:
 			self.domains.add(Domain(self.domain + '-' + self.tld + '.com', fuzzer='Various'))
 
-		self.__filter_domains()
+		self._filter_domains()
 
 
 class DomainDict(DomainFuzz):
@@ -475,6 +460,8 @@ class DomainDict(DomainFuzz):
 	def generate(self):
 		for domain in self.__dictionary():
 			self.domains.add(Domain(domain + '.' + self.tld, fuzzer='Dictionary'))
+
+		self._filter_domains()
 
 
 class DomainThread(threading.Thread):
