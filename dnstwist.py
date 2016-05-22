@@ -147,6 +147,13 @@ def sigint_handler(signal, frame):
 	sys.stdout.write('Done\n')
 	bye(0)
 
+ALLOWED_DOMAINS = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
+def valid_domain(domain):
+	if len(domain) > 255:
+		return False
+	if domain[-1] == '.':
+		domain = domain[:-1]
+	return ALLOWED_DOMAINS.match(domain)
 
 class UrlParser():
 
@@ -187,7 +194,7 @@ class UrlParser():
 			if m_uri.group('authority'):
 				self.authority = m_uri.group('authority')
 				self.domain = self.authority.split(':')[0].lower()
-				if not self.__validate_domain(self.domain):
+				if not valid_domain(self.domain):
 					raise ValueError('Invalid domain name.')
 			if m_uri.group('path'):
 				self.path = m_uri.group('path')
@@ -195,23 +202,26 @@ class UrlParser():
 				if len(m_uri.group('query')):
 					self.query = '?' + m_uri.group('query')
 
-	def __validate_domain(self, domain):
-		if len(domain) > 255:
-			return False
-		if domain[-1] == '.':
-			domain = domain[:-1]
-		allowed = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
-		return allowed.match(domain)
-
 	def get_full_uri(self):
 		return self.scheme + '://' + self.domain + self.path + self.query
 
+class Domain(dict):
+	def __init__(self, name, **kwargs):
+		super(dict, self).__init__()
+		self['domain-name'] = name
+		self.update(kwargs)
+
+	def __hash__(self):
+		return hash(self['domain-name'])
+
+	def __eq__(self, other):
+		return self['domain-name'] == other['domain-name']
 
 class DomainFuzz():
 
 	def __init__(self, domain):
 		self.domain, self.tld = self.__domain_tld(domain)
-		self.domains = []
+		self.domains = set()
 		self.qwerty = {
 		'1': '2q', '2': '3wq1', '3': '4ew2', '4': '5re3', '5': '6tr4', '6': '7yt5', '7': '8uy6', '8': '9iu7', '9': '0oi8', '0': 'po9',
 		'q': '12wa', 'w': '3esaq2', 'e': '4rdsw3', 'r': '5tfde4', 't': '6ygfr5', 'y': '7uhgt6', 'u': '8ijhy7', 'i': '9okju8', 'o': '0plki9', 'p': 'lo0',
@@ -257,24 +267,8 @@ class DomainFuzz():
 
 		return domain[0] + '.' + domain[1], domain[2]
 
-	def __validate_domain(self, domain):
-		if len(domain) > 255:
-			return False
-		if domain[-1] == '.':
-			domain = domain[:-1]
-		allowed = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
-		return allowed.match(domain)
-
-	def __filter_domains(self):
-		seen = set()
-		filtered = []
-
-		for d in self.domains:
-			if self.__validate_domain(d['domain-name']) and d['domain-name'] not in seen:
-				seen.add(d['domain-name'])
-				filtered.append(d)
-
-		self.domains = filtered
+	def _filter_domains(self):
+		self.domains = set(d for d in self.domains if valid_domain(d['domain-name']))
 
 	def __bitsquatting(self):
 		result = []
@@ -293,26 +287,23 @@ class DomainFuzz():
 		glyphs = {
 		'd': ['b', 'cl', 'dl', 'di'], 'm': ['n', 'nn', 'rn', 'rr'], 'l': ['1', 'i'],
 		'o': ['0'], 'k': ['lk', 'ik', 'lc'], 'h': ['lh', 'ih'], 'w': ['vv'],
-		'n': ['m', 'r'], 'b': ['d', 'lb', 'ib'], 'i': ['1', 'l'], 'g': ['q'], 'q': ['g']
+		'n': ['m', 'r'], 'b': ['d', 'lb', 'ib'], 'i': ['1', 'l'], 'g': ['q'], 'q': ['g'],
+		'truct': ['turct'],
 		}
-		result = []
+		result = set()
 
-		for ws in range(0, len(self.domain)):
+		for ws in range(1, len(self.domain)):
 			for i in range(0, (len(self.domain)-ws)+1):
 				win = self.domain[i:i+ws]
 
-				j = 0
-				while j < ws:
-					c = win[j]
-					if c in glyphs:
-						win_copy = win
-						for g in glyphs[c]:
-							win = win.replace(c, g)
-							result.append(self.domain[:i] + win + self.domain[i+ws:])
-							win = win_copy
-					j += 1
+				for j in range(ws):
+					for s in range(ws-j):
+						c = win[j:s+1]
+						if c in glyphs:
+							for g in glyphs[c]:
+								result.add(self.domain[:i] + win.replace(c, g) + self.domain[i+ws:])
 
-		return list(set(result))
+		return result
 
 	def __hyphenation(self):
 		result = []
@@ -324,49 +315,49 @@ class DomainFuzz():
 		return result
 
 	def __insertion(self):
-		result = []
+		result = set()
 
 		for i in range(1, len(self.domain)-1):
 			for keys in self.keyboards:
 				if self.domain[i] in keys:
 					for c in keys[self.domain[i]]:
-						result.append(self.domain[:i] + c + self.domain[i] + self.domain[i+1:])
-						result.append(self.domain[:i] + self.domain[i] + c + self.domain[i+1:])
+						result.add(self.domain[:i] + c + self.domain[i] + self.domain[i+1:])
+						result.add(self.domain[:i] + self.domain[i] + c + self.domain[i+1:])
 
-		return list(set(result))
+		return result
 
 	def __omission(self):
-		result = []
+		result = set()
 
 		for i in range(0, len(self.domain)):
-			result.append(self.domain[:i] + self.domain[i+1:])
+			result.add(self.domain[:i] + self.domain[i+1:])
 
 		n = re.sub(r'(.)\1+', r'\1', self.domain)
 
 		if n not in result and n != self.domain:
-			result.append(n) 
+			result.add(n)
 
-		return list(set(result))
+		return result
 
 	def __repetition(self):
-		result = []
+		result = set()
 
 		for i in range(0, len(self.domain)):
 			if self.domain[i].isalpha():
-				result.append(self.domain[:i] + self.domain[i] + self.domain[i] + self.domain[i+1:])
+				result.add(self.domain[:i] + self.domain[i] + self.domain[i] + self.domain[i+1:])
 
-		return list(set(result))
+		return result
 
 	def __replacement(self):
-		result = []
+		result = set()
 
 		for i in range(0, len(self.domain)):
 			for keys in self.keyboards:
 				if self.domain[i] in keys:
 					for c in keys[self.domain[i]]:
-						result.append(self.domain[:i] + c + self.domain[i+1:])
+						result.add(self.domain[:i] + c + self.domain[i+1:])
 
-		return list(set(result))
+		return result
 
 	def __subdomain(self):
 		result = []
@@ -395,42 +386,42 @@ class DomainFuzz():
 		return result
 
 	def generate(self):
-		self.domains.append({ 'fuzzer': 'Original*', 'domain-name': self.domain + '.' + self.tld })
+		self.domains.add(Domain(self.domain + '.' + self.tld, fuzzer='Original*'))
 
 		for domain in self.__addition():
-			self.domains.append({ 'fuzzer': 'Addition', 'domain-name': domain + '.' + self.tld })
+			self.domains.add(Domain(domain + '.' + self.tld, fuzzer='Addition'))
 		for domain in self.__bitsquatting():
-			self.domains.append({ 'fuzzer': 'Bitsquatting', 'domain-name': domain + '.' + self.tld })
+			self.domains.add(Domain(domain + '.' + self.tld, fuzzer='Bitsquatting'))
 		for domain in self.__homoglyph():
-			self.domains.append({ 'fuzzer': 'Homoglyph', 'domain-name': domain + '.' + self.tld })
+			self.domains.add(Domain(domain + '.' + self.tld, fuzzer='Homoglyph'))
 		for domain in self.__hyphenation():
-			self.domains.append({ 'fuzzer': 'Hyphenation', 'domain-name': domain + '.' + self.tld })
+			self.domains.add(Domain(domain + '.' + self.tld, fuzzer='Hyphenation'))
 		for domain in self.__insertion():
-			self.domains.append({ 'fuzzer': 'Insertion', 'domain-name': domain + '.' + self.tld })
+			self.domains.add(Domain(domain + '.' + self.tld, fuzzer='Insertion'))
 		for domain in self.__omission():
-			self.domains.append({ 'fuzzer': 'Omission', 'domain-name': domain + '.' + self.tld })
+			self.domains.add(Domain(domain + '.' + self.tld, fuzzer='Omission'))
 		for domain in self.__repetition():
-			self.domains.append({ 'fuzzer': 'Repetition', 'domain-name': domain + '.' + self.tld })
+			self.domains.add(Domain(domain + '.' + self.tld, fuzzer='Repetition'))
 		for domain in self.__replacement():
-			self.domains.append({ 'fuzzer': 'Replacement', 'domain-name': domain + '.' + self.tld })
+			self.domains.add(Domain(domain + '.' + self.tld, fuzzer='Replacement'))
 		for domain in self.__subdomain():
-			self.domains.append({ 'fuzzer': 'Subdomain', 'domain-name': domain + '.' + self.tld })
+			self.domains.add(Domain(domain + '.' + self.tld, fuzzer='Subdomain'))
 		for domain in self.__transposition():
-			self.domains.append({ 'fuzzer': 'Transposition', 'domain-name': domain + '.' + self.tld })
+			self.domains.add(Domain(domain + '.' + self.tld, fuzzer='Transposition'))
 
 		if not self.domain.startswith('www.'):
-			self.domains.append({ 'fuzzer': 'Various', 'domain-name': 'ww' + self.domain + '.' + self.tld })
-			self.domains.append({ 'fuzzer': 'Various', 'domain-name': 'www' + self.domain + '.' + self.tld })
-			self.domains.append({ 'fuzzer': 'Various', 'domain-name': 'www-' + self.domain + '.' + self.tld })
+			self.domains.add(Domain('ww' + self.domain + '.' + self.tld, fuzzer='Various'))
+			self.domains.add(Domain('www' + self.domain + '.' + self.tld, fuzzer='Various'))
+			self.domains.add(Domain('www-' + self.domain + '.' + self.tld, fuzzer='Various'))
 		if '.' in self.tld:
-			self.domains.append({ 'fuzzer': 'Various', 'domain-name': self.domain + '.' + self.tld.split('.')[-1] })
-			self.domains.append({ 'fuzzer': 'Various', 'domain-name': self.domain + self.tld })
+			self.domains.add(Domain(self.domain + '.' + self.tld.split('.')[-1], fuzzer='Various'))
+			self.domains.add(Domain(self.domain + self.tld, fuzzer='Various'))
 		if '.' not in self.tld:
-			self.domains.append({ 'fuzzer': 'Various', 'domain-name': self.domain + self.tld + '.' + self.tld })
+			self.domains.add(Domain(self.domain + self.tld + '.' + self.tld, fuzzer='Various'))
 		if self.tld != 'com' and '.' not in self.tld:
-			self.domains.append({ 'fuzzer': 'Various', 'domain-name': self.domain + '-' + self.tld + '.com' })
+			self.domains.add(Domain(self.domain + '-' + self.tld + '.com', fuzzer='Various'))
 
-		self.__filter_domains()
+		self._filter_domains()
 
 
 class DomainDict(DomainFuzz):
@@ -438,14 +429,14 @@ class DomainDict(DomainFuzz):
 	def __init__(self, domain):
 		DomainFuzz.__init__(self, domain)
 
-		self.dictionary = []
+		self.dictionary = set()
 
 	def load_dict(self, file):
 		if path.exists(file):
 			for word in open(file):
 				word = word.strip('\n')
-				if word.isalpha() and word not in self.dictionary:
-					self.dictionary.append(word)
+				if word.isalpha():
+					self.dictionary.add(word)
 
 	def __dictionary(self):
 		result = []
@@ -468,7 +459,9 @@ class DomainDict(DomainFuzz):
 
 	def generate(self):
 		for domain in self.__dictionary():
-			self.domains.append({ 'fuzzer': 'Dictionary', 'domain-name': domain + '.' + self.tld })
+			self.domains.add(Domain(domain + '.' + self.tld, fuzzer='Dictionary'))
+
+		self._filter_domains()
 
 
 class DomainThread(threading.Thread):
@@ -770,7 +763,7 @@ def main():
 		ddict = DomainDict(url.domain)
 		ddict.load_dict(args.dictionary)
 		ddict.generate()
-		domains += ddict.domains
+		domains.update(ddict.domains)
 
 	if not DB_TLD:
 		p_err('error: missing TLD database file: %s\n' % FILE_TLD)
@@ -838,8 +831,8 @@ def main():
 	global threads
 	threads = []
 	
-	for i in range(len(domains)):
-		jobs.put(domains[i])
+	for d in domains:
+		jobs.put(d)
 
 	for i in range(args.threads):
 		worker = DomainThread(jobs)
