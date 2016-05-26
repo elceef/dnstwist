@@ -497,7 +497,7 @@ class DomainThread(threading.Thread):
 			http = socket.socket()
 			http.settimeout(1)
 			http.connect((ip, 80))
-			http.send('HEAD / HTTP/1.1\r\nHost: %s\r\nUser-agent: Mozilla/5.0\r\n\r\n' % str(vhost))
+			http.send('HEAD / HTTP/1.1\r\nHost: %s\r\nUser-agent: %s\r\n\r\n' % str(vhost), args.useragent)
 			response = http.recv(1024)
 			http.close()
 		except Exception:
@@ -631,7 +631,7 @@ class DomainThread(threading.Thread):
 			if self.option_ssdeep:
 				if 'dns-a' in domain:
 					try:
-						req = requests.get(self.uri_scheme + '://' + domain['domain-name'] + self.uri_path + self.uri_query, timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': 'Mozilla/5.0 (dnstwist)'})
+						req = requests.get(self.uri_scheme + '://' + domain['domain-name'] + self.uri_path + self.uri_query, timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': args.useragent})
 						#ssdeep_fuzz = ssdeep.hash(req.text.replace(' ', '').replace('\n', ''))
 						ssdeep_fuzz = ssdeep.hash(req.text)
 					except Exception:
@@ -737,6 +737,7 @@ def main():
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='check if MX host can be used to intercept e-mails')
 	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='generate additional domains using dictionary FILE')
 	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT, help='start specified NUMBER of threads (default: %d)' % THREAD_COUNT_DEFAULT)
+	parser.add_argument('-u', '--useragent', type=str, default='Mozilla/5.0 (dnstwist)', help="User-agent to send when making requests")
 
 	if len(sys.argv) < 2:
 		sys.stdout.write('%sdnstwist %s by <%s>%s\n\n' % (ST_BRI, __version__, __email__, ST_RST))
@@ -806,7 +807,7 @@ def main():
 	if args.ssdeep and MODULE_SSDEEP and MODULE_REQUESTS:
 		p_cli('Fetching content from: ' + url.get_full_uri() + ' ... ')
 		try:
-			req = requests.get(url.get_full_uri(), timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': 'Mozilla/5.0 (dnstwist)'})
+			req = requests.get(url.get_full_uri(), timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': args.useragent})
 		except requests.exceptions.ConnectionError:
 			p_cli('Connection error\n')
 			args.ssdeep = False
