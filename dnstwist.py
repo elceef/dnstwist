@@ -837,7 +837,7 @@ def main():
 
 	global threads
 	threads = []
-	
+
 	for i in range(len(domains)):
 		jobs.put(domains[i])
 
@@ -893,12 +893,13 @@ def main():
 		domains = domains_registered
 		del domains_registered
 
-	if args.csv:
-		p_csv(generate_csv(domains))
-	elif args.json:
-		p_json(generate_json(domains))
-	else:
-		p_cli(generate_cli(domains))
+	if domains:
+		if args.csv:
+			p_csv(generate_csv(domains))
+		elif args.json:
+			p_json(generate_json(domains))
+		else:
+			p_cli(generate_cli(domains))
 
 	bye(0)
 
