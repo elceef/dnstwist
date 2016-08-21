@@ -293,26 +293,23 @@ class DomainFuzz():
 		glyphs = {
 		'd': ['b', 'cl', 'dl', 'di'], 'm': ['n', 'nn', 'rn', 'rr'], 'l': ['1', 'i'],
 		'o': ['0'], 'k': ['lk', 'ik', 'lc'], 'h': ['lh', 'ih'], 'w': ['vv'],
-		'n': ['m', 'r'], 'b': ['d', 'lb', 'ib'], 'i': ['1', 'l'], 'g': ['q'], 'q': ['g']
+		'n': ['m', 'r'], 'b': ['d', 'lb', 'ib'], 'i': ['1', 'l'], 'g': ['q'], 'q': ['g'],
+		'truct': ['turct'],
 		}
-		result = []
+		result = set()
 
-		for ws in range(0, len(self.domain)):
+		for ws in range(1, len(self.domain)):
 			for i in range(0, (len(self.domain)-ws)+1):
 				win = self.domain[i:i+ws]
 
-				j = 0
-				while j < ws:
-					c = win[j]
-					if c in glyphs:
-						win_copy = win
-						for g in glyphs[c]:
-							win = win.replace(c, g)
-							result.append(self.domain[:i] + win + self.domain[i+ws:])
-							win = win_copy
-					j += 1
+				for j in range(ws):
+					for s in range(ws-j):
+						c = win[j:s+1]
+						if c in glyphs:
+							for g in glyphs[c]:
+								result.add(self.domain[:i] + win.replace(c, g) + self.domain[i+ws:])
 
-		return list(set(result))
+		return list(result)
 
 	def __hyphenation(self):
 		result = []
