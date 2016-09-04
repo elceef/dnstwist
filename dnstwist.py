@@ -650,7 +650,7 @@ def generate_json(domains):
     formatted_domains =[]
     for domain in domains:
         formatted_domain = dict(dns=dict())
-        formatted_domain['domain_name'] = domain['domain-name'].lower()
+        formatted_domain['name'] = domain['domain-name'].lower()
         formatted_domain['fuzzer'] = domain['fuzzer'].lower()
         if 'dns-a' in domain:
             formatted_domain['dns']['a'] = domain['dns-a']
