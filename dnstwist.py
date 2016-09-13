@@ -18,7 +18,7 @@
 # limitations under the License.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '1.02'
+__version__ = '1.03'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -40,6 +40,7 @@ except ImportError:
 
 try:
 	import dns.resolver
+	from dns.exception import DNSException
 	MODULE_DNSPYTHON = True
 except ImportError:
 	MODULE_DNSPYTHON = False
@@ -344,7 +345,7 @@ class DomainFuzz():
 		n = re.sub(r'(.)\1+', r'\1', self.domain)
 
 		if n not in result and n != self.domain:
-			result.append(n) 
+			result.append(n)
 
 		return list(set(result))
 
@@ -543,6 +544,10 @@ class DomainThread(threading.Thread):
 	def stop(self):
 		self.kill_received = True
 
+	@staticmethod
+	def answer_to_list(answers):
+		return sorted(list(map(lambda record: str(record).strip("."), answers)))
+
 	def run(self):
 		while not self.kill_received:
 			domain = self.jobs.get()
@@ -551,31 +556,29 @@ class DomainThread(threading.Thread):
 				resolv = dns.resolver.Resolver()
 				resolv.lifetime = REQUEST_TIMEOUT_DNS
 				resolv.timeout = REQUEST_TIMEOUT_DNS
-
+				if args.nameservers:
+					resolv.nameservers = args.nameservers.split(",")
+				if args.port:
+					resolv.port = args.port
 				try:
-					ans = resolv.query(domain['domain-name'], 'SOA')
-					domain['dns-ns'] = str(sorted(ans)[0]).split(' ')[0][:-1].lower()
-				except Exception:
+					domain['dns-ns'] = self.answer_to_list(resolv.query(domain['domain-name'], 'NS'))
+				except DNSException:
 					pass
 
 				if 'dns-ns' in domain:
 					try:
-						ans = resolv.query(domain['domain-name'], 'A')
-						domain['dns-a'] = str(sorted(ans)[0])
-					except Exception:
+						domain['dns-a'] = self.answer_to_list(resolv.query(domain['domain-name'], 'A'))
+					except DNSException:
 						pass
 
 					try:
-						ans = resolv.query(domain['domain-name'], 'AAAA')
-						domain['dns-aaaa'] = str(sorted(ans)[0])
-					except Exception:
+						domain['dns-aaaa'] = self.answer_to_list(resolv.query(domain['domain-name'], 'AAAA'))
+					except DNSException:
 						pass
 
 					try:
-						ans = resolv.query(domain['domain-name'], 'MX')
-						mx = str(sorted(ans)[0].exchange)[:-1].lower()
-						if mx: domain['dns-mx'] = mx
-					except Exception:
+						domain['dns-mx'] = self.answer_to_list(resolv.query(domain['domain-name'], 'MX'))
+					except DNSException:
 						pass
 			else:
 				try:
@@ -594,8 +597,8 @@ class DomainThread(threading.Thread):
 
 			if self.option_mxcheck:
 				if 'dns-mx' in domain:
-					if domain['domain-name'] is not self.domain_orig: 
-						if self.__mxcheck(domain['dns-mx'], self.domain_orig, domain['domain-name']):
+					if domain['domain-name'] is not self.domain_orig:
+						if self.__mxcheck(domain['dns-mx'][0], self.domain_orig, domain['domain-name']):
 							domain['mx-spy'] = True
 
 			if self.option_whois:
@@ -611,7 +614,7 @@ class DomainThread(threading.Thread):
 				if 'dns-a' in domain:
 					gi = GeoIP.open(FILE_GEOIP, GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
 					try:
-						country = gi.country_name_by_addr(domain['dns-a'])
+						country = gi.country_name_by_addr(domain['dns-a'][0])
 					except Exception:
 						pass
 					else:
@@ -620,11 +623,11 @@ class DomainThread(threading.Thread):
 
 			if self.option_banners:
 				if 'dns-a' in domain:
-					banner = self.__banner_http(domain['dns-a'], domain['domain-name'])
+					banner = self.__banner_http(domain['dns-a'][0], domain['domain-name'])
 					if banner:
 						domain['banner-http'] = banner
 				if 'dns-mx' in domain:
-					banner = self.__banner_smtp(domain['dns-mx'])
+					banner = self.__banner_smtp(domain['dns-mx'][0])
 					if banner:
 						domain['banner-smtp'] = banner
 
@@ -642,18 +645,76 @@ class DomainThread(threading.Thread):
 
 			self.jobs.task_done()
 
+def one_or_all(answers):
+	if args.all:
+		result = ';'.join(answers)
+	else:
+		result = answers[0]
+	return result
+
 
 def generate_json(domains):
-	return json.dumps(domains, indent=4, sort_keys=True)
+	formatted_domains = []
+	if args.all:
+		for domain in domains:
+			formatted_domain = dict(dns=dict())
+			formatted_domain['name'] = domain['domain-name'].lower()
+			formatted_domain['fuzzer'] = domain['fuzzer'].lower()
+			if 'dns-a' in domain:
+				formatted_domain['dns']['a'] = domain['dns-a']
+			if 'dns-aaaa' in domain:
+				formatted_domain['dns']['aaaa'] = domain['dns-aaaa']
+			if 'dns-mx' in domain:
+				formatted_domain['dns']['mx'] = domain['dns-mx']
+			if 'dns-mxspy' in domain:
+				formatted_domain['dns']['mxspy'] = domain['dns-mxspy']
+			if 'dns-ns' in domain:
+				formatted_domain['dns']['ns'] = domain['dns-ns']
+			if 'geoip-country' in domain:
+				formatted_domain['geoip'] = dict(country=domain['geoip-country'])
+			if 'whois-created' in domain and 'whois-updated' in domain:
+				domain['whois'] = dict(created=domain['whois-created'], updated=domain['whois-updated'])
+			if 'ssdeep-score' in domain:
+				formatted_domain['ssdeep_score'] = domain['ssdeep-score']
+			if 'banner-http' in domain or 'banner-smtp' in domain:
+				formatted_domain["banners"] = dict()
+				if 'banner-http' in domain:
+					formatted_domain['banners']['http'] = domain['banner-http']
+				if 'banner-smtp' in domain:
+					formatted_domain['banners']['smtp'] = domain['banner-smtp']
+
+			formatted_domains.append(formatted_domain)
+
+	else:
+		formatted_domains = domains
+		for domain in formatted_domains:
+			if 'dns-a' in domain:
+				domain['dns-a'] = domain['dns-a'][0]
+			if 'dns-aaaaa' in domain:
+				domain['dns-aaaa'] = domain['dns-aaaa'][0]
+			if 'dns-mx' in domain:
+				domain['dns-mx'] = domain['dns-mx'][0]
+			if 'dns-ns' in domain:
+				domain['dns-ns'] = domain['dns-ns'][0]
+
+
+	return json.dumps(formatted_domains, indent=4, sort_keys=True)
 
 
 def generate_csv(domains):
 	output = 'fuzzer,domain-name,dns-a,dns-aaaa,dns-mx,dns-ns,geoip-country,whois-created,whois-updated,ssdeep-score\n'
 
 	for domain in domains:
-		output += '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (domain.get('fuzzer'), domain.get('domain-name'), domain.get('dns-a', ''),
-		domain.get('dns-aaaa', ''), domain.get('dns-mx', ''), domain.get('dns-ns', ''), domain.get('geoip-country', ''),
-		domain.get('whois-created', ''), domain.get('whois-updated', ''), str(domain.get('ssdeep-score', '')))
+		output += '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (domain.get('fuzzer'),
+													   domain.get('domain-name'),
+													   one_or_all(domain.get('dns-a', '')),
+													   one_or_all(domain.get('dns-aaaa', '')),
+													   one_or_all(domain.get('dns-mx', '')),
+													   one_or_all(domain.get('dns-ns', '')),
+													   domain.get('geoip-country', ''),
+													   domain.get('whois-created', ''),
+													   domain.get('whois-updated', ''),
+													   str(domain.get('ssdeep-score', '')))
 
 	return output
 
@@ -668,7 +729,7 @@ def generate_cli(domains):
 		info = ''
 
 		if 'dns-a' in domain:
-			info += domain['dns-a']
+			info += one_or_all(domain['dns-a'])
 			if 'geoip-country' in domain:
 				info += FG_CYA + '/' + domain['geoip-country'] + FG_RST
 			info += ' '
@@ -677,13 +738,13 @@ def generate_cli(domains):
 			info += domain['dns-aaaa'] + ' '
 
 		if 'dns-ns' in domain:
-			info += '%sNS:%s%s%s ' % (FG_YEL, FG_CYA, domain['dns-ns'], FG_RST)
+			info += '%sNS:%s%s%s ' % (FG_YEL, FG_CYA, one_or_all(domain['dns-ns']), FG_RST)
 
 		if 'dns-mx' in domain:
 			if 'mx-spy' in domain:
-				info += '%sSPYING-MX:%s%s' % (FG_YEL, domain['dns-mx'], FG_RST)
+				info += '%sSPYING-MX:%s%s' % (FG_YEL, domain['dns-mx'][0], FG_RST)
 			else:
-				info += '%sMX:%s%s%s ' % (FG_YEL, FG_CYA, domain['dns-mx'], FG_RST)
+				info += '%sMX:%s%s%s ' % (FG_YEL, FG_CYA, one_or_all(domain['dns-mx']), FG_RST)
 
 		if 'banner-http' in domain:
 			info += '%sHTTP:%s"%s"%s ' % (FG_YEL, FG_CYA, domain['banner-http'], FG_RST)
@@ -727,6 +788,9 @@ def main():
 	)
 
 	parser.add_argument('domain', help='domain name or URL to check')
+	parser.add_argument('-a', '--all', action='store_true', help='Show all DNS answers')
+	parser.add_argument("-n", "--nameservers", nargs="?", type=str, help="A comma separated list of nameservers to query")
+	parser.add_argument("-p", "--port", type=int, nargs="?", help="The port to send queries to")
 	parser.add_argument('-c', '--csv', action='store_true', help='print output in CSV format')
 	parser.add_argument('-j', '--json', action='store_true', help='print output in JSON format')
 	parser.add_argument('-r', '--registered', action='store_true', help='show only registered domain names')
@@ -791,10 +855,10 @@ def main():
 		p_err('notice: missing module: Requests (web page downloads not possible)\n')
 
 	p_cli(FG_RND + ST_BRI +
-'''     _           _            _     _   
-  __| |_ __  ___| |___      _(_)___| |_ 
+'''     _           _            _     _
+  __| |_ __  ___| |___      _(_)___| |_
  / _` | '_ \/ __| __\ \ /\ / / / __| __|
-| (_| | | | \__ \ |_ \ V  V /| \__ \ |_ 
+| (_| | | | \__ \ |_ \ V  V /| \__ \ |_
  \__,_|_| |_|___/\__| \_/\_/ |_|___/\__| {%s}
 
 ''' % __version__ + FG_RST + ST_RST)

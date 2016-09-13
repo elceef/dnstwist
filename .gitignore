@@ -1,1 +1,4 @@
 venv/
+
+# PyCharm project directory
+.idea
