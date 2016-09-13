@@ -735,7 +735,7 @@ def generate_cli(domains):
 			info += ' '
 
 		if 'dns-aaaa' in domain:
-			info += domain['dns-aaaa'] + ' '
+			info += one_or_all(domain['dns-aaaa']) + ' '
 
 		if 'dns-ns' in domain:
 			info += '%sNS:%s%s%s ' % (FG_YEL, FG_CYA, one_or_all(domain['dns-ns']), FG_RST)
