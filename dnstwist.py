@@ -546,7 +546,7 @@ class DomainThread(threading.Thread):
 
 	@staticmethod
 	def answer_to_list(answers):
-		return sorted(list(map(lambda record: str(record).strip("."), answers)))
+		return sorted(list(map(lambda record: str(record).strip(".") if len(str(record).split(' ')) == 1 else str(record).split(' ')[1].strip('.'), answers)))
 
 	def run(self):
 		while not self.kill_received:
