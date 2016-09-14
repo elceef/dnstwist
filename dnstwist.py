@@ -788,9 +788,9 @@ def main():
 	)
 
 	parser.add_argument('domain', help='domain name or URL to check')
-	parser.add_argument('-a', '--all', action='store_true', help='Show all DNS answers')
-	parser.add_argument("-n", "--nameservers", nargs="?", type=str, help="A comma separated list of nameservers to query")
-	parser.add_argument("-p", "--port", type=int, nargs="?", help="The port to send queries to")
+	parser.add_argument('-a', '--all', action='store_true', help='show all DNS answers')
+	parser.add_argument('-n', '--nameservers', type=str, metavar='NAMESERVERS', help='a comma separated list of nameservers to query')
+	parser.add_argument('-p', '--port', type=int, metavar='PORT', help='the port to send queries to')
 	parser.add_argument('-c', '--csv', action='store_true', help='print output in CSV format')
 	parser.add_argument('-j', '--json', action='store_true', help='print output in JSON format')
 	parser.add_argument('-r', '--registered', action='store_true', help='show only registered domain names')
