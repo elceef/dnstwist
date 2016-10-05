@@ -718,16 +718,16 @@ def generate_csv(domains):
 	output = 'fuzzer,domain-name,dns-a,dns-aaaa,dns-mx,dns-ns,geoip-country,whois-created,whois-updated,ssdeep-score\n'
 
 	for domain in domains:
-		output += '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (domain.get('fuzzer'),
-													   domain.get('domain-name'),
-													   one_or_all(domain.get('dns-a', [''])),
-													   one_or_all(domain.get('dns-aaaa', [''])),
-													   one_or_all(domain.get('dns-mx', [''])),
-													   one_or_all(domain.get('dns-ns', [''])),
-													   domain.get('geoip-country', ''),
-													   domain.get('whois-created', ''),
-													   domain.get('whois-updated', ''),
-													   str(domain.get('ssdeep-score', '')))
+		output += '"%s","%s","%s","%s","%s","%s","%s","%s","%s","%s"\n' % (domain.get('fuzzer'),
+													                       domain.get('domain-name'),
+													                       one_or_all(domain.get('dns-a', [''])),
+													                       one_or_all(domain.get('dns-aaaa', [''])),
+													                       one_or_all(domain.get('dns-mx', [''])),
+													                       one_or_all(domain.get('dns-ns', [''])),
+													                       domain.get('geoip-country', ''),
+													                       domain.get('whois-created', ''),
+													                       domain.get('whois-updated', ''),
+													                       str(domain.get('ssdeep-score', '')))
 
 	return output
 
