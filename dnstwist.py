@@ -599,14 +599,15 @@ class DomainThread(threading.Thread):
 				except Exception:
 					pass
 				else:
+					domain['dns-a'] = list()
+					domain['dns-aaaa'] = list()
 					for j in ip:
 						if '.' in j[4][0]:
-							domain['dns-a'] = j[4][0]
-							break
-					for j in ip:
+							domain['dns-a'].append(j[4][0])
 						if ':' in j[4][0]:
-							domain['dns-aaaa'] = j[4][0]
-							break
+							domain['dns-aaaa'].append(j[4][0])
+					domain['dns-a'] = sorted(domain['dns-a'])
+					domain['dns-aaaa'] = sorted(domain['dns-aaaa'])
 
 			if self.option_mxcheck:
 				if 'dns-mx' in domain:
@@ -662,7 +663,10 @@ def one_or_all(answers):
 	if args.all:
 		result = ';'.join(answers)
 	else:
-		result = answers[0]
+		if len(answers):
+			result = answers[0]
+		else:
+			result = ''
 	return result
 
 
