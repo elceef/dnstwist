@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # dnstwist
 #
@@ -18,7 +19,7 @@
 # limitations under the License.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '1.03'
+__version__ = '1.04b'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -263,6 +264,8 @@ class DomainFuzz():
 			return False
 		if domain[-1] == '.':
 			domain = domain[:-1]
+		if len(domain) < len(domain.encode('idna')):
+			return True
 		allowed = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
 		return allowed.match(domain)
 
@@ -292,10 +295,34 @@ class DomainFuzz():
 
 	def __homoglyph(self):
 		glyphs = {
-		'd': ['b', 'cl', 'dl', 'di'], 'm': ['n', 'nn', 'rn', 'rr'], 'l': ['1', 'i'],
-		'o': ['0'], 'k': ['lk', 'ik', 'lc'], 'h': ['lh', 'ih'], 'w': ['vv'],
-		'n': ['m', 'r'], 'b': ['d', 'lb', 'ib'], 'i': ['1', 'l'], 'g': ['q'], 'q': ['g']
+		'a': [u'à', u'á', u'â', u'ã', u'ä', u'å', u'ɑ', u'а'],
+		'b': ['d', 'lb', 'ib', u'ʙ', u'Ь', u'ｂ'],
+		'c': [u'ϲ', u'с', u'ⅽ'],
+		'd': ['b', 'cl', 'dl', 'di', u'ԁ', u'ժ', u'ⅾ', u'ｄ'],
+		'e': [u'é', u'ê', u'ë', u'ē', u'ĕ', u'ė', u'ｅ', u'е'],
+		'f': [u'Ϝ', u'Ｆ', u'ｆ'],
+		'g': ['q', u'ɢ', u'ɡ', u'Ԍ', u'Ԍ', u'ｇ'],
+		'h': ['lh', 'ih', u'һ', u'ｈ'],
+		'i': ['1', 'l', u'Ꭵ', u'ⅰ', u'ｉ'],
+		'j': [u'ј', u'ｊ'],
+		'k': ['lk', 'ik', 'lc', u'κ', u'ｋ'],
+		'l': ['1', 'i', u'ⅼ', u'ｌ'],
+		'm': ['n', 'nn', 'rn', 'rr', u'ⅿ', u'ｍ'],
+		'n': ['m', 'r', u'ｎ'],
+		'o': ['0', u'Ο', u'ο', u'О', u'о', u'Օ', u'Ｏ', u'ｏ'],
+		'p': [u'ρ', u'р', u'ｐ'],
+		'q': ['g', u'ｑ'],
+		'r': [u'ʀ', u'ｒ'],
+		's': [u'Ⴝ', u'Ꮪ', u'Ｓ', u'ｓ'],
+		't': [u'τ', u'ｔ'],
+		'u': [u'μ', u'υ', u'Ս', u'Ｕ', u'ｕ'],
+		'v': [u'ｖ', u'ѵ', u'ⅴ'],
+		'w': ['vv', u'ѡ', u'ｗ'],
+		'x': [u'ⅹ', u'ｘ'],
+		'y': [u'ʏ', u'γ', u'у', u'Ү', u'ｙ'],
+		'z': [u'ｚ']
 		}
+
 		result = []
 
 		for ws in range(0, len(self.domain)):
@@ -430,7 +457,7 @@ class DomainFuzz():
 		for domain in self.__transposition():
 			self.domains.append({ 'fuzzer': 'Transposition', 'domain-name': domain + '.' + self.tld })
 		for domain in self.__vowel_swap():
-			self.domains.append({ 'fuzzer': 'Vowel swap', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Vowel-swap', 'domain-name': domain + '.' + self.tld })
 
 		if not self.domain.startswith('www.'):
 			self.domains.append({ 'fuzzer': 'Various', 'domain-name': 'ww' + self.domain + '.' + self.tld })
@@ -565,6 +592,8 @@ class DomainThread(threading.Thread):
 		while not self.kill_received:
 			domain = self.jobs.get()
 
+			domain['domain-name'] = domain['domain-name'].encode('idna')
+
 			if self.option_extdns:
 				resolv = dns.resolver.Resolver()
 				resolv.lifetime = REQUEST_TIMEOUT_DNS
@@ -656,6 +685,8 @@ class DomainThread(threading.Thread):
 					else:
 						if req.status_code / 100 == 2:
 							domain['ssdeep-score'] = ssdeep.compare(self.ssdeep_orig, ssdeep_fuzz)
+
+			domain['domain-name'] = domain['domain-name'].decode('idna')
 
 			self.jobs.task_done()
 
