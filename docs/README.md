@@ -19,38 +19,21 @@ web pages to see if they are live phishing sites.
 Key features
 ------------
 
-There are several pretty good reasons to give it a try:
-
 - Wide range of efficient domain fuzzing algorithms
+- Internationalized domain names (IDN)
 - Multithreaded job distribution
 - Resolves domain names to IPv4 and IPv6
 - Queries for NS and MX records
 - Evaluates web page similarity with fuzzy hashes to find live phishing sites
 - Tests if MX host (mail server) can be used to intercept misdirected e-mails
-  (espionage)
 - Generates additional domain variants using dictionary files
 - GeoIP location information
 - Grabs HTTP and SMTP service banners
 - WHOIS lookups for creation and modification date
-- Prints output in CSV and JSON format
+- Optional output in CSV and JSON format
 
 
 Requirements
-------------
-
-If you want *dnstwist* to develop full power, please make sure the following
-Python modules are present on your system. If missing, *dnstwist* will still
-work, but without many cool features. You'll get a notification in absence of
-required module.
-
-- [A DNS toolkit for Python](http://www.dnspython.org/)
-- [Python GeoIP](https://pypi.python.org/pypi/GeoIP/)
-- [Python WHOIS](https://pypi.python.org/pypi/whois)
-- [Requests: HTTP for Humans](http://www.python-requests.org/)
-- [ssdeep Python wrapper](https://pypi.python.org/pypi/ssdeep)
-
-
-Installation
 ------------
 
 **Linux**
@@ -101,10 +84,8 @@ Then run that local image:
 $ docker run dnstwist example.com
 ```
 
-If you don't want to build locally here is a list of community maintained
-images:
-
-- [jrottenberg/dnstwist](https://hub.docker.com/r/jrottenberg/dnstwist/)
+You can find [community maintained](https://hub.docker.com/search/?q=dnstwist)
+images if you don't want to build locally.
 
 
 How to use
@@ -116,6 +97,14 @@ potential phishing domains with the following DNS records: A, AAAA, NS and MX.
 
 ```
 $ dnstwist.py example.com
+```
+
+Usually generated list of domains has more than a hundred of rows - especially
+for longer domain names. In such cases, it may be practical to display only
+registered (resolvable) ones using *--registered* argument.
+
+```
+$ dnstwist.py --registered example.com
 ```
 
 Manually checking each domain name in terms of serving a phishing site might be
@@ -177,14 +166,6 @@ for data interchange.
 ```
 $ dnstwist.py --csv example.com > out.csv
 $ dnstwist.py --json example.com > out.json
-```
-
-Usually generated list of domains has more than a hundred of rows - especially
-for longer domain names. In such cases, it may be practical to display only
-registered (resolvable) ones using *--registered* argument.
-
-```
-$ dnstwist.py --registered example.com
 ```
 
 The tool is shipped with built-in GeoIP database. Use *--geoip* argument to
