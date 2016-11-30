@@ -706,7 +706,7 @@ def generate_json(domains):
 	if args.all:
 		for domain in domains:
 			formatted_domain = dict(dns=dict())
-			formatted_domain['name'] = domain['domain-name'].lower()
+			formatted_domain['name'] = domain['domain-name'].lower().encode('idna')
 			formatted_domain['fuzzer'] = domain['fuzzer'].lower()
 			if 'dns-a' in domain:
 				formatted_domain['dns']['a'] = domain['dns-a']
@@ -754,15 +754,15 @@ def generate_csv(domains):
 
 	for domain in domains:
 		output += '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (domain.get('fuzzer'),
-													   domain.get('domain-name'),
-													   one_or_all(domain.get('dns-a', [''])),
-													   one_or_all(domain.get('dns-aaaa', [''])),
-													   one_or_all(domain.get('dns-mx', [''])),
-													   one_or_all(domain.get('dns-ns', [''])),
-													   domain.get('geoip-country', ''),
-													   domain.get('whois-created', ''),
-													   domain.get('whois-updated', ''),
-													   str(domain.get('ssdeep-score', '')))
+			domain.get('domain-name').encode('idna'),
+			one_or_all(domain.get('dns-a', [''])),
+			one_or_all(domain.get('dns-aaaa', [''])),
+			one_or_all(domain.get('dns-mx', [''])),
+			one_or_all(domain.get('dns-ns', [''])),
+			domain.get('geoip-country', ''),
+			domain.get('whois-created', ''),
+			domain.get('whois-updated', ''),
+			str(domain.get('ssdeep-score', '')))
 
 	return output
 
