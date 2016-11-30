@@ -114,7 +114,7 @@ else:
 def p_cli(data):
 	global args
 	if not args.csv and not args.json:
-		sys.stdout.write(data)
+		sys.stdout.write(data.encode('utf-8'))
 		sys.stdout.flush()
 
 
