@@ -1,0 +1,198 @@
+fuzzer,domain-name,dns-a,dns-aaaa,dns-mx,dns-ns,geoip-country,whois-created,whois-updated,ssdeep-score
+Original*,google.com,216.58.210.14,2a00:1450:4001:805::200e,alt1.aspmx.l.google.com,ns1.google.com,United States,,,80
+Addition,googlea.com,184.168.221.17,,mailstore1.secureserver.net,ns17.domaincontrol.com,United States,,,0
+Addition,googleb.com,116.212.117.220,,,dns1.iidns.com,Hong Kong,,,
+Addition,googlec.com,58.76.184.4,,,ns1.doregi.com,Korea,,,0
+Addition,googled.com,98.124.199.104,,,dns1.name-services.com,United States,,,0
+Addition,googlee.com,46.134.193.20,2a00:1450:4001:81a::2004,,ns1.google.com,Poland,,,
+Addition,googlef.com,,,,ns1.googledomains.com,,,,
+Addition,googleg.com,98.124.199.120,,,dns1.name-services.com,United States,,,0
+Addition,googleh.com,141.8.230.20,,,ns1.dsredirection.com,Switzerland,,,0
+Addition,googlei.com,199.59.243.120,,,ns1.bodis.com,United States,,,0
+Addition,googlej.com,54.235.212.68,,mail.googlej.com,ns1.pql.net,United States,,,0
+Addition,googlek.com,127.0.0.1,,,ns1.sedoparking.com,,,,
+Addition,googlel.com,,,,ns1.googledomains.com,,,,
+Addition,googlem.com,98.124.199.91,,,dns1.name-services.com,United States,,,0
+Addition,googlen.com,158.69.143.112,,,ns1.rentondc.com,Canada,,,0
+Addition,googleo.com,95.211.219.67,,,ns1.hastydns.com,Netherlands,,,0
+Addition,googlep.com,54.235.212.68,,mail.googlep.com,ns1.pql.net,United States,,,0
+Addition,googleq.com,127.0.0.1,,,ns1.sedoparking.com,,,,
+Addition,googler.com,,,,ns1.googledomains.com,,,,
+Addition,googles.com,23.229.234.162,,mailstore1.secureserver.net,ns21.domaincontrol.com,United States,,,0
+Addition,googlet.com,5.135.193.113,,,ns1.redmonddc.com,France,,,0
+Addition,googleu.com,54.221.207.100,,null.invalid.mx,ns3.domainmanager.com,United States,,,0
+Addition,googlev.com,,,,ns1.googledomains.com,,,,
+Addition,googlew.com,98.124.199.73,,,dns1.name-services.com,United States,,,0
+Addition,googlex.com,,,,ns1.googledomains.com,,,,
+Addition,googley.com,,,,,,,,
+Addition,googlez.com,,,,,,,,
+Bitsquatting,foogle.com,64.111.126.107,,ALT1.ASPMX.L.GOOGLE.com,ns1.dreamhost.com,United States,,,0
+Bitsquatting,eoogle.com,,,,ns1.googledomains.com,,,,
+Bitsquatting,coogle.com,,,,ns1.googledomains.com,,,,
+Bitsquatting,ooogle.com,,,,ns1.googledomains.com,,,,
+Bitsquatting,woogle.com,98.124.199.11,,,dns1.name-services.com,United States,,,0
+Bitsquatting,gnogle.com,,,,ns1.googledomains.com,,,,
+Bitsquatting,gmogle.com,,,,ns1.googledomains.com,,,,
+Bitsquatting,gkogle.com,,,,ns1.googledomains.com,,,,
+Bitsquatting,ggogle.com,,,,ns1.googledomains.com,,,,
+Bitsquatting,gongle.com,,,,ns1.googledomains.com,,,,
+Bitsquatting,gomgle.com,,,,ns1.googledomains.com,,,,
+Bitsquatting,gokgle.com,,,,ns1.googledomains.com,,,,
+Bitsquatting,goggle.com,138.68.58.45,,exchange.dewile.net,ns3.domainmanager.com,United States,,,0
+Bitsquatting,goofle.com,192.185.39.34,,mail.goofle.com,ns8197.hostgator.com,United States,,,0
+Bitsquatting,gooele.com,,,,ns1.googledomains.com,,,,
+Bitsquatting,goocle.com,,,,ns1.googledomains.com,,,,
+Bitsquatting,gooole.com,98.124.199.61,,,dns1.name-services.com,United States,,,0
+Bitsquatting,goowle.com,,,,,,,,
+Bitsquatting,googme.com,199.59.243.120,,,ns1.bodis.com,United States,,,0
+Bitsquatting,googne.com,,,,ns1.googledomains.com,,,,
+Bitsquatting,googhe.com,199.59.243.120,,,ns1.bodis.com,United States,,,0
+Bitsquatting,googde.com,,,,ns1.googledomains.com,,,,
+Bitsquatting,googld.com,,,,ns1.googledomains.com,,,,
+Bitsquatting,googlg.com,,,,ns1.googledomains.com,,,,
+Bitsquatting,googla.com,,,,ns1.googledomains.com,,,,
+Bitsquatting,googlm.com,117.25.129.27,,,ns1.cnspeed.com,China,,,
+Bitsquatting,googlu.com,,,,ns1.googledomains.com,,,,
+Homoglyph,xn--oogle-zyf.com,,,,,,,,
+Homoglyph,xn--ggle-0nda.com,,,,,,,,
+Homoglyph,g00gle.com,,,,ns1.googledomains.com,,,,
+Homoglyph,qooqle.com,95.211.219.66,,,ns1.hastydns.com,Netherlands,,,0
+Homoglyph,xn--ggle-0nda.com,,,,,,,,
+Homoglyph,xn--googl-lsa.com,104.28.30.121,2400:cb00:2048:1::681c:1e79,,hugh.ns.cloudflare.com,United States,,,0
+Homoglyph,xn--gogle-jye.com,,,,ns1.googledomains.com,,,,
+Homoglyph,xn--googl-fsa.com,185.53.179.8,,mail.h-email.net,ns1.parkingcrew.net,Germany,,,0
+Homoglyph,xn--gogle-kye.com,,,,ns1.googledomains.com,,,,
+Homoglyph,xn--ggle-vifa.com,,,,,,,,
+Homoglyph,xn--goole-tmc.com,75.119.220.238,,mx1.sub4.homie.mail.dreamhost.com,nick.ns.cloudflare.com,United States,,,
+Homoglyph,xn--gogle-jye.com,,,,ns1.googledomains.com,,,,
+Homoglyph,gooqle.com,208.73.210.200,,,ns1.dsredirection.com,United States,,,0
+Homoglyph,xn--gogle-rce.com,,,,ns1.googledomains.com,,,,
+Homoglyph,xn--gogle-lkg.com,,,,,,,,
+Homoglyph,xn--gogle-mkg.com,,,,,,,,
+Homoglyph,xn--gogle-kye.com,,,,ns1.googledomains.com,,,,
+Homoglyph,xn--googl-yza.com,198.105.221.60,,xn--googl-yza.com,ns1.cubehostindia.com,Singapore,,,0
+Homoglyph,xn--goole-2yf.com,,,,,,,,
+Homoglyph,xn--googl-3we.com,,,,ns1.googledomains.com,,,,
+Homoglyph,g0ogle.com,98.124.199.83,,,dns1.name-services.com,United States,,,
+Homoglyph,qoogle.com,,,,ns1.google.com,,,,
+Homoglyph,googie.com,209.237.151.18,,inbound.registeredsite.com,a.ns.interland.net,United States,,,0
+Homoglyph,xn--gogle-rce.com,,,,ns1.googledomains.com,,,,
+Homoglyph,xn--googl-rsa.com,,,,ns1.googledomains.com,,,,
+Homoglyph,go0gle.com,,,,ns1.googledomains.com,,,,
+Homoglyph,goog1e.com,,,,ns1.googledomains.com,,,,
+Homoglyph,xn--oogle-qmc.com,185.53.178.7,,mail.h-email.net,ns1.parkingcrew.net,Germany,,,0
+Homoglyph,xn--ggle-55da.com,216.239.32.27,2001:4860:4802:32::1b,,ns1.google.com,United States,,,
+Homoglyph,xn--oole-47bc.com,144.76.235.51,,,ns-canada.topdns.com,Germany,,,0
+Homoglyph,xn--ggle-55da.com,216.239.32.27,2001:4860:4802:32::1b,,ns1.google.com,United States,,,
+Homoglyph,xn--oole-z7bc.com,50.63.202.59,,mailstore1.secureserver.net,ns37.domaincontrol.com,United States,,,0
+Homoglyph,xn--goole-zmc.com,50.63.202.63,,mailstore1.secureserver.net,ns57.domaincontrol.com,United States,,,
+Homoglyph,xn--googl-b0a.com,,,,,,,,
+Homoglyph,xn--gogle-sce.com,,,,ns1.googledomains.com,,,,
+Homoglyph,xn--oogle-wmc.com,78.110.60.230,,,ns1.skyparkcdn.net,Russian Federation,,,0
+Homoglyph,xn--googl-mza.com,184.168.221.48,,mailstore1.secureserver.net,ns37.domaincontrol.com,United States,,,0
+Homoglyph,xn--gogle-sce.com,,,,ns1.googledomains.com,,,,
+Homoglyph,xn--oole-p0ec.com,,,,,,,,
+Hyphenation,g-oogle.com,162.255.119.248,,eforward1.registrar-servers.com,dns1.registrar-servers.com,United States,,,0
+Hyphenation,go-ogle.com,66.96.149.16,,mx.go-ogle.com,ns1.mydomain.com,United States,,,0
+Hyphenation,goo-gle.com,,,,ns1.google.com,,,,
+Hyphenation,goog-le.com,216.250.120.243,,mx00.1and1.com,ns51.1and1.com,United States,,,0
+Hyphenation,googl-e.com,,,,,,,,
+Insertion,goopgle.com,95.211.219.66,,,ns1.hastydns.com,Netherlands,,,0
+Insertion,googlke.com,98.124.199.15,,,dns1.name-services.com,United States,,,0
+Insertion,googlme.com,185.53.179.7,,mail.h-email.net,ns1.parkingcrew.net,Germany,,,0
+Insertion,googzle.com,172.99.81.162,,,dns.namescout.com,United States,,,0
+Insertion,go0ogle.com,85.17.25.202,,,ns1.smtmdns.com,Netherlands,,,0
+Insertion,googloe.com,5.39.99.52,,,ns1.dnsnuts.com,France,,,0
+Insertion,gloogle.com,,,,ns1.googledomains.com,,,,
+Insertion,gookgle.com,103.224.182.210,,,ns1.above.com,Australia,,,0
+Insertion,goofgle.com,185.53.179.9,,mail.h-email.net,ns1.parkingcrew.net,Germany,,,0
+Insertion,goobgle.com,185.53.178.6,,mail.h-email.net,ns1.parkingcrew.net,Germany,,,0
+Insertion,googvle.com,103.224.182.207,,,ns1.above.com,Australia,,,0
+Insertion,goo9gle.com,149.202.120.47,,,ns1.brainydns.com,France,,,0
+Insertion,gokogle.com,103.224.182.253,,,ns1.above.com,Australia,,,0
+Insertion,googtle.com,,,,ns1.googledomains.com,,,,
+Insertion,gpoogle.com,98.124.245.24,,mail.b-io.co,ns1.fabulous.com,United States,,,0
+Insertion,go9ogle.com,199.59.243.120,,,ns1.bodis.com,United States,,,0
+Insertion,goolgle.com,,,,ns1.google.com,,,,
+Insertion,googyle.com,158.69.143.113,,,ns1.rentondc.com,Canada,,,0
+Insertion,goo0gle.com,54.235.212.68,,mail.goo0gle.com,ns1.pql.net,United States,,,0
+Insertion,g9oogle.com,185.53.179.8,,mail.h-email.net,ns1.parkingcrew.net,Germany,,,0
+Insertion,gooigle.com,,,,ns1.googledomains.com,,,,
+Insertion,gopogle.com,98.124.199.3,,,dns1.name-services.com,United States,,,0
+Insertion,googmle.com,103.224.182.210,,,ns1.above.com,Australia,,,0
+Insertion,googble.com,208.97.176.179,,,ns1.dreamhost.com,United States,,,0
+Insertion,googlpe.com,103.224.182.207,,,ns1.above.com,Australia,,,0
+Insertion,googfle.com,184.168.221.7,,mailstore1.secureserver.net,ns77.domaincontrol.com,United States,,,0
+Insertion,goovgle.com,50.63.202.51,,mailstore1.secureserver.net,ns57.domaincontrol.com,United States,,,0
+Insertion,goohgle.com,83.64.127.75,,,dns1.name-services.com,Austria,,,0
+Insertion,goozgle.com,167.114.156.214,,,ns1.dnsnuts.com,Canada,,,0
+Insertion,googhle.com,51.254.28.162,,,ns1.rentondc.com,France,,,
+Insertion,goiogle.com,,,,ns1.googledomains.com,,,,
+Insertion,gologle.com,,,,ns1.googledomains.com,,,,
+Insertion,gooygle.com,,,,ns1.googledomains.com,,,,
+Insertion,googole.com,,,,ns1.googledomains.com,,,,
+Insertion,gioogle.com,54.208.99.166,,mail.b-io.co,ns1.pql.net,United States,,,0
+Insertion,g0oogle.com,149.202.120.38,,,ns1.brainydns.com,France,,,0
+Insertion,googkle.com,,,,ns1.googledomains.com,,,,
+Insertion,gkoogle.com,50.63.202.7,,mailstore1.secureserver.net,ns13.domaincontrol.com,United States,,,0
+Insertion,gootgle.com,54.235.212.68,,mail.gootgle.com,ns1.pql.net,United States,,,0
+Insertion,googple.com,199.59.243.120,,,ns1.bodis.com,United States,,,0
+Omission,googl.com,172.217.21.228,2a00:1450:4001:812::2004,,ns1.google.com,United States,,,74
+Omission,goole.com,87.106.83.127,,mx00.1and1.co.uk,ns67.1and1.co.uk,Germany,,,0
+Omission,googe.com,159.203.152.145,,,ns1.yourdoor.com,United States,,,0
+Omission,oogle.com,66.97.170.6,,mx.zoho.com,ns1.bluearctic.com,United States,,,0
+Omission,gogle.com,216.58.214.36,2a00:1450:400d:807::2004,,ns1.google.com,United States,,,74
+Repetition,googgle.com,,,,ns1.googledomains.com,,,,
+Repetition,ggoogle.com,46.134.193.20,2a00:1450:4001:81c::2004,,ns1.google.com,Poland,,,
+Repetition,googlle.com,54.221.207.100,,null.invalid.mx,ns3.domainmanager.com,United States,,,0
+Repetition,gooogle.com,172.217.21.132,2a00:1450:400d:802::2004,,ns1.google.com,United States,,,74
+Replacement,googke.com,,,,ns1.googledomains.com,,,,
+Replacement,gpogle.com,149.202.120.36,,,ns1.brainydns.com,France,,,0
+Replacement,toogle.com,98.124.199.50,,,dns1.name-services.com,United States,,,
+Replacement,googlw.com,,,eforwardct.name-services.com,dns1.name-services.com,,,,
+Replacement,gopgle.com,95.211.219.65,,,ns1.hastydns.com,Netherlands,,,0
+Replacement,googlr.com,216.58.214.132,2a00:1450:4001:819::2004,,ns1.google.com,United States,,,
+Replacement,googls.com,198.50.233.237,,,ns1.domainmx.com,Hong Kong,,,0
+Replacement,hoogle.com,107.180.25.196,,mailstore1.secureserver.net,ns41.domaincontrol.com,United States,,,0
+Replacement,g9ogle.com,103.224.182.238,,,ns1.above.com,Australia,,,0
+Replacement,goohle.com,184.154.126.179,,,dns1.iidns.com,United States,,,0
+Replacement,googlz.com,141.8.224.195,,,ns1.dsredirects.com,Switzerland,,,0
+Replacement,go9gle.com,72.52.4.120,,localhost,ns1.sedoparking.com,United States,,,0
+Replacement,zoogle.com,50.62.97.1,,mailstore1.secureserver.net,ns53.domaincontrol.com,United States,,,
+Replacement,goigle.com,149.202.120.41,,,ns1.brainydns.com,France,,,0
+Replacement,golgle.com,69.162.80.61,,,ns1.hastydns.com,United States,,,0
+Replacement,glogle.com,208.73.210.200,,,ns1.dsredirection.com,United States,,,0
+Replacement,gooyle.com,208.73.210.200,,,ns1.dsredirection.com,United States,,,0
+Replacement,googoe.com,208.73.210.200,,,ns1.dsredirection.com,United States,,,0
+Replacement,voogle.com,,,,,,,,
+Replacement,googl3.com,,,mailstore1.secureserver.net,ns24.domaincontrol.com,,,,
+Replacement,goozle.com,50.62.97.1,,mailstore1.secureserver.net,ns29.domaincontrol.com,United States,,,0
+Replacement,googpe.com,54.235.212.68,,mail.googpe.com,ns1.pql.net,United States,,,0
+Replacement,gootle.com,208.73.210.200,,,ns1.dsredirection.com,United States,,,0
+Replacement,goovle.com,,,,,,,,
+Replacement,giogle.com,69.64.80.67,,giogle.com,ns7.vnoc.com,United States,,,
+Replacement,googl4.com,199.59.243.120,,,ns1.bodis.com,United States,,,0
+Replacement,gooble.com,,,,,,,,
+Replacement,yoogle.com,127.0.0.1,,,ns1.sedoparking.com,,,,
+Replacement,boogle.com,74.207.250.77,,mail.boogle.com,ns1.linode.com,United States,,,0
+Subdomain,g.oogle.com,,,,,,,,
+Subdomain,go.ogle.com,,,,,,,,
+Subdomain,goo.gle.com,69.172.201.153,,,ns1.uniregistrymarket.link,United States,,,
+Subdomain,goog.le.com,,,,,,,,
+Subdomain,googl.e.com,,,,,,,,
+Transposition,ogogle.com,172.217.22.68,2a00:1450:4001:81b::2004,,ns1.google.com,United States,,,
+Transposition,gogole.com,172.217.22.4,2a00:1450:4001:810::2004,,ns1.google.com,United States,,,72
+Transposition,goolge.com,172.217.16.164,2a00:1450:400d:802::2004,,ns1.google.com,United States,,,74
+Transposition,googel.com,46.134.193.103,2a00:1450:4001:81d::2004,,ns1.google.com,Poland,,,74
+Vowel-swap,gaogle.com,50.63.202.33,,mail.gaogle.com,ns25.domaincontrol.com,United States,,,0
+Vowel-swap,geogle.com,51.254.28.162,,,ns1.rentondc.com,France,,,0
+Vowel-swap,googlo.com,51.254.28.160,,,ns1.rentondc.com,France,,,
+Vowel-swap,googli.com,119.9.72.134,,,myns1.fabulous.com,Hong Kong,,,0
+Vowel-swap,guogle.com,185.53.178.9,,,ns1.parkingcrew.net,Germany,,,0
+Vowel-swap,gougle.com,,,,ns1.googledomains.com,,,,
+Vowel-swap,goegle.com,50.63.202.27,,mailstore1.secureserver.net,ns63.domaincontrol.com,United States,,,0
+Vowel-swap,goagle.com,89.145.66.234,,relay1.netnames.net,ns1.netnames.net,United Kingdom,,,
+Various,wwgoogle.com,158.69.143.105,,,ns1.brainydns.com,Canada,,,0
+Various,wwwgoogle.com,172.217.20.228,2a00:1450:4001:81a::2004,,ns1.google.com,United States,,,74
+Various,www-google.com,184.168.27.39,,,pdns01.domaincontrol.com,United States,,,0
+Various,googlecom.com,46.134.193.103,2a00:1450:4001:81a::2004,,ns1.google.com,Poland,,,

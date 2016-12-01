@@ -1,0 +1,1422 @@
+[
+    {
+        "dns-a": "172.217.22.78", 
+        "dns-aaaa": [
+            "2a00:1450:4001:815::200e"
+        ], 
+        "dns-mx": "alt1.aspmx.l.google.com", 
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "google.com", 
+        "fuzzer": "Original*", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 80
+    }, 
+    {
+        "dns-a": "184.168.221.17", 
+        "dns-mx": "mailstore1.secureserver.net", 
+        "dns-ns": "ns17.domaincontrol.com", 
+        "domain-name": "googlea.com", 
+        "fuzzer": "Addition", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "116.212.117.220", 
+        "dns-ns": "dns1.iidns.com", 
+        "domain-name": "googleb.com", 
+        "fuzzer": "Addition", 
+        "geoip-country": "Hong Kong"
+    }, 
+    {
+        "dns-a": "58.76.184.4", 
+        "dns-ns": "ns1.doregi.com", 
+        "domain-name": "googlec.com", 
+        "fuzzer": "Addition", 
+        "geoip-country": "Korea", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "98.124.199.104", 
+        "dns-ns": "dns1.name-services.com", 
+        "domain-name": "googled.com", 
+        "fuzzer": "Addition", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "172.217.16.164", 
+        "dns-aaaa": [
+            "2a00:1450:4001:818::2004"
+        ], 
+        "dns-mx": "", 
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "googlee.com", 
+        "fuzzer": "Addition", 
+        "geoip-country": "United States"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "googlef.com", 
+        "fuzzer": "Addition"
+    }, 
+    {
+        "dns-a": "98.124.199.120", 
+        "dns-ns": "dns1.name-services.com", 
+        "domain-name": "googleg.com", 
+        "fuzzer": "Addition", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "141.8.230.20", 
+        "dns-mx": "mxs1.domainrecover.com", 
+        "dns-ns": "ns1.dsredirection.com", 
+        "domain-name": "googleh.com", 
+        "fuzzer": "Addition", 
+        "geoip-country": "Switzerland", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "199.59.243.120", 
+        "dns-ns": "ns1.bodis.com", 
+        "domain-name": "googlei.com", 
+        "fuzzer": "Addition", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "54.235.212.68", 
+        "dns-mx": "mail.googlej.com", 
+        "dns-ns": "ns1.pql.net", 
+        "domain-name": "googlej.com", 
+        "fuzzer": "Addition", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "127.0.0.1", 
+        "dns-ns": "ns1.sedoparking.com", 
+        "domain-name": "googlek.com", 
+        "fuzzer": "Addition"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "googlel.com", 
+        "fuzzer": "Addition"
+    }, 
+    {
+        "dns-a": "98.124.199.91", 
+        "dns-ns": "dns1.name-services.com", 
+        "domain-name": "googlem.com", 
+        "fuzzer": "Addition", 
+        "geoip-country": "United States"
+    }, 
+    {
+        "dns-a": "158.69.143.112", 
+        "dns-ns": "ns1.rentondc.com", 
+        "domain-name": "googlen.com", 
+        "fuzzer": "Addition", 
+        "geoip-country": "Canada", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "69.162.80.59", 
+        "dns-ns": "ns1.hastydns.com", 
+        "domain-name": "googleo.com", 
+        "fuzzer": "Addition", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "54.235.212.68", 
+        "dns-mx": "mail.googlep.com", 
+        "dns-ns": "ns1.pql.net", 
+        "domain-name": "googlep.com", 
+        "fuzzer": "Addition", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "127.0.0.1", 
+        "dns-ns": "ns1.sedoparking.com", 
+        "domain-name": "googleq.com", 
+        "fuzzer": "Addition"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "googler.com", 
+        "fuzzer": "Addition"
+    }, 
+    {
+        "dns-a": "23.229.234.162", 
+        "dns-mx": "mailstore1.secureserver.net", 
+        "dns-ns": "ns21.domaincontrol.com", 
+        "domain-name": "googles.com", 
+        "fuzzer": "Addition", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "158.69.143.81", 
+        "dns-ns": "ns1.redmonddc.com", 
+        "domain-name": "googlet.com", 
+        "fuzzer": "Addition", 
+        "geoip-country": "Canada", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "54.221.207.100", 
+        "dns-mx": "null.invalid.mx", 
+        "dns-ns": "ns3.domainmanager.com", 
+        "domain-name": "googleu.com", 
+        "fuzzer": "Addition", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "googlev.com", 
+        "fuzzer": "Addition"
+    }, 
+    {
+        "dns-a": "98.124.199.73", 
+        "dns-ns": "dns1.name-services.com", 
+        "domain-name": "googlew.com", 
+        "fuzzer": "Addition", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "googlex.com", 
+        "fuzzer": "Addition"
+    }, 
+    {
+        "domain-name": "googley.com", 
+        "fuzzer": "Addition"
+    }, 
+    {
+        "domain-name": "googlez.com", 
+        "fuzzer": "Addition"
+    }, 
+    {
+        "dns-a": "64.111.126.107", 
+        "dns-mx": "alt1.aspmx.l.google.com", 
+        "dns-ns": "ns1.dreamhost.com", 
+        "domain-name": "foogle.com", 
+        "fuzzer": "Bitsquatting", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "eoogle.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "coogle.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "ooogle.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-a": "98.124.199.11", 
+        "dns-ns": "dns1.name-services.com", 
+        "domain-name": "woogle.com", 
+        "fuzzer": "Bitsquatting", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "gnogle.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "gmogle.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "gkogle.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "ggogle.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "gongle.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "gomgle.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "gokgle.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-a": "138.68.58.45", 
+        "dns-mx": "exchange.dewile.net", 
+        "dns-ns": "ns3.domainmanager.com", 
+        "domain-name": "goggle.com", 
+        "fuzzer": "Bitsquatting", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "192.185.39.34", 
+        "dns-mx": "mail.goofle.com", 
+        "dns-ns": "ns8197.hostgator.com", 
+        "domain-name": "goofle.com", 
+        "fuzzer": "Bitsquatting", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "gooele.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "goocle.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-a": "98.124.199.61", 
+        "dns-ns": "dns1.name-services.com", 
+        "domain-name": "gooole.com", 
+        "fuzzer": "Bitsquatting", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "domain-name": "goowle.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-a": "199.59.243.120", 
+        "dns-ns": "ns1.bodis.com", 
+        "domain-name": "googme.com", 
+        "fuzzer": "Bitsquatting", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "googne.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-a": "199.59.243.120", 
+        "dns-ns": "ns1.bodis.com", 
+        "domain-name": "googhe.com", 
+        "fuzzer": "Bitsquatting", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "googde.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "googld.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "googlg.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "googla.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "dns-a": "117.25.129.27", 
+        "dns-ns": "ns1.cnspeed.com", 
+        "domain-name": "googlm.com", 
+        "fuzzer": "Bitsquatting", 
+        "geoip-country": "China"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "googlu.com", 
+        "fuzzer": "Bitsquatting"
+    }, 
+    {
+        "domain-name": "\u050doogle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "domain-name": "g\u03bf\u03bfgle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "g00gle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-a": "95.211.219.66", 
+        "dns-ns": "ns1.hastydns.com", 
+        "domain-name": "qooqle.com", 
+        "fuzzer": "Homoglyph", 
+        "geoip-country": "Netherlands", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "domain-name": "g\u03bf\u03bfgle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-a": "104.28.30.121", 
+        "dns-aaaa": [
+            "2400:cb00:2048:1::681c:1e79", 
+            "2400:cb00:2048:1::681c:1f79"
+        ], 
+        "dns-ns": "hugh.ns.cloudflare.com", 
+        "domain-name": "googl\u00ea.com", 
+        "fuzzer": "Homoglyph", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "g\u043eogle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-a": "185.53.179.8", 
+        "dns-mx": "mail.h-email.net", 
+        "dns-ns": "ns1.parkingcrew.net", 
+        "domain-name": "googl\u00e9.com", 
+        "fuzzer": "Homoglyph", 
+        "geoip-country": "Germany", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "go\u043egle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "domain-name": "g\u0585\u0585gle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-a": "75.119.220.238", 
+        "dns-mx": "mx1.sub4.homie.mail.dreamhost.com", 
+        "dns-ns": "nick.ns.cloudflare.com", 
+        "domain-name": "goo\u0261le.com", 
+        "fuzzer": "Homoglyph", 
+        "geoip-country": "United States"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "g\u043eogle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-a": "208.73.210.200", 
+        "dns-ns": "ns1.dsredirection.com", 
+        "domain-name": "gooqle.com", 
+        "fuzzer": "Homoglyph", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "g\u03bfogle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "domain-name": "g\u0585ogle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "domain-name": "go\u0585gle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "go\u043egle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-a": "198.105.221.60", 
+        "dns-mx": "xn--googl-yza.com", 
+        "dns-ns": "ns1.cubehostindia.com", 
+        "domain-name": "googl\u0115.com", 
+        "fuzzer": "Homoglyph", 
+        "geoip-country": "Singapore", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "domain-name": "goo\u050dle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "googl\u0435.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-a": "98.124.199.83", 
+        "dns-ns": "dns1.name-services.com", 
+        "domain-name": "g0ogle.com", 
+        "fuzzer": "Homoglyph", 
+        "geoip-country": "United States"
+    }, 
+    {
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "qoogle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-a": "209.237.151.18", 
+        "dns-mx": "inbound.registeredsite.com", 
+        "dns-ns": "a.ns.interland.net", 
+        "domain-name": "googie.com", 
+        "fuzzer": "Homoglyph", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "g\u03bfogle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "googl\u00eb.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "go0gle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "goog1e.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-a": "185.53.178.7", 
+        "dns-mx": "mail.h-email.net", 
+        "dns-ns": "ns1.parkingcrew.net", 
+        "domain-name": "\u0261oogle.com", 
+        "fuzzer": "Homoglyph", 
+        "geoip-country": "Germany", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "216.239.32.27", 
+        "dns-aaaa": [
+            "2001:4860:4802:32::1b"
+        ], 
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "g\u043e\u043egle.com", 
+        "fuzzer": "Homoglyph", 
+        "geoip-country": "United States"
+    }, 
+    {
+        "dns-a": "144.76.235.51", 
+        "dns-ns": "ns-canada.topdns.com", 
+        "domain-name": "\u0262oo\u0262le.com", 
+        "fuzzer": "Homoglyph", 
+        "geoip-country": "Germany", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "216.239.32.27", 
+        "dns-aaaa": [
+            "2001:4860:4802:32::1b"
+        ], 
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "g\u043e\u043egle.com", 
+        "fuzzer": "Homoglyph", 
+        "geoip-country": "United States"
+    }, 
+    {
+        "dns-a": "50.63.202.59", 
+        "dns-mx": "mailstore1.secureserver.net", 
+        "dns-ns": "ns37.domaincontrol.com", 
+        "domain-name": "\u0261oo\u0261le.com", 
+        "fuzzer": "Homoglyph", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "50.63.202.63", 
+        "dns-mx": "mailstore1.secureserver.net", 
+        "dns-ns": "ns57.domaincontrol.com", 
+        "domain-name": "goo\u0262le.com", 
+        "fuzzer": "Homoglyph", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "domain-name": "googl\u0117.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "go\u03bfgle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-a": "78.110.60.230", 
+        "dns-ns": "ns1.skyparkcdn.net", 
+        "domain-name": "\u0262oogle.com", 
+        "fuzzer": "Homoglyph", 
+        "geoip-country": "Russian Federation", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "184.168.221.48", 
+        "dns-mx": "mailstore1.secureserver.net", 
+        "dns-ns": "ns37.domaincontrol.com", 
+        "domain-name": "googl\u0113.com", 
+        "fuzzer": "Homoglyph", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "go\u03bfgle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "domain-name": "\u050doo\u050dle.com", 
+        "fuzzer": "Homoglyph"
+    }, 
+    {
+        "dns-a": "162.255.119.248", 
+        "dns-mx": "eforward1.registrar-servers.com", 
+        "dns-ns": "dns1.registrar-servers.com", 
+        "domain-name": "g-oogle.com", 
+        "fuzzer": "Hyphenation", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "66.96.149.16", 
+        "dns-mx": "mx.go-ogle.com", 
+        "dns-ns": "ns1.mydomain.com", 
+        "domain-name": "go-ogle.com", 
+        "fuzzer": "Hyphenation", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "goo-gle.com", 
+        "fuzzer": "Hyphenation"
+    }, 
+    {
+        "dns-a": "216.250.120.243", 
+        "dns-mx": "mx00.1and1.com", 
+        "dns-ns": "ns51.1and1.com", 
+        "domain-name": "goog-le.com", 
+        "fuzzer": "Hyphenation", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "domain-name": "googl-e.com", 
+        "fuzzer": "Hyphenation"
+    }, 
+    {
+        "dns-a": "95.211.219.66", 
+        "dns-ns": "ns1.hastydns.com", 
+        "domain-name": "goopgle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "Netherlands", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "98.124.199.15", 
+        "dns-ns": "dns1.name-services.com", 
+        "domain-name": "googlke.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "185.53.179.7", 
+        "dns-mx": "mail.h-email.net", 
+        "dns-ns": "ns1.parkingcrew.net", 
+        "domain-name": "googlme.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "Germany", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "172.99.81.162", 
+        "dns-ns": "dns.namescout.com", 
+        "domain-name": "googzle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "85.17.25.202", 
+        "dns-ns": "ns1.smtmdns.com", 
+        "domain-name": "go0ogle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "Netherlands", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "5.39.99.52", 
+        "dns-ns": "ns1.dnsnuts.com", 
+        "domain-name": "googloe.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "France", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "gloogle.com", 
+        "fuzzer": "Insertion"
+    }, 
+    {
+        "dns-a": "103.224.182.210", 
+        "dns-ns": "ns1.above.com", 
+        "domain-name": "gookgle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "Australia", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "185.53.179.9", 
+        "dns-mx": "mail.h-email.net", 
+        "dns-ns": "ns1.parkingcrew.net", 
+        "domain-name": "goofgle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "Germany", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "185.53.178.6", 
+        "dns-mx": "mail.h-email.net", 
+        "dns-ns": "ns1.parkingcrew.net", 
+        "domain-name": "goobgle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "Germany", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "103.224.182.207", 
+        "dns-ns": "ns1.above.com", 
+        "domain-name": "googvle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "Australia", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "158.69.143.106", 
+        "dns-ns": "ns1.brainydns.com", 
+        "domain-name": "goo9gle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "Canada", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "103.224.182.253", 
+        "dns-ns": "ns1.above.com", 
+        "domain-name": "gokogle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "Australia", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "googtle.com", 
+        "fuzzer": "Insertion"
+    }, 
+    {
+        "dns-a": "98.124.245.24", 
+        "dns-mx": "mail.b-io.co", 
+        "dns-ns": "ns1.fabulous.com", 
+        "domain-name": "gpoogle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "199.59.243.120", 
+        "dns-ns": "ns1.bodis.com", 
+        "domain-name": "go9ogle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "goolgle.com", 
+        "fuzzer": "Insertion"
+    }, 
+    {
+        "dns-a": "158.69.143.113", 
+        "dns-ns": "ns1.rentondc.com", 
+        "domain-name": "googyle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "Canada", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "54.235.212.68", 
+        "dns-mx": "mail.goo0gle.com", 
+        "dns-ns": "ns1.pql.net", 
+        "domain-name": "goo0gle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "185.53.179.8", 
+        "dns-mx": "mail.h-email.net", 
+        "dns-ns": "ns1.parkingcrew.net", 
+        "domain-name": "g9oogle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "Germany", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "gooigle.com", 
+        "fuzzer": "Insertion"
+    }, 
+    {
+        "dns-a": "98.124.199.3", 
+        "dns-ns": "dns1.name-services.com", 
+        "domain-name": "gopogle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "103.224.182.210", 
+        "dns-ns": "ns1.above.com", 
+        "domain-name": "googmle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "Australia", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "208.97.176.179", 
+        "dns-ns": "ns1.dreamhost.com", 
+        "domain-name": "googble.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "103.224.182.207", 
+        "dns-ns": "ns1.above.com", 
+        "domain-name": "googlpe.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "Australia", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "184.168.221.7", 
+        "dns-mx": "mailstore1.secureserver.net", 
+        "dns-ns": "ns77.domaincontrol.com", 
+        "domain-name": "googfle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "50.63.202.51", 
+        "dns-mx": "mailstore1.secureserver.net", 
+        "dns-ns": "ns57.domaincontrol.com", 
+        "domain-name": "goovgle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "83.64.127.75", 
+        "dns-ns": "dns1.name-services.com", 
+        "domain-name": "goohgle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "Austria", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "5.39.99.49", 
+        "dns-ns": "ns1.dnsnuts.com", 
+        "domain-name": "goozgle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "France", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "158.69.143.112", 
+        "dns-ns": "ns1.rentondc.com", 
+        "domain-name": "googhle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "Canada", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "goiogle.com", 
+        "fuzzer": "Insertion"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "gologle.com", 
+        "fuzzer": "Insertion"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "gooygle.com", 
+        "fuzzer": "Insertion"
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "googole.com", 
+        "fuzzer": "Insertion"
+    }, 
+    {
+        "dns-a": "54.208.99.166", 
+        "dns-mx": "MAIL.B-IO.CO", 
+        "dns-ns": "ns1.pql.net", 
+        "domain-name": "gioogle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "158.69.143.111", 
+        "dns-ns": "ns1.brainydns.com", 
+        "domain-name": "g0oogle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "Canada", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "googkle.com", 
+        "fuzzer": "Insertion"
+    }, 
+    {
+        "dns-a": "50.63.202.7", 
+        "dns-mx": "mailstore1.secureserver.net", 
+        "dns-ns": "ns13.domaincontrol.com", 
+        "domain-name": "gkoogle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "54.235.212.68", 
+        "dns-mx": "mail.gootgle.com", 
+        "dns-ns": "ns1.pql.net", 
+        "domain-name": "gootgle.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "199.59.243.120", 
+        "dns-ns": "ns1.bodis.com", 
+        "domain-name": "googple.com", 
+        "fuzzer": "Insertion", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "216.58.209.164", 
+        "dns-aaaa": [
+            "2a00:1450:400d:803::2004"
+        ], 
+        "dns-mx": "", 
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "googl.com", 
+        "fuzzer": "Omission", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 74
+    }, 
+    {
+        "dns-a": "87.106.83.127", 
+        "dns-mx": "mx00.1and1.co.uk", 
+        "dns-ns": "ns67.1and1.co.uk", 
+        "domain-name": "goole.com", 
+        "fuzzer": "Omission", 
+        "geoip-country": "Germany", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "159.203.152.145", 
+        "dns-ns": "ns1.yourdoor.com", 
+        "domain-name": "googe.com", 
+        "fuzzer": "Omission", 
+        "geoip-country": "United States"
+    }, 
+    {
+        "dns-a": "66.97.170.6", 
+        "dns-mx": "mx.zoho.com", 
+        "dns-ns": "ns1.bluearctic.com", 
+        "domain-name": "oogle.com", 
+        "fuzzer": "Omission", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "216.58.210.4", 
+        "dns-aaaa": [
+            "2a00:1450:4001:81c::2004"
+        ], 
+        "dns-mx": "", 
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "gogle.com", 
+        "fuzzer": "Omission", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 74
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "googgle.com", 
+        "fuzzer": "Repetition"
+    }, 
+    {
+        "dns-a": "46.134.193.20", 
+        "dns-aaaa": [
+            "2a00:1450:4001:81c::2004"
+        ], 
+        "dns-mx": "", 
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "ggoogle.com", 
+        "fuzzer": "Repetition", 
+        "geoip-country": "Poland"
+    }, 
+    {
+        "dns-a": "54.221.207.100", 
+        "dns-mx": "null.invalid.mx", 
+        "dns-ns": "ns3.domainmanager.com", 
+        "domain-name": "googlle.com", 
+        "fuzzer": "Repetition", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "172.217.22.100", 
+        "dns-aaaa": [
+            "2a00:1450:4001:818::2004"
+        ], 
+        "dns-mx": "", 
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "gooogle.com", 
+        "fuzzer": "Repetition", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 74
+    }, 
+    {
+        "domain-name": "googke.com", 
+        "fuzzer": "Replacement"
+    }, 
+    {
+        "dns-a": "158.69.143.103", 
+        "dns-ns": "ns1.brainydns.com", 
+        "domain-name": "gpogle.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "Canada", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "98.124.199.50", 
+        "dns-ns": "dns1.name-services.com", 
+        "domain-name": "toogle.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "United States"
+    }, 
+    {
+        "domain-name": "googlw.com", 
+        "fuzzer": "Replacement"
+    }, 
+    {
+        "dns-a": "69.162.80.59", 
+        "dns-ns": "ns1.hastydns.com", 
+        "domain-name": "gopgle.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "172.217.22.4", 
+        "dns-aaaa": [
+            "2a00:1450:4001:811::2004"
+        ], 
+        "dns-mx": "", 
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "googlr.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "United States"
+    }, 
+    {
+        "dns-a": "198.50.233.237", 
+        "dns-ns": "ns1.domainmx.com", 
+        "domain-name": "googls.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "Hong Kong", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "107.180.25.196", 
+        "dns-mx": "mailstore1.secureserver.net", 
+        "dns-ns": "ns41.domaincontrol.com", 
+        "domain-name": "hoogle.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "103.224.182.238", 
+        "dns-ns": "ns1.above.com", 
+        "domain-name": "g9ogle.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "Australia", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "184.154.126.179", 
+        "dns-ns": "dns1.iidns.com", 
+        "domain-name": "goohle.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "141.8.224.195", 
+        "dns-ns": "ns1.dsredirects.com", 
+        "domain-name": "googlz.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "Switzerland", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "72.52.4.120", 
+        "dns-mx": "localhost", 
+        "dns-ns": "ns1.sedoparking.com", 
+        "domain-name": "go9gle.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "50.62.97.1", 
+        "dns-mx": "mailstore1.secureserver.net", 
+        "dns-ns": "ns53.domaincontrol.com", 
+        "domain-name": "zoogle.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "United States"
+    }, 
+    {
+        "dns-a": "149.202.120.41", 
+        "dns-ns": "ns1.brainydns.com", 
+        "domain-name": "goigle.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "France", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "69.162.80.61", 
+        "dns-ns": "ns1.hastydns.com", 
+        "domain-name": "golgle.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "208.73.210.200", 
+        "dns-ns": "ns1.dsredirection.com", 
+        "domain-name": "glogle.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "208.73.210.200", 
+        "dns-ns": "ns1.dsredirection.com", 
+        "domain-name": "gooyle.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "208.73.210.200", 
+        "dns-ns": "ns1.dsredirection.com", 
+        "domain-name": "googoe.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "domain-name": "voogle.com", 
+        "fuzzer": "Replacement"
+    }, 
+    {
+        "dns-mx": "mailstore1.secureserver.net", 
+        "dns-ns": "ns24.domaincontrol.com", 
+        "domain-name": "googl3.com", 
+        "fuzzer": "Replacement"
+    }, 
+    {
+        "dns-a": "50.62.97.1", 
+        "dns-mx": "mailstore1.secureserver.net", 
+        "dns-ns": "ns29.domaincontrol.com", 
+        "domain-name": "goozle.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "54.235.212.68", 
+        "dns-mx": "mail.googpe.com", 
+        "dns-ns": "ns1.pql.net", 
+        "domain-name": "googpe.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "208.73.210.200", 
+        "dns-ns": "ns1.dsredirection.com", 
+        "domain-name": "gootle.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "domain-name": "goovle.com", 
+        "fuzzer": "Replacement"
+    }, 
+    {
+        "dns-a": "69.64.80.67", 
+        "dns-mx": "giogle.com", 
+        "dns-ns": "ns7.vnoc.com", 
+        "domain-name": "giogle.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "United States"
+    }, 
+    {
+        "dns-a": "199.59.243.120", 
+        "dns-ns": "ns1.bodis.com", 
+        "domain-name": "googl4.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "domain-name": "gooble.com", 
+        "fuzzer": "Replacement"
+    }, 
+    {
+        "dns-a": "127.0.0.1", 
+        "dns-ns": "ns1.sedoparking.com", 
+        "domain-name": "yoogle.com", 
+        "fuzzer": "Replacement"
+    }, 
+    {
+        "dns-a": "74.207.250.77", 
+        "dns-mx": "mail.boogle.com", 
+        "dns-ns": "ns1.linode.com", 
+        "domain-name": "boogle.com", 
+        "fuzzer": "Replacement", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "domain-name": "g.oogle.com", 
+        "fuzzer": "Subdomain"
+    }, 
+    {
+        "domain-name": "go.ogle.com", 
+        "fuzzer": "Subdomain"
+    }, 
+    {
+        "dns-a": "69.172.201.153", 
+        "dns-ns": "ns1.uniregistrymarket.link", 
+        "domain-name": "goo.gle.com", 
+        "fuzzer": "Subdomain", 
+        "geoip-country": "United States"
+    }, 
+    {
+        "domain-name": "goog.le.com", 
+        "fuzzer": "Subdomain"
+    }, 
+    {
+        "domain-name": "googl.e.com", 
+        "fuzzer": "Subdomain"
+    }, 
+    {
+        "dns-a": "172.217.22.100", 
+        "dns-aaaa": [
+            "2a00:1450:400d:806::2004"
+        ], 
+        "dns-mx": "", 
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "ogogle.com", 
+        "fuzzer": "Transposition", 
+        "geoip-country": "United States"
+    }, 
+    {
+        "dns-a": "46.134.193.20", 
+        "dns-aaaa": [
+            "2a00:1450:400d:802::2004"
+        ], 
+        "dns-mx": "", 
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "gogole.com", 
+        "fuzzer": "Transposition", 
+        "geoip-country": "Poland", 
+        "ssdeep-score": 74
+    }, 
+    {
+        "dns-a": "172.217.22.100", 
+        "dns-aaaa": [
+            "2a00:1450:4001:81d::2004"
+        ], 
+        "dns-mx": "", 
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "goolge.com", 
+        "fuzzer": "Transposition", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 74
+    }, 
+    {
+        "dns-a": "172.217.22.4", 
+        "dns-aaaa": [
+            "2a00:1450:400d:807::2004"
+        ], 
+        "dns-mx": "", 
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "googel.com", 
+        "fuzzer": "Transposition", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 74
+    }, 
+    {
+        "dns-a": "50.63.202.33", 
+        "dns-mx": "mail.gaogle.com", 
+        "dns-ns": "ns25.domaincontrol.com", 
+        "domain-name": "gaogle.com", 
+        "fuzzer": "Vowel-swap", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "158.69.143.112", 
+        "dns-ns": "ns1.rentondc.com", 
+        "domain-name": "geogle.com", 
+        "fuzzer": "Vowel-swap", 
+        "geoip-country": "Canada", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "51.254.28.160", 
+        "dns-ns": "ns1.rentondc.com", 
+        "domain-name": "googlo.com", 
+        "fuzzer": "Vowel-swap", 
+        "geoip-country": "France", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "119.9.72.134", 
+        "dns-ns": "myns1.fabulous.com", 
+        "domain-name": "googli.com", 
+        "fuzzer": "Vowel-swap", 
+        "geoip-country": "Hong Kong", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "185.53.178.9", 
+        "dns-ns": "ns1.parkingcrew.net", 
+        "domain-name": "guogle.com", 
+        "fuzzer": "Vowel-swap", 
+        "geoip-country": "Germany", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-ns": "ns1.googledomains.com", 
+        "domain-name": "gougle.com", 
+        "fuzzer": "Vowel-swap"
+    }, 
+    {
+        "dns-a": "50.63.202.27", 
+        "dns-mx": "mailstore1.secureserver.net", 
+        "dns-ns": "ns63.domaincontrol.com", 
+        "domain-name": "goegle.com", 
+        "fuzzer": "Vowel-swap", 
+        "geoip-country": "United States"
+    }, 
+    {
+        "dns-a": "89.145.66.234", 
+        "dns-mx": "relay1.netnames.net", 
+        "dns-ns": "ns1.netnames.net", 
+        "domain-name": "goagle.com", 
+        "fuzzer": "Vowel-swap", 
+        "geoip-country": "United Kingdom"
+    }, 
+    {
+        "dns-a": "158.69.143.105", 
+        "dns-ns": "ns1.brainydns.com", 
+        "domain-name": "wwgoogle.com", 
+        "fuzzer": "Various", 
+        "geoip-country": "Canada", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "172.217.16.164", 
+        "dns-aaaa": [
+            "2a00:1450:4001:819::2004"
+        ], 
+        "dns-mx": "", 
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "wwwgoogle.com", 
+        "fuzzer": "Various", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 74
+    }, 
+    {
+        "dns-a": "184.168.27.39", 
+        "dns-ns": "pdns01.domaincontrol.com", 
+        "domain-name": "www-google.com", 
+        "fuzzer": "Various", 
+        "geoip-country": "United States", 
+        "ssdeep-score": 0
+    }, 
+    {
+        "dns-a": "172.217.20.132", 
+        "dns-aaaa": [
+            "2a00:1450:4001:819::2004"
+        ], 
+        "dns-mx": "", 
+        "dns-ns": "ns1.google.com", 
+        "domain-name": "googlecom.com", 
+        "fuzzer": "Various", 
+        "geoip-country": "United States"
+    }
+]
