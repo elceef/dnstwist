@@ -43,7 +43,7 @@ newer, you can install dependencies like this:
 
 ```
 $ sudo apt-get install python-dnspython python-geoip python-whois \
-python-requests python-ssdeep
+python-requests python-ssdeep python-cffi
 ```
 
 Alternately, you can use Python tooling. This can be done within a virtual
