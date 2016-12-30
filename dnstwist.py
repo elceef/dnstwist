@@ -607,7 +607,7 @@ class DomainThread(threading.Thread):
 				except DNSException:
 					pass
 
-				if 'dns-ns' in domain:
+				if 'dns-ns' in domain or len(domain['domain-name'].split('.')) > 1:
 					try:
 						domain['dns-a'] = self.answer_to_list(resolv.query(domain['domain-name'], 'A'))
 					except DNSException:
