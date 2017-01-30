@@ -702,51 +702,12 @@ def one_or_all(answers):
 
 
 def generate_json(domains):
-	formatted_domains = []
-	if args.all:
-		for domain in domains:
-			formatted_domain = dict(dns=dict())
-			formatted_domain['name'] = domain['domain-name'].lower().encode('idna')
-			formatted_domain['fuzzer'] = domain['fuzzer'].lower()
-			if 'dns-a' in domain:
-				formatted_domain['dns']['a'] = domain['dns-a']
-			if 'dns-aaaa' in domain:
-				formatted_domain['dns']['aaaa'] = domain['dns-aaaa']
-			if 'dns-mx' in domain:
-				formatted_domain['dns']['mx'] = domain['dns-mx']
-			if 'dns-mxspy' in domain:
-				formatted_domain['dns']['mxspy'] = domain['dns-mxspy']
-			if 'dns-ns' in domain:
-				formatted_domain['dns']['ns'] = domain['dns-ns']
-			if 'geoip-country' in domain:
-				formatted_domain['geoip'] = dict(country=domain['geoip-country'])
-			if 'whois-created' in domain and 'whois-updated' in domain:
-				domain['whois'] = dict(created=domain['whois-created'], updated=domain['whois-updated'])
-			if 'ssdeep-score' in domain:
-				formatted_domain['ssdeep_score'] = domain['ssdeep-score']
-			if 'banner-http' in domain or 'banner-smtp' in domain:
-				formatted_domain["banners"] = dict()
-				if 'banner-http' in domain:
-					formatted_domain['banners']['http'] = domain['banner-http']
-				if 'banner-smtp' in domain:
-					formatted_domain['banners']['smtp'] = domain['banner-smtp']
+	json_domains = domains
+	for domain in json_domains:
+		domain['domain-name'] = domain['domain-name'].lower().encode('idna')
+		domain['fuzzer'] = domain['fuzzer'].lower()
 
-			formatted_domains.append(formatted_domain)
-
-	else:
-		formatted_domains = domains
-		for domain in formatted_domains:
-			if 'dns-a' in domain:
-				domain['dns-a'] = domain['dns-a'][0]
-			if 'dns-aaaaa' in domain:
-				domain['dns-aaaa'] = domain['dns-aaaa'][0]
-			if 'dns-mx' in domain:
-				domain['dns-mx'] = domain['dns-mx'][0]
-			if 'dns-ns' in domain:
-				domain['dns-ns'] = domain['dns-ns'][0]
-
-
-	return json.dumps(formatted_domains, indent=4, sort_keys=True)
+	return json.dumps(json_domains, indent=4, sort_keys=True)
 
 
 def generate_csv(domains):
