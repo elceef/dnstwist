@@ -266,7 +266,7 @@ class DomainFuzz():
 			domain = domain[:-1]
 		if len(domain) < len(domain.encode('idna')):
 			return True
-		allowed = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
+		allowed = re.compile('\A([a-z0-9]+(-*[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
 		return allowed.match(domain)
 
 	def __filter_domains(self):
