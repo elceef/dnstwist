@@ -711,10 +711,10 @@ def generate_json(domains):
 
 
 def generate_csv(domains):
-	output = 'fuzzer,domain-name,dns-a,dns-aaaa,dns-mx,dns-ns,geoip-country,whois-created,whois-updated,ssdeep-score\n'
+	output = 'fuzzer,domain-name,dns-a,dns-aaaa,dns-mx,dns-ns,geoip-country,whois-created,whois-updated,ssdeep-score,banner-http,banner-smtp\n'
 
 	for domain in domains:
-		output += '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (domain.get('fuzzer'),
+		output += '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (domain.get('fuzzer'),
 			domain.get('domain-name').encode('idna'),
 			one_or_all(domain.get('dns-a', [''])),
 			one_or_all(domain.get('dns-aaaa', [''])),
@@ -723,7 +723,9 @@ def generate_csv(domains):
 			domain.get('geoip-country', ''),
 			domain.get('whois-created', ''),
 			domain.get('whois-updated', ''),
-			str(domain.get('ssdeep-score', '')))
+			str(domain.get('ssdeep-score', '')),
+			domain.get('banner-http'),
+                        domain.get('banner-smtp'))
 
 	return output
 
