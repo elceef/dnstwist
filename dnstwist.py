@@ -346,8 +346,7 @@ class DomainFuzz():
 		result = []
 
 		for i in range(1, len(self.domain)):
-			if self.domain[i] not in ['-', '.'] and self.domain[i-1] not in ['-', '.']:
-				result.append(self.domain[:i] + '-' + self.domain[i:])
+			result.append(self.domain[:i] + '-' + self.domain[i:])
 
 		return result
 
