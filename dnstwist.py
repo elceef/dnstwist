@@ -434,9 +434,9 @@ class DomainFuzz():
 
         def __missing_dot(self):
                 permutations = []
-                permutations.append("www{}".format(domain))
+                permutations.append("www{}".format(self.domain))
 
-                new_permutation = domain
+                new_permutation = self.domain
                 while True:
                         domain_chars = list(new_permutation)
                         if '.' in domain_chars:
