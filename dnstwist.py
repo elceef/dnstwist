@@ -432,6 +432,21 @@ class DomainFuzz():
 
 		return result
 
+        def __missing_dot(self):
+                permutations = []
+                permutations.append("www{}".format(domain))
+
+                new_permutation = domain
+                while True:
+                        domain_chars = list(new_permutation)
+                        if '.' in domain_chars:
+                                domain_chars.remove('.')
+                                new_permutation = ''.join(domain_chars)
+                                permutations.append(new_permutation)
+                        else:
+                                break
+                return (d if '.' in d else '{}.com'.format(d) for d in permutations)
+
 	def generate(self):
 		self.domains.append({ 'fuzzer': 'Original*', 'domain-name': self.domain + '.' + self.tld })
 
