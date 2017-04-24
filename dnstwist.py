@@ -445,7 +445,7 @@ class DomainFuzz():
                                 permutations.append(new_permutation)
                         else:
                                 break
-                return (d if '.' in d else '{}.com'.format(d) for d in permutations)
+                return (d if '.' in d else '{}.{}'.format(d, self.tld) for d in permutations)
 
 	def generate(self):
 		self.domains.append({ 'fuzzer': 'Original*', 'domain-name': self.domain + '.' + self.tld })
