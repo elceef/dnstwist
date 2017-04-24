@@ -29,6 +29,7 @@ import signal
 import time
 import argparse
 import threading
+from inflection import pluralize, singularize
 from random import randint
 from os import path
 import smtplib
@@ -446,6 +447,12 @@ class DomainFuzz():
                         else:
                                 break
                 return (d if '.' in d else '{}.{}'.format(d, self.tld) for d in permutations)
+
+        def __singular_or_pluralize(self):
+                pluralized = '{}.{}'.format(pluralize(self.domain), self.tld)
+                singularized = '{}.{}'.format(singularize(self.domain), self.tld)
+
+                return (p for p in [pluralized, singularized] if p != self.domain)
 
 	def generate(self):
 		self.domains.append({ 'fuzzer': 'Original*', 'domain-name': self.domain + '.' + self.tld })
