@@ -30,6 +30,7 @@ import time
 import argparse
 import threading
 from inflection import pluralize, singularize
+from itertools import permutations
 from random import randint
 from os import path
 import smtplib
@@ -453,6 +454,26 @@ class DomainFuzz():
                 singularized = '{}.{}'.format(singularize(self.domain), self.tld)
 
                 return (p for p in [pluralized, singularized] if p != self.domain)
+
+        def __vowel_swap(domain):
+                domain_vowels = []
+                domain_vowel_indices = []
+
+                for idx, char in enumerate(domain):
+                        if char in vowels:
+                                domain_vowels.append(char)
+                                domain_vowel_indices.append(idx)
+
+                permuted_vowels = set(permutations(domain_vowels, len(domain_vowels)))
+                results = []
+                for permutation in permuted_vowels:
+                        if permutation != tuple(domain_vowels):
+                                struct = zip(domain_vowel_indices, permutation)
+                                result = list(domain)
+                                for idx, vowel in struct:
+                                        result[idx] = vowel
+
+                                yield ''.join(result)
 
 	def generate(self):
 		self.domains.append({ 'fuzzer': 'Original*', 'domain-name': self.domain + '.' + self.tld })
