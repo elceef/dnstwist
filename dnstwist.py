@@ -455,11 +455,11 @@ class DomainFuzz():
 
                 return (p for p in [pluralized, singularized] if p != self.domain)
 
-        def __vowel_swap(domain):
+        def __vowel_swap(self):
                 domain_vowels = []
                 domain_vowel_indices = []
 
-                for idx, char in enumerate(domain):
+                for idx, char in enumerate(self.domain):
                         if char in vowels:
                                 domain_vowels.append(char)
                                 domain_vowel_indices.append(idx)
@@ -469,7 +469,7 @@ class DomainFuzz():
                 for permutation in permuted_vowels:
                         if permutation != tuple(domain_vowels):
                                 struct = zip(domain_vowel_indices, permutation)
-                                result = list(domain)
+                                result = list(self.domain)
                                 for idx, vowel in struct:
                                         result[idx] = vowel
 
