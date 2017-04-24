@@ -475,6 +475,12 @@ class DomainFuzz():
 
                                 yield ''.join(result)
 
+        def __wrong_tld(self):
+                common_tlds = ['com', 'org', 'edu', 'uk', 'net', 'ca', 'de', 'jp', 'fr', 'au', 'us', 'ru', 'ch', 'it', 'nl', 'se', 'no', 'es']
+                for tld in common_tlds:
+                        if tld != self.tld:
+                                yield '{}.{}'.format(domain, tld)
+
 	def generate(self):
 		self.domains.append({ 'fuzzer': 'Original*', 'domain-name': self.domain + '.' + self.tld })
 
