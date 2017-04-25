@@ -260,6 +260,8 @@ class DomainFuzz():
 		return domain[0] + '.' + domain[1], domain[2]
 
 	def __validate_domain(self, domain):
+		if len(domain) == len(domain.encode('idna')) and domain != domain.encode('idna'):
+			return False
 		allowed = re.compile('(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}\.?$)', re.IGNORECASE)
 		return allowed.match(domain.encode('idna'))
 
