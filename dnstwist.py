@@ -647,8 +647,8 @@ class DomainThread(threading.Thread):
 				if 'dns-ns' in domain or 'dns-a' in domain:
 					try:
 						whoisdb = whois.query(domain['domain-name'])
-						domain['whois-created'] = str(whoisdb.creation_date).replace(' ', 'T')
-						domain['whois-updated'] = str(whoisdb.last_updated).replace(' ', 'T')
+						domain['whois-created'] = str(whoisdb.creation_date).split(' ')[0]
+						domain['whois-updated'] = str(whoisdb.last_updated).split(' ')[0]
 					except Exception:
 						pass
 
