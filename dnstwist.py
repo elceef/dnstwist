@@ -260,20 +260,16 @@ class DomainFuzz():
 		return domain[0] + '.' + domain[1], domain[2]
 
 	def __validate_domain(self, domain):
-		if len(domain) > 255:
-			return False
-		if domain[-1] == '.':
-			domain = domain[:-1]
-		if len(domain) < len(domain.encode('idna')):
-			return True
-		allowed = re.compile('\A([a-z0-9]+(-*[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
-		return allowed.match(domain)
+		allowed = re.compile('(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}\.?$)', re.IGNORECASE)
+		return allowed.match(domain.encode('idna'))
 
 	def __filter_domains(self):
 		seen = set()
 		filtered = []
 
 		for d in self.domains:
+			#if not self.__validate_domain(d['domain-name']):
+				#p_err("debug: invalid domain %s\n" % d['domain-name'])
 			if self.__validate_domain(d['domain-name']) and d['domain-name'] not in seen:
 				seen.add(d['domain-name'])
 				filtered.append(d)
