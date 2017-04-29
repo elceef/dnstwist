@@ -10,6 +10,8 @@ confirm
 confirmation
 download
 find
+http
+https
 install
 login
 my
@@ -30,3 +32,4 @@ summary
 update
 verify
 verification
+www
