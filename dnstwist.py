@@ -29,6 +29,8 @@ import signal
 import time
 import argparse
 import threading
+from inflection import pluralize, singularize
+from itertools import permutations
 from random import randint
 from os import path
 import smtplib
@@ -429,6 +431,53 @@ class DomainFuzz():
 			result.append(self.domain + chr(i))
 
 		return result
+
+        def __missing_dot(self):
+                permutations = []
+                permutations.append("www{}".format(self.domain))
+
+                new_permutation = self.domain
+                while True:
+                        domain_chars = list(new_permutation)
+                        if '.' in domain_chars:
+                                domain_chars.remove('.')
+                                new_permutation = ''.join(domain_chars)
+                                permutations.append(new_permutation)
+                        else:
+                                break
+                return (d if '.' in d else '{}.{}'.format(d, self.tld) for d in permutations)
+
+        def __singular_or_pluralize(self):
+                pluralized = '{}.{}'.format(pluralize(self.domain), self.tld)
+                singularized = '{}.{}'.format(singularize(self.domain), self.tld)
+
+                return (p for p in [pluralized, singularized] if p != self.domain)
+
+        def __vowel_swap(self):
+                domain_vowels = []
+                domain_vowel_indices = []
+
+                for idx, char in enumerate(self.domain):
+                        if char in vowels:
+                                domain_vowels.append(char)
+                                domain_vowel_indices.append(idx)
+
+                permuted_vowels = set(permutations(domain_vowels, len(domain_vowels)))
+                results = []
+                for permutation in permuted_vowels:
+                        if permutation != tuple(domain_vowels):
+                                struct = zip(domain_vowel_indices, permutation)
+                                result = list(self.domain)
+                                for idx, vowel in struct:
+                                        result[idx] = vowel
+
+                                yield ''.join(result)
+
+        def __wrong_tld(self):
+                common_tlds = ['com', 'org', 'edu', 'uk', 'net', 'ca', 'de', 'jp', 'fr', 'au', 'us', 'ru', 'ch', 'it', 'nl', 'se', 'no', 'es']
+                for tld in common_tlds:
+                        if tld != self.tld:
+                                yield '{}.{}'.format(domain, tld)
 
 	def generate(self):
 		self.domains.append({ 'fuzzer': 'Original*', 'domain-name': self.domain + '.' + self.tld })
