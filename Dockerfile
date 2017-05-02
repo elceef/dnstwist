@@ -1,10 +1,12 @@
-FROM       ubuntu:15.04
-MAINTAINER julien@rottenberg.info
+FROM       ubuntu:16.10
+MAINTAINER dcumbo@gmail.com
 
+RUN        apt-get update && apt-get install -y python-dnspython python-geoip python-whois \
+python-requests python-ssdeep python-flask python-flask-restful python-flask-api
 
 WORKDIR    /opt/dnstwist
-RUN        apt-get update && apt-get install -y python-dnspython python-geoip python-whois \
-python-requests python-ssdeep
-
 COPY       . /opt/dnstwist/
-ENTRYPOINT ["./dnstwist.py"]
+EXPOSE     5000
+
+ENTRYPOINT  ["python"]
+CMD         ["dnstwistapi.py"]
