@@ -456,10 +456,6 @@ class DomainFuzz():
 		for domain in self.__vowel_swap():
 			self.domains.append({ 'fuzzer': 'Vowel-swap', 'domain-name': domain + '.' + self.tld })
 
-		if not self.domain.startswith('www.'):
-			self.domains.append({ 'fuzzer': 'Various', 'domain-name': 'ww' + self.domain + '.' + self.tld })
-			self.domains.append({ 'fuzzer': 'Various', 'domain-name': 'www' + self.domain + '.' + self.tld })
-			self.domains.append({ 'fuzzer': 'Various', 'domain-name': 'www-' + self.domain + '.' + self.tld })
 		if '.' in self.tld:
 			self.domains.append({ 'fuzzer': 'Various', 'domain-name': self.domain + '.' + self.tld.split('.')[-1] })
 			self.domains.append({ 'fuzzer': 'Various', 'domain-name': self.domain + self.tld })
