@@ -1,5 +1,9 @@
-dnstwist
-========
+                     _           _            _     _
+                  __| |_ __  ___| |___      _(_)___| |_
+                 / _` | '_ \/ __| __\ \ /\ / / / __| __|
+                | (_| | | | \__ \ |_ \ V  V /| \__ \ |_
+                 \__,_|_| |_|___/\__| \_/\_/ |_|___/\__|
+
 
 See what sort of trouble users can get in trying to type your domain name.
 Find similar-looking domains that adversaries can use to attack you. Can detect
@@ -22,7 +26,7 @@ Key features
 - A wide range of efficient domain fuzzing algorithms
 - Unicode domain names (IDN)
 - Multithreaded job distribution
-- Queries A, AAA, NS and MX records
+- Queries A, AAAA, NS and MX records
 - Evaluates web page similarity with fuzzy hashes to find live phishing sites
 - Tests if MX host (mail server) can be used to intercept misdirected e-mails
 - Additional domain variants using dictionary files
@@ -54,8 +58,6 @@ $ sudo apt-get install libgeoip-dev libffi-dev
 $ BUILD_LIB=1 pip install -r requirements.txt
 ```
 
-Now it is fully equipped and ready for action.
-
 **OSX**
 
 If you're on a Mac, you can install dnstwist via
@@ -71,20 +73,12 @@ file extension, and the binary will be added to `PATH`.
 
 **Docker**
 
-If you use Docker, you can build a local copy:
+If you use Docker, you can pull official image from Docker Hub and run it:
 
 ```
-$ docker build -t dnstwist .
+$ docker pull elceef/dnstwist
+$ docker run elceef/dnstwist example.com
 ```
-
-Then run that local image:
-
-```
-$ docker run dnstwist example.com
-```
-
-You can find [community maintained](https://hub.docker.com/search/?q=dnstwist)
-images if you don't want to build locally.
 
 
 How to use
@@ -194,7 +188,7 @@ would have to send over 300k queries. For the domain facebook.com the number
 increases to over 5 million. How easy it is to guess it takes a lot of
 resources and most importantly even more time. For longer domains checking all
 is simply not possible. For this reason, this tool generates and checks domains
-very close to the original - Levenshtein distance does not exceed 2.
+very close to the original - the Levenshtein distance does not exceed 2.
 Theoretically, these are the most attractive domains from the attacker's point
 of view. However, be aware that the imagination of the aggressors is unlimited.
 
@@ -205,14 +199,12 @@ Contact
 To send questions, comments or a chocolate, just drop an e-mail at
 [marcin@ulikowski.pl](mailto:marcin@ulikowski.pl)
 
-You can also reach me via:
+You can also reach the author via:
 
 - Twitter: [@elceef](https://twitter.com/elceef)
 - LinkedIn: [Marcin Ulikowski](https://pl.linkedin.com/in/elceef)
 
-Any feedback is appreciated. I like to receive notifications from satisfied
-customers so if you were able to run the tool and you are happy with the
-results after just let me know.
-
-If you find some confirmed phishing domains with *dnstwist* and are comfortable
-with sharing them, please send me a message. Thank you.
+Any feedback is appreciated. If you were able to run the tool and you are happy
+with the results just let me know. If you find some confirmed phishing domains
+with *dnstwist* and are comfortable with sharing them, also please send me a
+message. Thank you.
