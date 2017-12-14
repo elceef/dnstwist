@@ -430,6 +430,19 @@ class DomainFuzz():
 
 		return result
 
+	def __tlds(self):
+		result = []
+		file = FILE_TLD
+		if path.exists(file):
+			for word in open(file):
+				word = word.strip('\n')
+				# Skip comments and blanks
+				if word.isalpha() and word not in result and word != '':
+					result.append(self.domain + '.' + word)
+
+		return result
+
+
 	def generate(self):
 		self.domains.append({ 'fuzzer': 'Original*', 'domain-name': self.domain + '.' + self.tld })
 
@@ -455,12 +468,14 @@ class DomainFuzz():
 			self.domains.append({ 'fuzzer': 'Transposition', 'domain-name': domain + '.' + self.tld })
 		for domain in self.__vowel_swap():
 			self.domains.append({ 'fuzzer': 'Vowel-swap', 'domain-name': domain + '.' + self.tld })
+		for domain in self.__tlds():
+			self.domains.append({ 'fuzzer': 'Other domains', 'domain-name': domain  })
 
 		if '.' in self.tld:
 			self.domains.append({ 'fuzzer': 'Various', 'domain-name': self.domain + '.' + self.tld.split('.')[-1] })
 			self.domains.append({ 'fuzzer': 'Various', 'domain-name': self.domain + self.tld })
 		if '.' not in self.tld:
-			self.domains.append({ 'fuzzer': 'Various', 'domain-name': self.domain + self.tld + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Various', 'domain-name': self.domain  })
 		if self.tld != 'com' and '.' not in self.tld:
 			self.domains.append({ 'fuzzer': 'Various', 'domain-name': self.domain + '-' + self.tld + '.com' })
 
