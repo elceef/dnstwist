@@ -954,7 +954,7 @@ def main():
 	while not jobs.empty():
 		p_cli('.')
 		qcurr = 100 * (len(domains) - jobs.qsize()) / len(domains)
-		if qcurr - 20 >= qperc:
+		if qcurr - 15 >= qperc:
 			qperc = qcurr
 			p_cli('%u%%' % qperc)
 		time.sleep(1)
