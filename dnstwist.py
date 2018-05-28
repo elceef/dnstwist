@@ -19,7 +19,7 @@
 # limitations under the License.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '1.04b'
+__version__ = '20180528'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
