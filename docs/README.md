@@ -1,16 +1,12 @@
-                     _           _            _     _
-                  __| |_ __  ___| |___      _(_)___| |_
-                 / _` | '_ \/ __| __\ \ /\ / / / __| __|
-                | (_| | | | \__ \ |_ \ V  V /| \__ \ |_
-                 \__,_|_| |_|___/\__| \_/\_/ |_|___/\__|
-
+dnstwist
+========
 
 See what sort of trouble users can get in trying to type your domain name.
 Find similar-looking domains that adversaries can use to attack you. Can detect
 typosquatters, phishing attacks, fraud and corporate espionage. Useful as an
 additional source of targeted threat intelligence.
 
-![Demo](/docs/screens/demo.gif)
+![Demo](/docs/dnstwist_demo.gif)
 
 The idea is quite straightforward: *dnstwist* takes in your domain name as a
 seed, generates a list of potential phishing domains and then checks to see if
@@ -187,10 +183,11 @@ needed to verify them. For example, to check all variants for google.com, you
 would have to send over 300k queries. For the domain facebook.com the number
 increases to over 5 million. How easy it is to guess it takes a lot of
 resources and most importantly even more time. For longer domains checking all
-is simply not possible. For this reason, this tool generates and checks domains
-very close to the original - the Levenshtein distance does not exceed 2.
-Theoretically, these are the most attractive domains from the attacker's point
-of view. However, be aware that the imagination of the aggressors is unlimited.
+is simply not possible.
+For this reason, this tool generates and checks domains very close to the
+original. Theoretically, these are the most attractive domains from the
+attacker's point of view. However, be aware that the imagination of the
+aggressors is unlimited.
 
 
 Contact
@@ -208,3 +205,4 @@ Any feedback is appreciated. If you were able to run the tool and you are happy
 with the results just let me know. If you find some confirmed phishing domains
 with *dnstwist* and are comfortable with sharing them, also please send me a
 message. Thank you.
+
