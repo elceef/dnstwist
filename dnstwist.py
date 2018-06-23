@@ -113,7 +113,7 @@ else:
 
 def p_cli(data):
 	global args
-	if not args.csv and not args.json:
+	if args.output == 'cli':
 		sys.stdout.write(data.encode('utf-8'))
 		sys.stdout.flush()
 
@@ -125,13 +125,13 @@ def p_err(data):
 
 def p_csv(data):
 	global args
-	if args.csv:
+	if args.output == 'csv':
 		sys.stdout.write(data)
 
 
 def p_json(data):
 	global args
-	if args.json:
+	if args.output == 'json':
 		sys.stdout.write(data)
 
 
@@ -808,17 +808,16 @@ def main():
 	parser.add_argument('domain', help='domain name or URL to check')
 	parser.add_argument('-a', '--all', action='store_true', help='show all DNS records')
 	parser.add_argument('-b', '--banners', action='store_true', help='determine HTTP and SMTP service banners')
-	parser.add_argument('-c', '--csv', action='store_true', help='print output in CSV format')
 	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='generate additional domains using dictionary FILE')
 	parser.add_argument('-g', '--geoip', action='store_true', help='perform lookup for GeoIP location')
-	parser.add_argument('-j', '--json', action='store_true', help='print output in JSON format')
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='check if MX host can be used to intercept e-mails')
+	parser.add_argument('-o', '--output', type=str, choices=['cli', 'csv', 'json'], default='cli', help='output format (default: cli)')
 	parser.add_argument('-r', '--registered', action='store_true', help='show only registered domain names')
 	parser.add_argument('-s', '--ssdeep', action='store_true', help='fetch web pages and compare their fuzzy hashes to evaluate similarity')
 	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT, help='start specified NUMBER of threads (default: %d)' % THREAD_COUNT_DEFAULT)
 	parser.add_argument('-w', '--whois', action='store_true', help='perform lookup for WHOIS creation/update time (slow)')
-	parser.add_argument('--nameservers', type=str, metavar='LIST', help='comma separated list of nameservers to query')
-	parser.add_argument('--port', type=int, metavar='PORT', help='the port to send queries to')
+	parser.add_argument('--nameservers', type=str, metavar='LIST', help='comma separated list of DNS servers to query')
+	parser.add_argument('--port', type=int, metavar='PORT', help='the port number to send queries to')
 
 	if len(sys.argv) < 2:
 		sys.stdout.write('%sdnstwist %s by <%s>%s\n\n' % (ST_BRI, __version__, __email__, ST_RST))
@@ -827,10 +826,6 @@ def main():
 
 	global args
 	args = parser.parse_args()
-
-	if args.csv and args.json:
-		p_err('error: cannot use both CSV and JSON as output\n')
-		bye(-1)
 
 	if args.threads < 1:
 		args.threads = THREAD_COUNT_DEFAULT
@@ -976,9 +971,9 @@ def main():
 		del domains_registered
 
 	if domains:
-		if args.csv:
+		if args.output == 'csv':
 			p_csv(generate_csv(domains))
-		elif args.json:
+		elif args.output == 'json':
 			p_json(generate_json(domains))
 		else:
 			p_cli(generate_cli(domains))
