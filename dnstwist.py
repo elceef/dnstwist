@@ -737,6 +737,15 @@ def generate_csv(domains):
 	return output
 
 
+def generate_idle(domains):
+	output = ''
+
+	for domain in domains:
+		output += '%s\n' % domain.get('domain-name').encode('idna')
+
+	return output
+
+
 def generate_cli(domains):
 	output = ''
 
@@ -811,7 +820,7 @@ def main():
 	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='generate additional domains using dictionary FILE')
 	parser.add_argument('-g', '--geoip', action='store_true', help='perform lookup for GeoIP location')
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='check if MX host can be used to intercept e-mails')
-	parser.add_argument('-o', '--output', type=str, choices=['cli', 'csv', 'json'], default='cli', help='output format (default: cli)')
+	parser.add_argument('-o', '--output', type=str, choices=['cli', 'csv', 'json', 'idle'], default='cli', help='output format (default: cli)')
 	parser.add_argument('-r', '--registered', action='store_true', help='show only registered domain names')
 	parser.add_argument('-s', '--ssdeep', action='store_true', help='fetch web pages and compare their fuzzy hashes to evaluate similarity')
 	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT, help='start specified NUMBER of threads (default: %d)' % THREAD_COUNT_DEFAULT)
@@ -848,6 +857,10 @@ def main():
 		ddict.load_dict(args.dictionary)
 		ddict.generate()
 		domains += ddict.domains
+
+	if args.output == 'idle':
+		sys.stdout.write(generate_idle(domains))
+		bye(0)
 
 	if not DB_TLD:
 		p_err('error: missing TLD database file: %s\n' % FILE_TLD)
