@@ -153,15 +153,15 @@ provides two well known and easy to parse output formats: CSV and JSON. Use it
 for data interchange.
 
 ```
-$ dnstwist.py --output csv example.com > out.csv
-$ dnstwist.py --output json example.com > out.json
+$ dnstwist.py --format csv example.com > out.csv
+$ dnstwist.py --format json example.com > out.json
 ```
 
 In case you want to chain `dnstwist` with other tools and you need only domain
-variants without performing any DNS checks, you can use `--output idle`:
+variants without performing any DNS checks, you can use `--format idle`:
 
 ```
-$ dnstwist.py --output idle example.com | tr '\n' ','
+$ dnstwist.py --format idle example.com | tr '\n' ','
 ```
 
 The tool is shipped with built-in GeoIP database. Use `--geoip` argument to
