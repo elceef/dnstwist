@@ -113,7 +113,7 @@ else:
 
 def p_cli(data):
 	global args
-	if args.output == 'cli':
+	if args.format == 'cli':
 		sys.stdout.write(data.encode('utf-8'))
 		sys.stdout.flush()
 
@@ -125,13 +125,13 @@ def p_err(data):
 
 def p_csv(data):
 	global args
-	if args.output == 'csv':
+	if args.format == 'csv':
 		sys.stdout.write(data)
 
 
 def p_json(data):
 	global args
-	if args.output == 'json':
+	if args.format == 'json':
 		sys.stdout.write(data)
 
 
@@ -820,7 +820,7 @@ def main():
 	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='generate additional domains using dictionary FILE')
 	parser.add_argument('-g', '--geoip', action='store_true', help='perform lookup for GeoIP location')
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='check if MX host can be used to intercept e-mails')
-	parser.add_argument('-o', '--output', type=str, choices=['cli', 'csv', 'json', 'idle'], default='cli', help='output format (default: cli)')
+	parser.add_argument('-f', '--format', type=str, choices=['cli', 'csv', 'json', 'idle'], default='cli', help='output format (default: cli)')
 	parser.add_argument('-r', '--registered', action='store_true', help='show only registered domain names')
 	parser.add_argument('-s', '--ssdeep', action='store_true', help='fetch web pages and compare their fuzzy hashes to evaluate similarity')
 	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT, help='start specified NUMBER of threads (default: %d)' % THREAD_COUNT_DEFAULT)
@@ -858,7 +858,7 @@ def main():
 		ddict.generate()
 		domains += ddict.domains
 
-	if args.output == 'idle':
+	if args.format == 'idle':
 		sys.stdout.write(generate_idle(domains))
 		bye(0)
 
@@ -984,9 +984,9 @@ def main():
 		del domains_registered
 
 	if domains:
-		if args.output == 'csv':
+		if args.format == 'csv':
 			p_csv(generate_csv(domains))
-		elif args.output == 'json':
+		elif args.format == 'json':
 			p_json(generate_json(domains))
 		else:
 			p_cli(generate_cli(domains))
