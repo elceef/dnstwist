@@ -713,7 +713,7 @@ def one_or_all(answers):
 def generate_json(domains):
 	json_domains = domains
 	for domain in json_domains:
-		domain['domain-name'] = domain['domain-name'].lower().encode('idna')
+		domain['domain-name'] = domain['domain-name'].lower()
 		domain['fuzzer'] = domain['fuzzer'].lower()
 
 	return json.dumps(json_domains, indent=4, sort_keys=True)
@@ -724,7 +724,7 @@ def generate_csv(domains):
 
 	for domain in domains:
 		output += '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (domain.get('fuzzer'),
-			domain.get('domain-name').encode('idna'),
+			domain.get('domain-name'),
 			one_or_all(domain.get('dns-a', [''])),
 			one_or_all(domain.get('dns-aaaa', [''])),
 			one_or_all(domain.get('dns-mx', [''])),
@@ -741,7 +741,7 @@ def generate_idle(domains):
 	output = ''
 
 	for domain in domains:
-		output += '%s\n' % domain.get('domain-name').encode('idna')
+		output += '%s\n' % domain.get('domain-name')
 
 	return output
 
