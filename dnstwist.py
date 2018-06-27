@@ -126,13 +126,13 @@ def p_err(data):
 def p_csv(data):
 	global args
 	if args.format == 'csv':
-		sys.stdout.write(data)
+		sys.stdout.write(data.encode('utf-8'))
 
 
 def p_json(data):
 	global args
 	if args.format == 'json':
-		sys.stdout.write(data)
+		sys.stdout.write(data.encode('utf-8'))
 
 
 def bye(code):
