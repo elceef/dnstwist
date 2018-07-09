@@ -9,7 +9,7 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
@@ -114,7 +114,7 @@ else:
 def p_cli(data):
 	global args
 	if args.format == 'cli':
-		sys.stdout.write(data.encode('utf-8'))
+		sys.stdout.write(data)
 		sys.stdout.flush()
 
 
@@ -262,7 +262,7 @@ class DomainFuzz():
 	def __validate_domain(self, domain):
 		if len(domain) == len(domain.encode('idna')) and domain != domain.encode('idna'):
 			return False
-		allowed = re.compile('(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}\.?$)', re.IGNORECASE)
+		allowed = re.compile(b'(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}\.?$)', re.IGNORECASE)
 		return allowed.match(domain.encode('idna'))
 
 	def __filter_domains(self):
