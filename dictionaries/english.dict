@@ -4,6 +4,7 @@
 auth
 access
 account
+admin
 agree
 cdn
 choose
@@ -21,9 +22,11 @@ https
 https-www
 install
 login
+mobile
 mail
 my
 online
+pay
 payment
 payments
 recovery
@@ -35,6 +38,7 @@ security
 service
 services
 signin
+signup
 support
 summary
 update
@@ -44,3 +48,4 @@ verification
 view
 ww
 www
+web
