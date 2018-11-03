@@ -354,7 +354,7 @@ class DomainFuzz():
 								win = win_copy
 						j += 1
 
-		return list(result_2pass)
+		return list(result_1pass | result_2pass)
 
 	def __hyphenation(self):
 		result = []
