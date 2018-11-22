@@ -178,6 +178,22 @@ descriptions are always available at your fingertips:
 $ dnstwist.py --help
 ```
 
+**How to run against multiple domains**
+
+DNStwist only allows you to run the tool against one domain name at a time, as such a quick way to run this aginst multiple domains is to place the list of domains you wish to test in a text file (with one domain per line) and then use a bash script, such as the one below, to run DNStwist against each domain. 
+This example uses the docker container, however this will work for the python script too just change the command.
+
+```
+#!/bin/bash
+for domain in `cat list.txt`
+do
+	echo "Testing " $domain
+	`docker run elceef/dnstwist  --whois --ssdeep --geoip --mxcheck --csv $domain > $domain.csv`
+done
+```
+
+For this script please change "list.txt" to the name of the file containing the list of domains and alter the command line options to match your needs.
+
 Good luck!
 
 
