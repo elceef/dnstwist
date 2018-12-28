@@ -520,6 +520,12 @@ class DomainDict(DomainFuzz):
 		for domain in self.__dictionary():
 			self.domains.append({ 'fuzzer': 'Dictionary', 'domain-name': domain + '.' + self.tld })
 
+class TldDict(DomainDict):
+
+	def generate(self):
+		self.dictionary.remove(self.tld)
+		for tld in self.dictionary:
+				self.domains.append({'fuzzer': 'TLD-change', 'domain-name': self.domain + '.' + tld})
 
 class DomainThread(threading.Thread):
 
@@ -818,6 +824,7 @@ def main():
 	parser.add_argument('-a', '--all', action='store_true', help='show all DNS records')
 	parser.add_argument('-b', '--banners', action='store_true', help='determine HTTP and SMTP service banners')
 	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='generate additional domains using dictionary FILE')
+	parser.add_argument('--tld', type=str, metavar='FILE', help='generate additional domains using TLD dictionary FILE')
 	parser.add_argument('-g', '--geoip', action='store_true', help='perform lookup for GeoIP location')
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='check if MX host can be used to intercept e-mails')
 	parser.add_argument('-f', '--format', type=str, choices=['cli', 'csv', 'json', 'idle'], default='cli', help='output format (default: cli)')
@@ -857,6 +864,16 @@ def main():
 		ddict.load_dict(args.dictionary)
 		ddict.generate()
 		domains += ddict.domains
+
+	if args.tld:
+		if not path.exists(args.tld):
+			p_err('error: dictionary not found: %s\n' % args.tld)
+			bye(-1)
+		tlddict = TldDict(url.domain)
+		tlddict.load_dict(args.tld)
+		tlddict.generate()
+		domains += tlddict.domains
+
 
 	if args.format == 'idle':
 		sys.stdout.write(generate_idle(domains))
