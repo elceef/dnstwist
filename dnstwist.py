@@ -33,6 +33,7 @@ from random import randint
 from os import path
 import smtplib
 import json
+import validators
 
 try:
 	import queue
@@ -114,7 +115,7 @@ else:
 def p_cli(data):
 	global args
 	if args.format == 'cli':
-		sys.stdout.write(data.encode('utf-8'))
+		sys.stdout.write(str(data.encode('utf-8')))
 		sys.stdout.flush()
 
 
@@ -260,10 +261,10 @@ class DomainFuzz():
 		return domain[0] + '.' + domain[1], domain[2]
 
 	def __validate_domain(self, domain):
-		if len(domain) == len(domain.encode('idna')) and domain != domain.encode('idna'):
+		if len(domain) == len(domain.encode('idna')) and domain != domain.encode('idna').decode():
 			return False
 		allowed = re.compile('(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}\.?$)', re.IGNORECASE)
-		return allowed.match(domain.encode('idna'))
+		return allowed.match(domain.encode('idna').decode('ascii'))
 
 	def __filter_domains(self):
 		seen = set()

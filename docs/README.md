@@ -67,16 +67,6 @@ This is going to install `dnstwist.py` as `dnstwist` only, along with all
 requirements mentioned above. The usage is the same, you can just omit the
 file extension, and the binary will be added to `PATH`.
 
-**Docker**
-
-If you use Docker, you can pull official image from Docker Hub and run it:
-
-```
-$ docker pull elceef/dnstwist
-$ docker run elceef/dnstwist example.com
-```
-
-
 How to use
 ----------
 
@@ -200,16 +190,8 @@ aggressors is unlimited.
 Contact
 -------
 
-To send questions, comments or a chocolate, just drop an e-mail at
-[marcin@ulikowski.pl](mailto:marcin@ulikowski.pl)
+This was ported from the original dnstwist repo, you may be in the wrong place if so, this is focused on making DomainFuzz work in python3, see:
 
-You can also reach the author via:
+https://github.com/elceef/dnstwist
 
-- Twitter: [@elceef](https://twitter.com/elceef)
-- LinkedIn: [Marcin Ulikowski](https://pl.linkedin.com/in/elceef)
-
-Any feedback is appreciated. If you were able to run the tool and you are happy
-with the results just let me know. If you find some confirmed phishing domains
-with `dnstwist` and are comfortable with sharing them, also please send me a
-message. Thank you.
-
+For the original repo
