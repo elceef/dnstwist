@@ -30,7 +30,7 @@ fi
 EFFECTIVE_TLD_NAMES="../database/effective_tld_names.dat"
 
 DNSTWIST_SCRIPT="../dnstwist.py"
-DNSTWIST_ARGS="--csv"
+DNSTWIST_ARGS="--format csv"
 
 if [ ! -f "$EFFECTIVE_TLD_NAMES" ]
 then
@@ -60,7 +60,7 @@ esac
 for tld in $TLDS
 do
 	echo "Running dnstwist against: $DOMAIN.$tld"
-	$DNSTWIST_SCRIPT "$DNSTWIST_ARGS" "$DOMAIN.$tld" > "$DOMAIN.$tld"
+	$DNSTWIST_SCRIPT $DNSTWIST_ARGS $DOMAIN.$tld > $DOMAIN.$tld
 done
 
 echo "Finished!"
