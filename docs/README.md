@@ -76,6 +76,14 @@ $ docker pull elceef/dnstwist
 $ docker run elceef/dnstwist example.com
 ```
 
+You can also clone the repository then build the image locally using Docker and run it:
+
+```
+$ git clone https://github.com/elceef/dnstwist
+$ cd dnstwist
+$ docker build -t dnstwist .
+$ docker run dnstwist example.com
+```
 
 How to use
 ----------
