@@ -1,9 +1,14 @@
-FROM       ubuntu:16.04
-MAINTAINER elceef@gmail.com
+FROM python:2.7.16-alpine
 
-WORKDIR    /opt/dnstwist
-RUN        apt-get update && apt-get install -y python-dnspython python-geoip python-whois \
-python-requests python-ssdeep python-cffi
+MAINTAINER coolboi567 <PrashantShahi567@gmail.com>
 
-COPY       . /opt/dnstwist/
-ENTRYPOINT ["./dnstwist.py"]
+WORKDIR /opt/dnstwist
+
+COPY . /opt/dnstwist/
+
+RUN apk update && \
+	apk add  --virtual .build-deps alpine-sdk libffi-dev geoip-dev && \
+	BUILD_LIB=1 pip install -r requirements.txt && \
+	apk del .build-deps
+
+ENTRYPOINT ["python", "dnstwist.py"]
