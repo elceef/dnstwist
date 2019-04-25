@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-# dnstwist
+#      _           _            _     _
+#   __| |_ __  ___| |___      _(_)___| |_
+#  / _` | '_ \/ __| __\ \ /\ / / / __| __|
+# | (_| | | | \__ \ |_ \ V  V /| \__ \ |_
+#  \__,_|_| |_|___/\__| \_/\_/ |_|___/\__|
 #
 # Generate and resolve domain variations to detect typo squatting,
 # phishing and corporate espionage.
@@ -19,7 +22,7 @@
 # limitations under the License.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20180623'
+__version__ = '20190425'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
