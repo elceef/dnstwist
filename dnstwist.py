@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # dnstwist
@@ -114,7 +114,7 @@ else:
 def p_cli(data):
 	global args
 	if args.format == 'cli':
-		sys.stdout.write(data.encode('utf-8'))
+		sys.stdout.write(data)
 		sys.stdout.flush()
 
 
@@ -260,10 +260,11 @@ class DomainFuzz():
 		return domain[0] + '.' + domain[1], domain[2]
 
 	def __validate_domain(self, domain):
-		if len(domain) == len(domain.encode('idna')) and domain != domain.encode('idna'):
+		domain_idna = domain.encode('idna').decode()
+		if len(domain) == len(domain_idna) and domain != domain_idna:
 			return False
 		allowed = re.compile('(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}\.?$)', re.IGNORECASE)
-		return allowed.match(domain.encode('idna'))
+		return allowed.match(domain_idna)
 
 	def __filter_domains(self):
 		seen = set()
@@ -567,7 +568,7 @@ class DomainThread(threading.Thread):
 			smtp = socket.socket()
 			smtp.settimeout(1)
 			smtp.connect((mx, 25))
-			response = smtp.recv(1024)
+			response = smtp.recv(1024).decode()
 			smtp.close()
 		except Exception:
 			pass
@@ -601,7 +602,7 @@ class DomainThread(threading.Thread):
 		while not self.kill_received:
 			domain = self.jobs.get()
 
-			domain['domain-name'] = domain['domain-name'].encode('idna')
+			domain['domain-name'] = domain['domain-name'].encode('idna').decode()
 
 			if self.option_extdns:
 				resolv = dns.resolver.Resolver()
@@ -695,7 +696,7 @@ class DomainThread(threading.Thread):
 						if req.status_code / 100 == 2:
 							domain['ssdeep-score'] = ssdeep.compare(self.ssdeep_orig, ssdeep_fuzz)
 
-			domain['domain-name'] = domain['domain-name'].decode('idna')
+			domain['domain-name'] = domain['domain-name'].encode().decode('idna')
 
 			self.jobs.task_done()
 
@@ -713,7 +714,7 @@ def one_or_all(answers):
 def generate_json(domains):
 	json_domains = domains
 	for domain in json_domains:
-		domain['domain-name'] = domain['domain-name'].lower().encode('idna')
+		domain['domain-name'] = domain['domain-name'].lower().encode('idna').decode()
 		domain['fuzzer'] = domain['fuzzer'].lower()
 
 	return json.dumps(json_domains, indent=4, sort_keys=True)
@@ -724,7 +725,7 @@ def generate_csv(domains):
 
 	for domain in domains:
 		output += '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (domain.get('fuzzer'),
-			domain.get('domain-name').encode('idna'),
+			domain.get('domain-name').encode('idna').decode(),
 			one_or_all(domain.get('dns-a', [''])),
 			one_or_all(domain.get('dns-aaaa', [''])),
 			one_or_all(domain.get('dns-mx', [''])),
@@ -741,7 +742,7 @@ def generate_idle(domains):
 	output = ''
 
 	for domain in domains:
-		output += '%s\n' % domain.get('domain-name').encode('idna')
+		output += '%s\n' % domain.get('domain-name').encode('idna').decode()
 
 	return output
 
