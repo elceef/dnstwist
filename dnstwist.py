@@ -611,16 +611,22 @@ class DomainThread(threading.Thread):
 				resolv = dns.resolver.Resolver()
 				resolv.lifetime = REQUEST_TIMEOUT_DNS
 				resolv.timeout = REQUEST_TIMEOUT_DNS
+
 				if args.nameservers:
 					resolv.nameservers = args.nameservers.split(",")
 				if args.port:
 					resolv.port = args.port
+
+				nxdomain = False
 				try:
 					domain['dns-ns'] = self.answer_to_list(resolv.query(domain['domain-name'], 'NS'))
+				except dns.resolver.NXDOMAIN:
+					nxdomain = True
+					pass
 				except DNSException:
 					pass
 
-				if 'dns-ns' in domain or len(domain['domain-name'].split('.')) > 1:
+				if nxdomain is False:
 					try:
 						domain['dns-a'] = self.answer_to_list(resolv.query(domain['domain-name'], 'A'))
 					except DNSException:
@@ -631,6 +637,7 @@ class DomainThread(threading.Thread):
 					except DNSException:
 						pass
 
+				if nxdomain is False and 'dns-ns' in domain:
 					try:
 						domain['dns-mx'] = self.answer_to_list(resolv.query(domain['domain-name'], 'MX'))
 					except DNSException:
@@ -658,7 +665,7 @@ class DomainThread(threading.Thread):
 							domain['mx-spy'] = True
 
 			if self.option_whois:
-				if 'dns-ns' in domain or 'dns-a' in domain:
+				if nxdomain is False and 'dns-ns' in domain:
 					try:
 						whoisdb = whois.query(domain['domain-name'])
 						domain['whois-created'] = str(whoisdb.creation_date).split(' ')[0]
@@ -696,7 +703,7 @@ class DomainThread(threading.Thread):
 					except Exception:
 						pass
 					else:
-						if req.status_code / 100 == 2:
+						if req.status_code // 100 == 2:
 							domain['ssdeep-score'] = ssdeep.compare(self.ssdeep_orig, ssdeep_fuzz)
 
 			domain['domain-name'] = domain['domain-name'].encode().decode('idna')
