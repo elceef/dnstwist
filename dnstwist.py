@@ -22,7 +22,7 @@
 # limitations under the License.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20190518'
+__version__ = '20190619'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
