@@ -41,8 +41,8 @@ Linux is the primary development platform. If running Debian/Ubuntu, you can
 install all dependencies with just single command:
 
 ```
-$ sudo apt-get install python-dnspython python-geoip python-whois \
-python-requests python-ssdeep
+$ sudo apt-get install python3-dnspython python3-geoip python3-whois \
+python3-requests python3-ssdeep
 ```
 
 Alternately, you can use Python tooling. This can be done within a virtual
