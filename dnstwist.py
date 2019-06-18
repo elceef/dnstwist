@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #      _           _            _     _
 #   __| |_ __  ___| |___      _(_)___| |_
@@ -72,6 +72,7 @@ except ImportError:
 
 try:
 	import requests
+	requests.packages.urllib3.disable_warnings()
 	MODULE_REQUESTS = True
 except ImportError:
 	MODULE_REQUESTS = False
@@ -697,7 +698,7 @@ class DomainThread(threading.Thread):
 			if self.option_ssdeep:
 				if 'dns-a' in domain:
 					try:
-						req = requests.get(self.uri_scheme + '://' + domain['domain-name'] + self.uri_path + self.uri_query, timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': 'Mozilla/5.0 (dnstwist)'})
+						req = requests.get(self.uri_scheme + '://' + domain['domain-name'] + self.uri_path + self.uri_query, timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': 'Mozilla/5.0 (dnstwist)'}, verify=False)
 						#ssdeep_fuzz = ssdeep.hash(req.text.replace(' ', '').replace('\n', ''))
 						ssdeep_fuzz = ssdeep.hash(req.text)
 					except Exception:
