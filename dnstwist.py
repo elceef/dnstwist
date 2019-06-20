@@ -264,7 +264,12 @@ class DomainFuzz():
 		return domain[0] + '.' + domain[1], domain[2]
 
 	def __validate_domain(self, domain):
-		domain_idna = domain.encode('idna').decode()
+		try:
+			domain_idna = domain.encode('idna').decode()
+		except UnicodeError:
+			# '.tla'.encode('idna') raises UnicodeError: label empty or too long
+			# This can be obtained when __omission takes a one-letter domain.
+			return False
 		if len(domain) == len(domain_idna) and domain != domain_idna:
 			return False
 		allowed = re.compile('(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}\.?$)', re.IGNORECASE)
