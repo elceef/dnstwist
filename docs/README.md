@@ -151,6 +151,15 @@ needs.
 $ dnstwist.py --dictionary dictionaries/english.dict domain.name
 ``` 
 
+If you need to check whether domains with different TLDs exist, you can use the 
+'--tld' option. You'll need to supply the TLDs list in a text file. A sample file
+is provided ('./dictionaries/common_tlds.dict'). Feel free to adapt it to your
+needs.
+
+```
+$ dnstwist.py --tld dictionaries/common_tlds.dict example.com
+``` 
+
 Apart from the default nice and colorful text terminal output, the tool
 provides two well known and easy to parse output formats: CSV and JSON. Use it
 for convenient data interchange.
