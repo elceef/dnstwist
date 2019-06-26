@@ -530,12 +530,14 @@ class DomainDict(DomainFuzz):
 		for domain in self.__dictionary():
 			self.domains.append({ 'fuzzer': 'Dictionary', 'domain-name': domain + '.' + self.tld })
 
+
 class TldDict(DomainDict):
 
 	def generate(self):
 		self.dictionary.remove(self.tld)
 		for tld in self.dictionary:
-				self.domains.append({'fuzzer': 'TLD-change', 'domain-name': self.domain + '.' + tld})
+				self.domains.append({'fuzzer': 'TLD-swap', 'domain-name': self.domain + '.' + tld})
+
 
 class DomainThread(threading.Thread):
 
@@ -722,6 +724,7 @@ class DomainThread(threading.Thread):
 
 			self.jobs.task_done()
 
+
 def one_or_all(answers):
 	if args.all:
 		result = ';'.join(answers)
@@ -841,7 +844,6 @@ def main():
 	parser.add_argument('-a', '--all', action='store_true', help='show all DNS records')
 	parser.add_argument('-b', '--banners', action='store_true', help='determine HTTP and SMTP service banners')
 	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='generate additional domains using dictionary FILE')
-	parser.add_argument('--tld', type=str, metavar='FILE', help='generate additional domains using TLD dictionary FILE')
 	parser.add_argument('-g', '--geoip', action='store_true', help='perform lookup for GeoIP location')
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='check if MX host can be used to intercept e-mails')
 	parser.add_argument('-f', '--format', type=str, choices=['cli', 'csv', 'json', 'idle'], default='cli', help='output format (default: cli)')
@@ -849,6 +851,7 @@ def main():
 	parser.add_argument('-s', '--ssdeep', action='store_true', help='fetch web pages and compare their fuzzy hashes to evaluate similarity')
 	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT, help='start specified NUMBER of threads (default: %d)' % THREAD_COUNT_DEFAULT)
 	parser.add_argument('-w', '--whois', action='store_true', help='perform lookup for WHOIS creation/update time (slow)')
+	parser.add_argument('--tld', type=str, metavar='FILE', help='generate additional domains by swapping TLD from FILE')
 	parser.add_argument('--nameservers', type=str, metavar='LIST', help='comma separated list of DNS servers to query')
 	parser.add_argument('--port', type=int, metavar='PORT', help='the port number to send queries to')
 
@@ -890,7 +893,6 @@ def main():
 		tlddict.load_dict(args.tld)
 		tlddict.generate()
 		domains += tlddict.domains
-
 
 	if args.format == 'idle':
 		sys.stdout.write(generate_idle(domains))
