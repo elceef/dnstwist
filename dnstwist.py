@@ -565,8 +565,8 @@ class DomainThread(threading.Thread):
 			http = socket.socket()
 			http.settimeout(1)
 			http.connect((ip, 80))
-			http.send('HEAD / HTTP/1.1\r\nHost: %s\r\nUser-agent: Mozilla/5.0\r\n\r\n' % str(vhost))
-			response = http.recv(1024)
+			http.send(b'HEAD / HTTP/1.1\r\nHost: %s\r\nUser-agent: %s\r\n\r\n' % (vhost.encode(), args.useragent.encode()))
+			response = http.recv(1024).decode()
 			http.close()
 		except Exception:
 			pass
@@ -715,7 +715,7 @@ class DomainThread(threading.Thread):
 			if self.option_ssdeep:
 				if 'dns-a' in domain:
 					try:
-						req = requests.get(self.uri_scheme + '://' + domain['domain-name'] + self.uri_path + self.uri_query, timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': 'Mozilla/5.0 (dnstwist)'}, verify=False)
+						req = requests.get(self.uri_scheme + '://' + domain['domain-name'] + self.uri_path + self.uri_query, timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': args.useragent}, verify=False)
 						#ssdeep_fuzz = ssdeep.hash(req.text.replace(' ', '').replace('\n', ''))
 						ssdeep_fuzz = ssdeep.hash(req.text)
 					except Exception:
@@ -858,6 +858,7 @@ def main():
 	parser.add_argument('--tld', type=str, metavar='FILE', help='generate additional domains by swapping TLD from FILE')
 	parser.add_argument('--nameservers', type=str, metavar='LIST', help='comma separated list of DNS servers to query')
 	parser.add_argument('--port', type=int, metavar='PORT', help='the port number to send queries to')
+	parser.add_argument('--useragent', type=str, metavar='STRING', default='Mozilla/5.0 dnstwist/%s' % __version__, help='user-agent STRING to send with HTTP requests (default: Mozilla/5.0 dnstwist/%s)' % __version__)
 
 	if len(sys.argv) < 2:
 		sys.stdout.write('%sdnstwist %s by <%s>%s\n\n' % (ST_BRI, __version__, __email__, ST_RST))
@@ -936,7 +937,7 @@ def main():
 	if args.ssdeep and MODULE_SSDEEP and MODULE_REQUESTS:
 		p_cli('Fetching content from: ' + url.get_full_uri() + ' ... ')
 		try:
-			req = requests.get(url.get_full_uri(), timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': 'Mozilla/5.0 (dnstwist)'})
+			req = requests.get(url.get_full_uri(), timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': args.useragent})
 		except requests.exceptions.ConnectionError:
 			p_cli('Connection error\n')
 			args.ssdeep = False
@@ -1014,7 +1015,6 @@ def main():
 	hits_total = sum('dns-ns' in d or 'dns-a' in d for d in domains)
 	hits_percent = 100 * hits_total / len(domains)
 	p_cli(' %d hits (%d%%)\n\n' % (hits_total, hits_percent))
-	time.sleep(1)
 
 	if args.registered:
 		domains_registered = []
