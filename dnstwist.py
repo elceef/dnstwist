@@ -841,7 +841,8 @@ def main():
 	description=
 	'''Find similar-looking domain names that adversaries can use to attack you. '''
 	'''Can detect typosquatters, phishing attacks, fraud and corporate espionage. '''
-	'''Useful as an additional source of targeted threat intelligence.'''
+	'''Useful as an additional source of targeted threat intelligence.''',
+	formatter_class=lambda prog: argparse.HelpFormatter(prog,max_help_position=30)
 	)
 
 	parser.add_argument('domain', help='domain name or URL to check')
@@ -1017,12 +1018,7 @@ def main():
 	p_cli(' %d hits (%d%%)\n\n' % (hits_total, hits_percent))
 
 	if args.registered:
-		domains_registered = []
-		for d in domains:
-			if 'dns-ns' in d or 'dns-a' in d:
-				domains_registered.append(d)
-		domains = domains_registered
-		del domains_registered
+		domains[:] = [d for d in domains if len(d) > 2]
 
 	if domains:
 		if args.format == 'csv':
