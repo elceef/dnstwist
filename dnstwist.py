@@ -149,7 +149,7 @@ def sigint_handler(signal, frame):
 	sys.stdout.flush()
 	for worker in threads:
 		worker.stop()
-	time.sleep(1)
+		worker.join()
 	sys.stdout.write('Done\n')
 	bye(0)
 
@@ -617,7 +617,11 @@ class DomainThread(threading.Thread):
 
 	def run(self):
 		while not self.kill_received:
-			domain = self.jobs.get()
+			try:
+				domain = self.jobs.get(block=False)
+			except queue.Empty:
+				self.kill_received = True
+				return
 
 			domain['domain-name'] = domain['domain-name'].encode('idna').decode()
 
@@ -1005,6 +1009,7 @@ def main():
 
 	for worker in threads:
 		worker.stop()
+		worker.join()
 
 	hits_total = sum('dns-ns' in d or 'dns-a' in d for d in domains)
 	hits_percent = 100 * hits_total / len(domains)
