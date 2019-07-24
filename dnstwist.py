@@ -131,12 +131,18 @@ def p_csv(data):
 	global args
 	if args.format == 'csv':
 		sys.stdout.write(data)
+		if args.output:
+			with open(args.output, 'w') as f:
+				f.write(data)
 
 
 def p_json(data):
 	global args
 	if args.format == 'json':
 		sys.stdout.write(data)
+		if args.output:
+			with open(args.output, 'w') as f:
+				f.write(data)
 
 
 def bye(code):
@@ -860,7 +866,8 @@ def main():
 	parser.add_argument('--nameservers', type=str, metavar='LIST', help='comma separated list of DNS servers to query')
 	parser.add_argument('--port', type=int, metavar='PORT', help='the port number to send queries to')
 	parser.add_argument('--useragent', type=str, metavar='STRING', default='Mozilla/5.0 dnstwist/%s' % __version__, help='user-agent STRING to send with HTTP requests (default: Mozilla/5.0 dnstwist/%s)' % __version__)
-
+	parser.add_argument('-o', '--output', type=str, metavar='STRING', help='Output file (for CSV or JSON format)')
+	
 	if len(sys.argv) < 2:
 		sys.stdout.write('%sdnstwist %s by <%s>%s\n\n' % (ST_BRI, __version__, __email__, ST_RST))
 		parser.print_help()
