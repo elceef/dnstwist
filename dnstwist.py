@@ -534,7 +534,8 @@ class DomainDict(DomainFuzz):
 class TldDict(DomainDict):
 
 	def generate(self):
-		self.dictionary.remove(self.tld)
+		if self.tld in self.dictionary:
+			self.dictionary.remove(self.tld)
 		for tld in self.dictionary:
 				self.domains.append({'fuzzer': 'TLD-swap', 'domain-name': self.domain + '.' + tld})
 
