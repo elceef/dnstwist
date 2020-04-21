@@ -22,7 +22,7 @@ Key features
 - A wide range of efficient domain fuzzing algorithms
 - Unicode domain names (IDN)
 - Multithreaded job distribution
-- Queries A, AAAA, NS and MX records
+- Queries IPv4, IPv6, NS and MX records
 - Evaluates web page similarity with fuzzy hashes to find live phishing sites
 - Tests if MX host (mail server) can be used to intercept misdirected e-mails
 - Additional domain variants using dictionary files
@@ -34,30 +34,31 @@ Key features
 
 Requirements
 ------------
+This tool is designed to run fine with just standard Python library. However,
+a couple of third-party libraries are required to show its full potential.
 
-**Linux**
+**Debian/Ubuntu/Kali Linux**
 
-Linux is the primary development platform. If running Debian/Ubuntu, you can
-install all dependencies with just single command:
+If running Debian-based distribution, you can install all external libraries
+with just single command:
 
 ```
-$ sudo apt-get install python3-dnspython python3-geoip python3-whois \
+$ sudo apt install python3-dnspython python3-geoip python3-whois \
 python3-requests python3-ssdeep
 ```
 
 Alternately, you can use Python tooling. This can be done within a virtual
 environment to avoid conflicts with other installations. However, you will
-still need a couple of libraries installed at the system level.
+still need essential build tools and a couple of libraries installed.
 
 ```
-$ sudo apt-get install libgeoip-dev libffi-dev
-$ BUILD_LIB=1 pip install -r requirements.txt
+$ sudo apt install libfuzzy-dev
+$ pip3 install -r requirements.txt
 ```
 
 **OSX**
 
-If you're on a Mac, you can install dnstwist via
-[Homebrew](https://github.com/Homebrew/homebrew) like so:
+Installation is simplified thanks to [Homebrew](https://brew.sh/):
 
 ```
 $ brew install dnstwist
@@ -69,10 +70,9 @@ file extension, and the binary will be added to `PATH`.
 
 **Docker**
 
-If you use Docker, you can pull official image from Docker Hub and run it:
+If you prefer Docker, you can pull and run official image from Docker Hub:
 
 ```
-$ docker pull elceef/dnstwist
 $ docker run elceef/dnstwist domain.name
 ```
 
@@ -149,16 +149,16 @@ needs.
 
 ```
 $ dnstwist.py --dictionary dictionaries/english.dict domain.name
-``` 
+```
 
-If you need to check whether domains with different TLDs exist, you can use the 
+If you need to check whether domains with different TLDs exist, you can use the
 '--tld' option. You'll need to supply the TLDs list in a text file. A sample file
 is provided ('./dictionaries/common_tlds.dict'). Feel free to adapt it to your
 needs.
 
 ```
 $ dnstwist.py --tld dictionaries/common_tlds.dict example.com
-``` 
+```
 
 Apart from the default nice and colorful text terminal output, the tool
 provides two well known and easy to parse output formats: CSV and JSON. Use it
