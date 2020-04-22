@@ -660,6 +660,16 @@ class DomainThread(threading.Thread):
 						domain['dns-mx'] = self.answer_to_list(resolv.query(domain['domain-name'], 'MX'))
 					except DNSException:
 						pass
+
+					try:
+						res = dns.resolver.query(domain['domain-name'], 'TXT')
+						for txt in res:
+						    if txt.to_text().startswith('"v=spf1'):
+						        domain['dns-spf'] = txt.to_text()
+					except DNSException:
+						pass
+					except:
+						pass
 			else:
 				try:
 					ip = socket.getaddrinfo(domain['domain-name'], 80)
@@ -802,6 +812,9 @@ def generate_cli(domains):
 				info += '%sSPYING-MX:%s%s' % (FG_YEL, domain['dns-mx'][0], FG_RST)
 			else:
 				info += '%sMX:%s%s%s ' % (FG_YEL, FG_CYA, one_or_all(domain['dns-mx']), FG_RST)
+
+		if 'dns-spf' in domain:
+		    info += '%sSPF:%s%s%s ' % (FG_YEL, FG_CYA, domain['dns-spf'], FG_RST)
 
 		if 'banner-http' in domain:
 			info += '%sHTTP:%s"%s"%s ' % (FG_YEL, FG_CYA, domain['banner-http'], FG_RST)
