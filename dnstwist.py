@@ -95,16 +95,7 @@ if sys.platform != 'win32' and sys.stdout.isatty():
 	ST_BRI = '\x1b[1m'
 	ST_RST = '\x1b[0m'
 else:
-	FG_RND = ''
-	FG_RED = ''
-	FG_YEL = ''
-	FG_GRE = ''
-	FG_MAG = ''
-	FG_CYA = ''
-	FG_BLU = ''
-	FG_RST = ''
-	ST_BRI = ''
-	ST_RST = ''
+	FG_RND = FG_RED = FG_YEL = FG_GRE = FG_MAG = FG_CYA = FG_BLU = FG_RST = ST_BRI = ST_RST = ''
 
 
 def p_cli(data):
@@ -824,7 +815,7 @@ def main():
 
 	parser = argparse.ArgumentParser(
 	usage='%s [OPTION]... DOMAIN' % sys.argv[0],
-	add_help = True,
+	add_help = False,
 	description=
 	'''Find similar-looking domain names that adversaries can use to attack you. '''
 	'''Can detect typosquatters, phishing attacks, fraud and corporate espionage. '''
@@ -832,21 +823,21 @@ def main():
 	formatter_class=lambda prog: argparse.HelpFormatter(prog,max_help_position=30)
 	)
 
-	parser.add_argument('domain', help='domain name or URL to check')
-	parser.add_argument('-a', '--all', action='store_true', help='show all DNS records')
-	parser.add_argument('-b', '--banners', action='store_true', help='determine HTTP and SMTP service banners')
-	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='generate additional domains using dictionary FILE')
-	parser.add_argument('-g', '--geoip', action='store_true', help='perform lookup for GeoIP location')
-	parser.add_argument('-m', '--mxcheck', action='store_true', help='check if MX host can be used to intercept e-mails')
-	parser.add_argument('-f', '--format', type=str, choices=['cli', 'csv', 'json', 'idle'], default='cli', help='output format (default: cli)')
-	parser.add_argument('-r', '--registered', action='store_true', help='show only registered domain names')
-	parser.add_argument('-s', '--ssdeep', action='store_true', help='fetch web pages and compare their fuzzy hashes to evaluate similarity')
-	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT, help='start specified NUMBER of threads (default: %d)' % THREAD_COUNT_DEFAULT)
-	parser.add_argument('-w', '--whois', action='store_true', help='perform lookup for WHOIS creation/update time (slow)')
-	parser.add_argument('--tld', type=str, metavar='FILE', help='generate additional domains by swapping TLD from FILE')
-	parser.add_argument('--nameservers', type=str, metavar='LIST', help='comma separated list of DNS servers to query')
-	parser.add_argument('--port', type=int, metavar='PORT', help='the port number to send queries to')
-	parser.add_argument('--useragent', type=str, metavar='STRING', default='Mozilla/5.0 dnstwist/%s' % __version__, help='user-agent STRING to send with HTTP requests (default: Mozilla/5.0 dnstwist/%s)' % __version__)
+	parser.add_argument('domain', help='Domain name or URL to check')
+	parser.add_argument('-a', '--all', action='store_true', help='Show all DNS records')
+	parser.add_argument('-b', '--banners', action='store_true', help='Determine HTTP and SMTP service banners')
+	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='Generate more domains using dictionary FILE')
+	parser.add_argument('-g', '--geoip', action='store_true', help='Lookup for GeoIP location')
+	parser.add_argument('-m', '--mxcheck', action='store_true', help='Check if MX can be used to intercept emails')
+	parser.add_argument('-f', '--format', type=str, choices=['cli', 'csv', 'json', 'idle'], default='cli', help='Output format (default: cli)')
+	parser.add_argument('-r', '--registered', action='store_true', help='Show only registered domain names')
+	parser.add_argument('-s', '--ssdeep', action='store_true', help='Fetch web pages and compare their fuzzy hashes to evaluate similarity')
+	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT, help='Start specified NUMBER of threads (default: %d)' % THREAD_COUNT_DEFAULT)
+	parser.add_argument('-w', '--whois', action='store_true', help='Lookup for WHOIS creation/update time (slow!)')
+	parser.add_argument('--tld', type=str, metavar='FILE', help='Generate more domains by swapping TLD from FILE')
+	parser.add_argument('--nameservers', type=str, metavar='LIST', help='DNS servers to query (separate with comma)')
+	parser.add_argument('--port', type=int, metavar='PORT', help='DNS server port number (default: 53)')
+	parser.add_argument('--useragent', type=str, metavar='STRING', default='Mozilla/5.0 dnstwist/%s' % __version__, help='User-Agent STRING to send with HTTP requests (default: Mozilla/5.0 dnstwist/%s)' % __version__)
 
 	if len(sys.argv) < 2:
 		sys.stdout.write('%sdnstwist %s by <%s>%s\n\n' % (ST_BRI, __version__, __email__, ST_RST))
