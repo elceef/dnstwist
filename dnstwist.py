@@ -216,7 +216,7 @@ class UrlParser():
 class DomainFuzz():
 
 	def __init__(self, domain):
-		self.domain, self.tld = self.__domain_tld(domain)
+		self.subdomain, self.domain, self.tld = self.__domain_tld(domain)
 		self.domains = []
 		self.qwerty = {
 		'1': '2q', '2': '3wq1', '3': '4ew2', '4': '5re3', '5': '6tr4', '6': '7yt5', '7': '8uy6', '8': '9iu7', '9': '0oi8', '0': 'po9',
@@ -239,29 +239,24 @@ class DomainFuzz():
 		self.keyboards = [ self.qwerty, self.qwertz, self.azerty ]
 
 	def __domain_tld(self, domain):
-		domain = domain.rsplit('.', 2)
-
-		if len(domain) == 2:
-			return domain[0], domain[1]
-
-		if DB_TLD:
-			cc_tld = {}
-			re_tld = re.compile('^[a-z]{2,4}\.[a-z]{2}$', re.IGNORECASE)
-
-			for line in open(FILE_TLD):
-				line = line[:-1]
-				if re_tld.match(line):
-					sld, tld = line.split('.')
-					if not tld in cc_tld:
-						cc_tld[tld] = []
-					cc_tld[tld].append(sld)
-
-			sld_tld = cc_tld.get(domain[2])
-			if sld_tld:
-				if domain[1] in sld_tld:
-					return domain[0], domain[1] + '.' + domain[2]
-
-		return domain[0] + '.' + domain[1], domain[2]
+		try:
+			from tld import parse_tld
+		except ImportError:
+			ctld = ['org', 'com', 'net', 'gov', 'edu', 'co', 'mil', 'nom', 'ac', 'info', 'biz']
+			d = domain.rsplit('.', 3)
+			if len(d) == 2:
+				return '', d[0], d[1]
+			if len(d) > 2:
+				if d[-2] in ctld:
+					return '.'.join(d[:-3]), d[-3], '.'.join(d[-2:])
+				else:
+					return '.'.join(d[:-2]), d[-2], d[-1]
+		else:
+			d = parse_tld(domain, fix_protocol=True)[::-1]
+			if d[1:] == d[:-1] and None in d:
+				d = tuple(domain.rsplit('.', 2))
+				d = ('',) * (3-len(d)) + d
+			return d
 
 	def __validate_domain(self, domain):
 		try:
@@ -456,30 +451,30 @@ class DomainFuzz():
 		return result
 
 	def generate(self):
-		self.domains.append({ 'fuzzer': 'Original*', 'domain-name': self.domain + '.' + self.tld })
+		self.domains.append({ 'fuzzer': 'Original*', 'domain-name': '.'.join(filter(None, [self.subdomain, self.domain, self.tld])) })
 
 		for domain in self.__addition():
-			self.domains.append({ 'fuzzer': 'Addition', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Addition', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__bitsquatting():
-			self.domains.append({ 'fuzzer': 'Bitsquatting', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Bitsquatting', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__homoglyph():
-			self.domains.append({ 'fuzzer': 'Homoglyph', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Homoglyph', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__hyphenation():
-			self.domains.append({ 'fuzzer': 'Hyphenation', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Hyphenation', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__insertion():
-			self.domains.append({ 'fuzzer': 'Insertion', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Insertion', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__omission():
-			self.domains.append({ 'fuzzer': 'Omission', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Omission', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__repetition():
-			self.domains.append({ 'fuzzer': 'Repetition', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Repetition', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__replacement():
-			self.domains.append({ 'fuzzer': 'Replacement', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Replacement', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__subdomain():
-			self.domains.append({ 'fuzzer': 'Subdomain', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Subdomain', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__transposition():
-			self.domains.append({ 'fuzzer': 'Transposition', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Transposition', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__vowel_swap():
-			self.domains.append({ 'fuzzer': 'Vowel-swap', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Vowel-swap', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 
 		if '.' in self.tld:
 			self.domains.append({ 'fuzzer': 'Various', 'domain-name': self.domain + '.' + self.tld.split('.')[-1] })
