@@ -43,7 +43,7 @@ If running Debian-based distribution, you can install all external libraries
 with just single command:
 
 ```
-$ sudo apt install python3-dnspython python3-geoip python3-whois \
+$ sudo apt install python3-dnspython python3-tld python3-geoip python3-whois \
 python3-requests python3-ssdeep
 ```
 
@@ -152,9 +152,9 @@ $ dnstwist.py --dictionary dictionaries/english.dict domain.name
 ```
 
 If you need to check whether domains with different TLDs exist, you can use the
-'--tld' option. You'll need to supply the TLDs list in a text file. A sample file
-is provided ('./dictionaries/common_tlds.dict'). Feel free to adapt it to your
-needs.
+`--tld` option. You'll need to supply the TLDs list in a text file. A sample
+file is provided (`dictionaries/common_tlds.dict`). Feel free to adapt it to
+your needs.
 
 ```
 $ dnstwist.py --tld dictionaries/common_tlds.dict example.com
