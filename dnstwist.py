@@ -619,28 +619,44 @@ class DomainThread(threading.Thread):
 				except dns.resolver.NXDOMAIN:
 					nxdomain = True
 					pass
+				except dns.resolver.NoNameservers:
+					domain['dns-ns'] = ['!ServFail']
+					pass
 				except DNSException:
 					pass
 
 				if nxdomain is False:
 					try:
 						domain['dns-a'] = self.answer_to_list(resolv.query(domain['domain-name'], 'A'))
+					except dns.resolver.NoNameservers:
+						domain['dns-a'] = ['!ServFail']
+						pass
 					except DNSException:
 						pass
 
 					try:
 						domain['dns-aaaa'] = self.answer_to_list(resolv.query(domain['domain-name'], 'AAAA'))
+					except dns.resolver.NoNameservers:
+						domain['dns-aaaa'] = ['!ServFail']
+						pass
 					except DNSException:
 						pass
 
 				if nxdomain is False and 'dns-ns' in domain:
 					try:
 						domain['dns-mx'] = self.answer_to_list(resolv.query(domain['domain-name'], 'MX'))
+					except dns.resolver.NoNameservers:
+						domain['dns-mx'] = ['!ServFail']
+						pass
 					except DNSException:
 						pass
 			else:
 				try:
 					ip = socket.getaddrinfo(domain['domain-name'], 80)
+				except socket.gaierror as e:
+					if e.errno == -3:
+						domain['dns-a'] = ['!ServFail']
+					pass
 				except Exception:
 					pass
 				else:
