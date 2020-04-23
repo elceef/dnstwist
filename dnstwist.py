@@ -78,14 +78,6 @@ except ImportError:
 	MODULE_REQUESTS = False
 	pass
 
-DIR = path.abspath(path.dirname(sys.argv[0]))
-DIR_DB = 'database'
-FILE_GEOIP = path.join(DIR, DIR_DB, 'GeoIP.dat')
-FILE_TLD = path.join(DIR, DIR_DB, 'effective_tld_names.dat')
-
-DB_GEOIP = path.exists(FILE_GEOIP)
-DB_TLD = path.exists(FILE_TLD)
-
 REQUEST_TIMEOUT_DNS = 5
 REQUEST_TIMEOUT_HTTP = 5
 REQUEST_TIMEOUT_SMTP = 5
@@ -899,13 +891,6 @@ def main():
 		sys.stdout.write(generate_idle(domains))
 		bye(0)
 
-	if not DB_TLD:
-		p_err('error: missing TLD database file: %s\n' % FILE_TLD)
-		bye(-1)
-	if not DB_GEOIP and args.geoip:
-		p_err('error: missing GeoIP database file: %\n' % FILE_GEOIP)
-		bye(-1)
-
 	if not MODULE_DNSPYTHON:
 		p_err('notice: missing module: dnspython (DNS features limited)\n')
 	if not MODULE_GEOIP and args.geoip:
@@ -982,7 +967,7 @@ def main():
 			worker.option_extdns = True
 		if MODULE_WHOIS and args.whois:
 			worker.option_whois = True
-		if MODULE_GEOIP and DB_GEOIP and args.geoip:
+		if MODULE_GEOIP and args.geoip:
 			worker.option_geoip = True
 		if args.banners:
 			worker.option_banners = True
