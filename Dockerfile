@@ -1,4 +1,4 @@
-FROM       ubuntu:18.10
+FROM       debian:stable-slim
 MAINTAINER elceef@gmail.com
 
 WORKDIR    /opt/dnstwist
