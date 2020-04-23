@@ -688,7 +688,7 @@ class DomainThread(threading.Thread):
 
 			if self.option_geoip:
 				if 'dns-a' in domain:
-					gi = GeoIP.open(FILE_GEOIP, GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
+					gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
 					try:
 						country = gi.country_name_by_addr(domain['dns-a'][0])
 					except Exception:
