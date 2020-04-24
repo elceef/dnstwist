@@ -1,17 +1,12 @@
 #!/usr/bin/env sh
 #
-# dnstwist - Full TLD scan script
+# dnstwist's full TLD scanner script
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-echo "==============================="
-echo "dnstwist - Full TLD scan script"
-echo "==============================="
-echo
+#
+# http://www.apache.org/licenses/LICENSE-2.0
 
 if [ $# -lt 1 ]
 then
@@ -27,14 +22,15 @@ then
 	exit
 fi
 
-EFFECTIVE_TLD_NAMES="../database/effective_tld_names.dat"
+PUBLIC_SUFFIX_LIST="./public_suffix_list.dat"
 
-DNSTWIST_SCRIPT="../dnstwist.py"
+DNSTWIST_SCRIPT="./dnstwist.py"
 DNSTWIST_ARGS="--format csv"
 
-if [ ! -f "$EFFECTIVE_TLD_NAMES" ]
+if [ ! -f "$PUBLIC_SUFFIX_LIST" ]
 then
-	echo "ERROR: Cannot locate file: $EFFECTIVE_TLD_NAMES"
+	echo "ERROR: Cannot locate TLD database file: $PUBLIC_SUFFIX_LIST"
+	echo "Please download the latest version from https://publicsuffix.org/list/public_suffix_list.dat"
 	exit 1
 fi
 
@@ -51,15 +47,15 @@ case $2 in
 		TLDS="com org net edu info"
 		;;
 	cctld)
-		TLDS=$(egrep -o "^[a-z]{2}$" "$EFFECTIVE_TLD_NAMES")
+		TLDS=$(egrep -o "^[a-z]{2}$" "$PUBLIC_SUFFIX_LIST")
 		;;
 	*|full)
-		TLDS=$(egrep -o "^[a-z]{2,}$" "$EFFECTIVE_TLD_NAMES")
+		TLDS=$(egrep -o "^[a-z]{2,}$" "$PUBLIC_SUFFIX_LIST")
 esac
 
 for tld in $TLDS
 do
-	echo "Running dnstwist against: $DOMAIN.$tld"
+	echo "Running $DNSTWIST_SCRIPT $DNSTWIST_ARGS $DOMAIN.$tld"
 	$DNSTWIST_SCRIPT $DNSTWIST_ARGS $DOMAIN.$tld > $DOMAIN.$tld
 done
 
