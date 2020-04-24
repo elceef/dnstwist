@@ -1,4 +1,4 @@
-Special thanks
+Special Thanks
 ==============
 
 This is the list of people who have contributed to *dnstwist*. Some have
@@ -8,19 +8,27 @@ you'd prefer a different name be used, please let me know.
 
 (in alphabetical order)
 
+- Andrew Bennett
 - Charles McCauley
 - Christopher Schmidt
 - Eugene Kogan
 - James Lane
 - Julien Rottenberg
+- Kristov Atlas
+- Kyle Maxwell
 - Luke Snyder
 - Mario Uher
 - Mike Saunders
 - Patricia Lipp
+- Phillip Martin
 - Piotr Chmyłkowski
 - Piotr Wojtyła
+- Prashant Shahi
+- Reid Price
+- Robert Wallhead
 - Sean Whalen
 - Steve Steiner
 - Wojtek Słowik
+- @suve
 
 Thank you!
