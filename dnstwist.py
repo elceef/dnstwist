@@ -474,7 +474,6 @@ class DomainDict(DomainFuzz):
 
 	def __init__(self, domain):
 		DomainFuzz.__init__(self, domain)
-
 		self.dictionary = []
 
 	def load_dict(self, file):
@@ -487,25 +486,17 @@ class DomainDict(DomainFuzz):
 	def __dictionary(self):
 		result = []
 
-		domain = self.domain.rsplit('.', 1)
-		if len(domain) > 1:
-			prefix = domain[0] + '.'
-			name = domain[1]
-		else:
-			prefix = ''
-			name = domain[0]
-
 		for word in self.dictionary:
-			result.append(prefix + name + '-' + word)
-			result.append(prefix + name + word)
-			result.append(prefix + word + '-' + name)
-			result.append(prefix + word + name)
+			result.append(self.domain + '-' + word)
+			result.append(self.domain + word)
+			result.append(word + '-' + self.domain)
+			result.append(word + self.domain)
 
 		return result
 
 	def generate(self):
 		for domain in self.__dictionary():
-			self.domains.append({ 'fuzzer': 'Dictionary', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Dictionary', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 
 
 class TldDict(DomainDict):
@@ -514,7 +505,7 @@ class TldDict(DomainDict):
 		if self.tld in self.dictionary:
 			self.dictionary.remove(self.tld)
 		for tld in self.dictionary:
-				self.domains.append({'fuzzer': 'TLD-swap', 'domain-name': self.domain + '.' + tld})
+				self.domains.append({ 'fuzzer': 'TLD-swap', 'domain-name': '.'.join(filter(None, [self.subdomain, self.domain, tld])) })
 
 
 class DomainThread(threading.Thread):
