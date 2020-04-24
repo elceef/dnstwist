@@ -78,7 +78,8 @@ except ImportError:
 	MODULE_REQUESTS = False
 	pass
 
-REQUEST_TIMEOUT_DNS = 5
+REQUEST_TIMEOUT_DNS = 2.5
+REQUEST_RETRIES_DNS = 2
 REQUEST_TIMEOUT_HTTP = 5
 REQUEST_TIMEOUT_SMTP = 5
 THREAD_COUNT_DEFAULT = 10
@@ -595,14 +596,16 @@ class DomainThread(threading.Thread):
 			domain['domain-name'] = domain['domain-name'].encode('idna').decode()
 
 			if self.option_extdns:
-				resolv = dns.resolver.Resolver()
-				resolv.lifetime = REQUEST_TIMEOUT_DNS
-				resolv.timeout = REQUEST_TIMEOUT_DNS
-
 				if args.nameservers:
-					resolv.nameservers = args.nameservers.split(",")
-				if args.port:
-					resolv.port = args.port
+					resolv = dns.resolver.Resolver(configure=False)
+					resolv.nameservers = args.nameservers.split(',')
+					if args.port:
+						resolv.port = args.port
+				else:
+					resolv = dns.resolver.Resolver()
+
+				resolv.lifetime = REQUEST_TIMEOUT_DNS * REQUEST_RETRIES_DNS
+				resolv.timeout = REQUEST_TIMEOUT_DNS
 
 				nxdomain = False
 				try:
