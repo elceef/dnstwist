@@ -22,7 +22,7 @@
 # limitations under the License.
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20190706'
+__version__ = '20200424'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -78,15 +78,8 @@ except ImportError:
 	MODULE_REQUESTS = False
 	pass
 
-DIR = path.abspath(path.dirname(sys.argv[0]))
-DIR_DB = 'database'
-FILE_GEOIP = path.join(DIR, DIR_DB, 'GeoIP.dat')
-FILE_TLD = path.join(DIR, DIR_DB, 'effective_tld_names.dat')
-
-DB_GEOIP = path.exists(FILE_GEOIP)
-DB_TLD = path.exists(FILE_TLD)
-
-REQUEST_TIMEOUT_DNS = 5
+REQUEST_TIMEOUT_DNS = 2.5
+REQUEST_RETRIES_DNS = 2
 REQUEST_TIMEOUT_HTTP = 5
 REQUEST_TIMEOUT_SMTP = 5
 THREAD_COUNT_DEFAULT = 10
@@ -103,16 +96,7 @@ if sys.platform != 'win32' and sys.stdout.isatty():
 	ST_BRI = '\x1b[1m'
 	ST_RST = '\x1b[0m'
 else:
-	FG_RND = ''
-	FG_RED = ''
-	FG_YEL = ''
-	FG_GRE = ''
-	FG_MAG = ''
-	FG_CYA = ''
-	FG_BLU = ''
-	FG_RST = ''
-	ST_BRI = ''
-	ST_RST = ''
+	FG_RND = FG_RED = FG_YEL = FG_GRE = FG_MAG = FG_CYA = FG_BLU = FG_RST = ST_BRI = ST_RST = ''
 
 
 def p_cli(data):
@@ -216,7 +200,7 @@ class UrlParser():
 class DomainFuzz():
 
 	def __init__(self, domain):
-		self.domain, self.tld = self.__domain_tld(domain)
+		self.subdomain, self.domain, self.tld = self.__domain_tld(domain)
 		self.domains = []
 		self.qwerty = {
 		'1': '2q', '2': '3wq1', '3': '4ew2', '4': '5re3', '5': '6tr4', '6': '7yt5', '7': '8uy6', '8': '9iu7', '9': '0oi8', '0': 'po9',
@@ -239,29 +223,24 @@ class DomainFuzz():
 		self.keyboards = [ self.qwerty, self.qwertz, self.azerty ]
 
 	def __domain_tld(self, domain):
-		domain = domain.rsplit('.', 2)
-
-		if len(domain) == 2:
-			return domain[0], domain[1]
-
-		if DB_TLD:
-			cc_tld = {}
-			re_tld = re.compile('^[a-z]{2,4}\.[a-z]{2}$', re.IGNORECASE)
-
-			for line in open(FILE_TLD):
-				line = line[:-1]
-				if re_tld.match(line):
-					sld, tld = line.split('.')
-					if not tld in cc_tld:
-						cc_tld[tld] = []
-					cc_tld[tld].append(sld)
-
-			sld_tld = cc_tld.get(domain[2])
-			if sld_tld:
-				if domain[1] in sld_tld:
-					return domain[0], domain[1] + '.' + domain[2]
-
-		return domain[0] + '.' + domain[1], domain[2]
+		try:
+			from tld import parse_tld
+		except ImportError:
+			ctld = ['org', 'com', 'net', 'gov', 'edu', 'co', 'mil', 'nom', 'ac', 'info', 'biz']
+			d = domain.rsplit('.', 3)
+			if len(d) == 2:
+				return '', d[0], d[1]
+			if len(d) > 2:
+				if d[-2] in ctld:
+					return '.'.join(d[:-3]), d[-3], '.'.join(d[-2:])
+				else:
+					return '.'.join(d[:-2]), d[-2], d[-1]
+		else:
+			d = parse_tld(domain, fix_protocol=True)[::-1]
+			if d[1:] == d[:-1] and None in d:
+				d = tuple(domain.rsplit('.', 2))
+				d = ('',) * (3-len(d)) + d
+			return d
 
 	def __validate_domain(self, domain):
 		try:
@@ -304,7 +283,7 @@ class DomainFuzz():
 	def __homoglyph(self):
 		glyphs = {
 		'a': [u'à', u'á', u'â', u'ã', u'ä', u'å', u'ɑ', u'ạ', u'ǎ', u'ă', u'ȧ', u'ą'],
-		'b': ['d', 'lb', u'ʙ', u'ɓ', u'ḃ', u'ḅ', u'ḇ', u'ƅ', u'Ƅ'],
+		'b': ['d', 'lb', u'ʙ', u'ɓ', u'ḃ', u'ḅ', u'ḇ', u'ƅ'],
 		'c': ['e', u'ƈ', u'ċ', u'ć', u'ç', u'č', u'ĉ'],
 		'd': ['b', 'cl', 'dl', u'ɗ', u'đ', u'ď', u'ɖ', u'ḑ', u'ḋ', u'ḍ', u'ḏ', u'ḓ'],
 		'e': ['c', u'é', u'è', u'ê', u'ë', u'ē', u'ĕ', u'ě', u'ė', u'ẹ', u'ę', u'ȩ', u'ɇ', u'ḛ'],
@@ -318,15 +297,14 @@ class DomainFuzz():
 		'm': ['n', 'nn', 'rn', 'rr', u'ṁ', u'ṃ', u'ᴍ', u'ɱ', u'ḿ'],
 		'n': ['m', 'r', u'ń', u'ṅ', u'ṇ', u'ṉ', u'ñ', u'ņ', u'ǹ', u'ň', u'ꞑ'],
 		'o': ['0', u'ȯ', u'ọ', u'ỏ', u'ơ', u'ó', u'ö'],
-		'p': [u'ƿ', u'Þ', u'ƥ', u'ṕ', u'ṗ'],
+		'p': [u'ƿ', u'ƥ', u'ṕ', u'ṗ'],
 		'q': ['g', u'ʠ'],
 		'r': [u'ʀ', u'ɼ', u'ɽ', u'ŕ', u'ŗ', u'ř', u'ɍ', u'ɾ', u'ȓ', u'ȑ', u'ṙ', u'ṛ', u'ṟ'],
 		's': [u'ʂ', u'ś', u'ṣ', u'ṡ', u'ș', u'ŝ', u'š'],
-		't': [u'ţ', u'ŧ', u'ṫ', u'ṭ', u'ț', u'ƫ', u'ṫ', u'ṭ'],
+		't': [u'ţ', u'ŧ', u'ṫ', u'ṭ', u'ț', u'ƫ'],
 		'u': [u'ᴜ', u'ǔ', u'ŭ', u'ü', u'ʉ', u'ù', u'ú', u'û', u'ũ', u'ū', u'ų', u'ư', u'ů', u'ű', u'ȕ', u'ȗ', u'ụ'],
 		'v': [u'ṿ', u'ⱱ', u'ᶌ', u'ṽ', u'ⱴ'],
 		'w': ['vv', u'ŵ', u'ẁ', u'ẃ', u'ẅ', u'ⱳ', u'ẇ', u'ẉ', u'ẘ'],
-		'x': [u'ẋ'],
 		'y': [u'ʏ', u'ý', u'ÿ', u'ŷ', u'ƴ', u'ȳ', u'ɏ', u'ỿ', u'ẏ', u'ỵ'],
 		'z': [u'ʐ', u'ż', u'ź', u'ᴢ', u'ƶ', u'ẓ', u'ẕ', u'ⱬ']
 		}
@@ -422,7 +400,7 @@ class DomainFuzz():
 	def __subdomain(self):
 		result = []
 
-		for i in range(1, len(self.domain)):
+		for i in range(1, len(self.domain)-3):
 			if self.domain[i] not in ['-', '.'] and self.domain[i-1] not in ['-', '.']:
 				result.append(self.domain[:i] + '.' + self.domain[i:])
 
@@ -457,30 +435,30 @@ class DomainFuzz():
 		return result
 
 	def generate(self):
-		self.domains.append({ 'fuzzer': 'Original*', 'domain-name': self.domain + '.' + self.tld })
+		self.domains.append({ 'fuzzer': 'Original*', 'domain-name': '.'.join(filter(None, [self.subdomain, self.domain, self.tld])) })
 
 		for domain in self.__addition():
-			self.domains.append({ 'fuzzer': 'Addition', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Addition', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__bitsquatting():
-			self.domains.append({ 'fuzzer': 'Bitsquatting', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Bitsquatting', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__homoglyph():
-			self.domains.append({ 'fuzzer': 'Homoglyph', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Homoglyph', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__hyphenation():
-			self.domains.append({ 'fuzzer': 'Hyphenation', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Hyphenation', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__insertion():
-			self.domains.append({ 'fuzzer': 'Insertion', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Insertion', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__omission():
-			self.domains.append({ 'fuzzer': 'Omission', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Omission', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__repetition():
-			self.domains.append({ 'fuzzer': 'Repetition', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Repetition', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__replacement():
-			self.domains.append({ 'fuzzer': 'Replacement', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Replacement', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__subdomain():
-			self.domains.append({ 'fuzzer': 'Subdomain', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Subdomain', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__transposition():
-			self.domains.append({ 'fuzzer': 'Transposition', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Transposition', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__vowel_swap():
-			self.domains.append({ 'fuzzer': 'Vowel-swap', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Vowel-swap', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 
 		if '.' in self.tld:
 			self.domains.append({ 'fuzzer': 'Various', 'domain-name': self.domain + '.' + self.tld.split('.')[-1] })
@@ -497,7 +475,6 @@ class DomainDict(DomainFuzz):
 
 	def __init__(self, domain):
 		DomainFuzz.__init__(self, domain)
-
 		self.dictionary = []
 
 	def load_dict(self, file):
@@ -510,33 +487,26 @@ class DomainDict(DomainFuzz):
 	def __dictionary(self):
 		result = []
 
-		domain = self.domain.rsplit('.', 1)
-		if len(domain) > 1:
-			prefix = domain[0] + '.'
-			name = domain[1]
-		else:
-			prefix = ''
-			name = domain[0]
-
 		for word in self.dictionary:
-			result.append(prefix + name + '-' + word)
-			result.append(prefix + name + word)
-			result.append(prefix + word + '-' + name)
-			result.append(prefix + word + name)
+			result.append(self.domain + '-' + word)
+			result.append(self.domain + word)
+			result.append(word + '-' + self.domain)
+			result.append(word + self.domain)
 
 		return result
 
 	def generate(self):
 		for domain in self.__dictionary():
-			self.domains.append({ 'fuzzer': 'Dictionary', 'domain-name': domain + '.' + self.tld })
+			self.domains.append({ 'fuzzer': 'Dictionary', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 
 
 class TldDict(DomainDict):
 
 	def generate(self):
-		self.dictionary.remove(self.tld)
+		if self.tld in self.dictionary:
+			self.dictionary.remove(self.tld)
 		for tld in self.dictionary:
-				self.domains.append({'fuzzer': 'TLD-swap', 'domain-name': self.domain + '.' + tld})
+				self.domains.append({ 'fuzzer': 'TLD-swap', 'domain-name': '.'.join(filter(None, [self.subdomain, self.domain, tld])) })
 
 
 class DomainThread(threading.Thread):
@@ -626,14 +596,16 @@ class DomainThread(threading.Thread):
 			domain['domain-name'] = domain['domain-name'].encode('idna').decode()
 
 			if self.option_extdns:
-				resolv = dns.resolver.Resolver()
-				resolv.lifetime = REQUEST_TIMEOUT_DNS
-				resolv.timeout = REQUEST_TIMEOUT_DNS
-
 				if args.nameservers:
-					resolv.nameservers = args.nameservers.split(",")
-				if args.port:
-					resolv.port = args.port
+					resolv = dns.resolver.Resolver(configure=False)
+					resolv.nameservers = args.nameservers.split(',')
+					if args.port:
+						resolv.port = args.port
+				else:
+					resolv = dns.resolver.Resolver()
+
+				resolv.lifetime = REQUEST_TIMEOUT_DNS * REQUEST_RETRIES_DNS
+				resolv.timeout = REQUEST_TIMEOUT_DNS
 
 				nxdomain = False
 				try:
@@ -641,28 +613,44 @@ class DomainThread(threading.Thread):
 				except dns.resolver.NXDOMAIN:
 					nxdomain = True
 					pass
+				except dns.resolver.NoNameservers:
+					domain['dns-ns'] = ['!ServFail']
+					pass
 				except DNSException:
 					pass
 
 				if nxdomain is False:
 					try:
 						domain['dns-a'] = self.answer_to_list(resolv.query(domain['domain-name'], 'A'))
+					except dns.resolver.NoNameservers:
+						domain['dns-a'] = ['!ServFail']
+						pass
 					except DNSException:
 						pass
 
 					try:
 						domain['dns-aaaa'] = self.answer_to_list(resolv.query(domain['domain-name'], 'AAAA'))
+					except dns.resolver.NoNameservers:
+						domain['dns-aaaa'] = ['!ServFail']
+						pass
 					except DNSException:
 						pass
 
 				if nxdomain is False and 'dns-ns' in domain:
 					try:
 						domain['dns-mx'] = self.answer_to_list(resolv.query(domain['domain-name'], 'MX'))
+					except dns.resolver.NoNameservers:
+						domain['dns-mx'] = ['!ServFail']
+						pass
 					except DNSException:
 						pass
 			else:
 				try:
 					ip = socket.getaddrinfo(domain['domain-name'], 80)
+				except socket.gaierror as e:
+					if e.errno == -3:
+						domain['dns-a'] = ['!ServFail']
+					pass
 				except Exception:
 					pass
 				else:
@@ -693,7 +681,7 @@ class DomainThread(threading.Thread):
 
 			if self.option_geoip:
 				if 'dns-a' in domain:
-					gi = GeoIP.open(FILE_GEOIP, GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
+					gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
 					try:
 						country = gi.country_name_by_addr(domain['dns-a'][0])
 					except Exception:
@@ -837,7 +825,7 @@ def main():
 
 	parser = argparse.ArgumentParser(
 	usage='%s [OPTION]... DOMAIN' % sys.argv[0],
-	add_help = True,
+	add_help = False,
 	description=
 	'''Find similar-looking domain names that adversaries can use to attack you. '''
 	'''Can detect typosquatters, phishing attacks, fraud and corporate espionage. '''
@@ -845,21 +833,21 @@ def main():
 	formatter_class=lambda prog: argparse.HelpFormatter(prog,max_help_position=30)
 	)
 
-	parser.add_argument('domain', help='domain name or URL to check')
-	parser.add_argument('-a', '--all', action='store_true', help='show all DNS records')
-	parser.add_argument('-b', '--banners', action='store_true', help='determine HTTP and SMTP service banners')
-	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='generate additional domains using dictionary FILE')
-	parser.add_argument('-g', '--geoip', action='store_true', help='perform lookup for GeoIP location')
-	parser.add_argument('-m', '--mxcheck', action='store_true', help='check if MX host can be used to intercept e-mails')
-	parser.add_argument('-f', '--format', type=str, choices=['cli', 'csv', 'json', 'idle'], default='cli', help='output format (default: cli)')
-	parser.add_argument('-r', '--registered', action='store_true', help='show only registered domain names')
-	parser.add_argument('-s', '--ssdeep', action='store_true', help='fetch web pages and compare their fuzzy hashes to evaluate similarity')
-	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT, help='start specified NUMBER of threads (default: %d)' % THREAD_COUNT_DEFAULT)
-	parser.add_argument('-w', '--whois', action='store_true', help='perform lookup for WHOIS creation/update time (slow)')
-	parser.add_argument('--tld', type=str, metavar='FILE', help='generate additional domains by swapping TLD from FILE')
-	parser.add_argument('--nameservers', type=str, metavar='LIST', help='comma separated list of DNS servers to query')
-	parser.add_argument('--port', type=int, metavar='PORT', help='the port number to send queries to')
-	parser.add_argument('--useragent', type=str, metavar='STRING', default='Mozilla/5.0 dnstwist/%s' % __version__, help='user-agent STRING to send with HTTP requests (default: Mozilla/5.0 dnstwist/%s)' % __version__)
+	parser.add_argument('domain', help='Domain name or URL to check')
+	parser.add_argument('-a', '--all', action='store_true', help='Show all DNS records')
+	parser.add_argument('-b', '--banners', action='store_true', help='Determine HTTP and SMTP service banners')
+	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='Generate more domains using dictionary FILE')
+	parser.add_argument('-g', '--geoip', action='store_true', help='Lookup for GeoIP location')
+	parser.add_argument('-m', '--mxcheck', action='store_true', help='Check if MX can be used to intercept emails')
+	parser.add_argument('-f', '--format', type=str, choices=['cli', 'csv', 'json', 'idle'], default='cli', help='Output format (default: cli)')
+	parser.add_argument('-r', '--registered', action='store_true', help='Show only registered domain names')
+	parser.add_argument('-s', '--ssdeep', action='store_true', help='Fetch web pages and compare their fuzzy hashes to evaluate similarity')
+	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT, help='Start specified NUMBER of threads (default: %d)' % THREAD_COUNT_DEFAULT)
+	parser.add_argument('-w', '--whois', action='store_true', help='Lookup for WHOIS creation/update time (slow!)')
+	parser.add_argument('--tld', type=str, metavar='FILE', help='Generate more domains by swapping TLD from FILE')
+	parser.add_argument('--nameservers', type=str, metavar='LIST', help='DNS servers to query (separate with comma)')
+	parser.add_argument('--port', type=int, metavar='PORT', help='DNS server port number (default: 53)')
+	parser.add_argument('--useragent', type=str, metavar='STRING', default='Mozilla/5.0 dnstwist/%s' % __version__, help='User-Agent STRING to send with HTTP requests (default: Mozilla/5.0 dnstwist/%s)' % __version__)
 
 	if len(sys.argv) < 2:
 		sys.stdout.write('%sdnstwist %s by <%s>%s\n\n' % (ST_BRI, __version__, __email__, ST_RST))
@@ -903,13 +891,6 @@ def main():
 	if args.format == 'idle':
 		sys.stdout.write(generate_idle(domains))
 		bye(0)
-
-	if not DB_TLD:
-		p_err('error: missing TLD database file: %s\n' % FILE_TLD)
-		bye(-1)
-	if not DB_GEOIP and args.geoip:
-		p_err('error: missing GeoIP database file: %\n' % FILE_GEOIP)
-		bye(-1)
 
 	if not MODULE_DNSPYTHON:
 		p_err('notice: missing module: dnspython (DNS features limited)\n')
@@ -987,7 +968,7 @@ def main():
 			worker.option_extdns = True
 		if MODULE_WHOIS and args.whois:
 			worker.option_whois = True
-		if MODULE_GEOIP and DB_GEOIP and args.geoip:
+		if MODULE_GEOIP and args.geoip:
 			worker.option_geoip = True
 		if args.banners:
 			worker.option_banners = True
