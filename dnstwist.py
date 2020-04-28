@@ -156,16 +156,16 @@ class UrlParser():
 
 	def __parse(self):
 		re_rfc3986_enhanced = re.compile(
-		r'''
-		^
-		(?:(?P<scheme>[^:/?#\s]+):)?
-		(?://(?P<authority>[^/?#\s]*))?
-		(?P<path>[^?#\s]*)
-		(?:\?(?P<query>[^#\s]*))?
-		(?:\#(?P<fragment>[^\s]*))?
-		$
-		''', re.MULTILINE | re.VERBOSE
-		)
+			r'''
+			^
+			(?:(?P<scheme>[^:/?#\s]+):)?
+			(?://(?P<authority>[^/?#\s]*))?
+			(?P<path>[^?#\s]*)
+			(?:\?(?P<query>[^#\s]*))?
+			(?:\#(?P<fragment>[^\s]*))?
+			$
+			''', re.MULTILINE | re.VERBOSE
+			)
 
 		m_uri = re_rfc3986_enhanced.match(self.url)
 
@@ -179,7 +179,7 @@ class UrlParser():
 				self.authority = m_uri.group('authority')
 				self.domain = self.authority.split(':')[0].lower()
 				if not self.__validate_domain(self.domain):
-					raise ValueError('Invalid domain name.')
+					raise ValueError('Invalid domain name')
 			if m_uri.group('path'):
 				self.path = m_uri.group('path')
 			if m_uri.group('query'):
@@ -204,23 +204,23 @@ class DomainFuzz():
 		self.subdomain, self.domain, self.tld = self.__domain_tld(domain)
 		self.domains = []
 		self.qwerty = {
-		'1': '2q', '2': '3wq1', '3': '4ew2', '4': '5re3', '5': '6tr4', '6': '7yt5', '7': '8uy6', '8': '9iu7', '9': '0oi8', '0': 'po9',
-		'q': '12wa', 'w': '3esaq2', 'e': '4rdsw3', 'r': '5tfde4', 't': '6ygfr5', 'y': '7uhgt6', 'u': '8ijhy7', 'i': '9okju8', 'o': '0plki9', 'p': 'lo0',
-		'a': 'qwsz', 's': 'edxzaw', 'd': 'rfcxse', 'f': 'tgvcdr', 'g': 'yhbvft', 'h': 'ujnbgy', 'j': 'ikmnhu', 'k': 'olmji', 'l': 'kop',
-		'z': 'asx', 'x': 'zsdc', 'c': 'xdfv', 'v': 'cfgb', 'b': 'vghn', 'n': 'bhjm', 'm': 'njk'
-		}
+			'1': '2q', '2': '3wq1', '3': '4ew2', '4': '5re3', '5': '6tr4', '6': '7yt5', '7': '8uy6', '8': '9iu7', '9': '0oi8', '0': 'po9',
+			'q': '12wa', 'w': '3esaq2', 'e': '4rdsw3', 'r': '5tfde4', 't': '6ygfr5', 'y': '7uhgt6', 'u': '8ijhy7', 'i': '9okju8', 'o': '0plki9', 'p': 'lo0',
+			'a': 'qwsz', 's': 'edxzaw', 'd': 'rfcxse', 'f': 'tgvcdr', 'g': 'yhbvft', 'h': 'ujnbgy', 'j': 'ikmnhu', 'k': 'olmji', 'l': 'kop',
+			'z': 'asx', 'x': 'zsdc', 'c': 'xdfv', 'v': 'cfgb', 'b': 'vghn', 'n': 'bhjm', 'm': 'njk'
+			}
 		self.qwertz = {
-		'1': '2q', '2': '3wq1', '3': '4ew2', '4': '5re3', '5': '6tr4', '6': '7zt5', '7': '8uz6', '8': '9iu7', '9': '0oi8', '0': 'po9',
-		'q': '12wa', 'w': '3esaq2', 'e': '4rdsw3', 'r': '5tfde4', 't': '6zgfr5', 'z': '7uhgt6', 'u': '8ijhz7', 'i': '9okju8', 'o': '0plki9', 'p': 'lo0',
-		'a': 'qwsy', 's': 'edxyaw', 'd': 'rfcxse', 'f': 'tgvcdr', 'g': 'zhbvft', 'h': 'ujnbgz', 'j': 'ikmnhu', 'k': 'olmji', 'l': 'kop',
-		'y': 'asx', 'x': 'ysdc', 'c': 'xdfv', 'v': 'cfgb', 'b': 'vghn', 'n': 'bhjm', 'm': 'njk'
-		}
+			'1': '2q', '2': '3wq1', '3': '4ew2', '4': '5re3', '5': '6tr4', '6': '7zt5', '7': '8uz6', '8': '9iu7', '9': '0oi8', '0': 'po9',
+			'q': '12wa', 'w': '3esaq2', 'e': '4rdsw3', 'r': '5tfde4', 't': '6zgfr5', 'z': '7uhgt6', 'u': '8ijhz7', 'i': '9okju8', 'o': '0plki9', 'p': 'lo0',
+			'a': 'qwsy', 's': 'edxyaw', 'd': 'rfcxse', 'f': 'tgvcdr', 'g': 'zhbvft', 'h': 'ujnbgz', 'j': 'ikmnhu', 'k': 'olmji', 'l': 'kop',
+			'y': 'asx', 'x': 'ysdc', 'c': 'xdfv', 'v': 'cfgb', 'b': 'vghn', 'n': 'bhjm', 'm': 'njk'
+			}
 		self.azerty = {
-		'1': '2a', '2': '3za1', '3': '4ez2', '4': '5re3', '5': '6tr4', '6': '7yt5', '7': '8uy6', '8': '9iu7', '9': '0oi8', '0': 'po9',
-		'a': '2zq1', 'z': '3esqa2', 'e': '4rdsz3', 'r': '5tfde4', 't': '6ygfr5', 'y': '7uhgt6', 'u': '8ijhy7', 'i': '9okju8', 'o': '0plki9', 'p': 'lo0m',
-		'q': 'zswa', 's': 'edxwqz', 'd': 'rfcxse', 'f': 'tgvcdr', 'g': 'yhbvft', 'h': 'ujnbgy', 'j': 'iknhu', 'k': 'olji', 'l': 'kopm', 'm': 'lp',
-		'w': 'sxq', 'x': 'wsdc', 'c': 'xdfv', 'v': 'cfgb', 'b': 'vghn', 'n': 'bhj'
-		}
+			'1': '2a', '2': '3za1', '3': '4ez2', '4': '5re3', '5': '6tr4', '6': '7yt5', '7': '8uy6', '8': '9iu7', '9': '0oi8', '0': 'po9',
+			'a': '2zq1', 'z': '3esqa2', 'e': '4rdsz3', 'r': '5tfde4', 't': '6ygfr5', 'y': '7uhgt6', 'u': '8ijhy7', 'i': '9okju8', 'o': '0plki9', 'p': 'lo0m',
+			'q': 'zswa', 's': 'edxwqz', 'd': 'rfcxse', 'f': 'tgvcdr', 'g': 'yhbvft', 'h': 'ujnbgy', 'j': 'iknhu', 'k': 'olji', 'l': 'kopm', 'm': 'lp',
+			'w': 'sxq', 'x': 'wsdc', 'c': 'xdfv', 'v': 'cfgb', 'b': 'vghn', 'n': 'bhj'
+			}
 		self.keyboards = [ self.qwerty, self.qwertz, self.azerty ]
 
 	def __domain_tld(self, domain):
@@ -283,32 +283,32 @@ class DomainFuzz():
 
 	def __homoglyph(self):
 		glyphs = {
-		'a': [u'à', u'á', u'â', u'ã', u'ä', u'å', u'ɑ', u'ạ', u'ǎ', u'ă', u'ȧ', u'ą'],
-		'b': ['d', 'lb', u'ʙ', u'ɓ', u'ḃ', u'ḅ', u'ḇ', u'ƅ'],
-		'c': ['e', u'ƈ', u'ċ', u'ć', u'ç', u'č', u'ĉ'],
-		'd': ['b', 'cl', 'dl', u'ɗ', u'đ', u'ď', u'ɖ', u'ḑ', u'ḋ', u'ḍ', u'ḏ', u'ḓ'],
-		'e': ['c', u'é', u'è', u'ê', u'ë', u'ē', u'ĕ', u'ě', u'ė', u'ẹ', u'ę', u'ȩ', u'ɇ', u'ḛ'],
-		'f': [u'ƒ', u'ḟ'],
-		'g': ['q', u'ɢ', u'ɡ', u'ġ', u'ğ', u'ǵ', u'ģ', u'ĝ', u'ǧ', u'ǥ'],
-		'h': ['lh', u'ĥ', u'ȟ', u'ħ', u'ɦ', u'ḧ', u'ḩ', u'ⱨ', u'ḣ', u'ḥ', u'ḫ', u'ẖ'],
-		'i': ['1', 'l', u'í', u'ì', u'ï', u'ı', u'ɩ', u'ǐ', u'ĭ', u'ỉ', u'ị', u'ɨ', u'ȋ', u'ī'],
-		'j': [u'ʝ', u'ɉ'],
-		'k': ['lk', 'ik', 'lc', u'ḳ', u'ḵ', u'ⱪ', u'ķ'],
-		'l': ['1', 'i', u'ɫ', u'ł'],
-		'm': ['n', 'nn', 'rn', 'rr', u'ṁ', u'ṃ', u'ᴍ', u'ɱ', u'ḿ'],
-		'n': ['m', 'r', u'ń', u'ṅ', u'ṇ', u'ṉ', u'ñ', u'ņ', u'ǹ', u'ň', u'ꞑ'],
-		'o': ['0', u'ȯ', u'ọ', u'ỏ', u'ơ', u'ó', u'ö'],
-		'p': [u'ƿ', u'ƥ', u'ṕ', u'ṗ'],
-		'q': ['g', u'ʠ'],
-		'r': [u'ʀ', u'ɼ', u'ɽ', u'ŕ', u'ŗ', u'ř', u'ɍ', u'ɾ', u'ȓ', u'ȑ', u'ṙ', u'ṛ', u'ṟ'],
-		's': [u'ʂ', u'ś', u'ṣ', u'ṡ', u'ș', u'ŝ', u'š'],
-		't': [u'ţ', u'ŧ', u'ṫ', u'ṭ', u'ț', u'ƫ'],
-		'u': [u'ᴜ', u'ǔ', u'ŭ', u'ü', u'ʉ', u'ù', u'ú', u'û', u'ũ', u'ū', u'ų', u'ư', u'ů', u'ű', u'ȕ', u'ȗ', u'ụ'],
-		'v': [u'ṿ', u'ⱱ', u'ᶌ', u'ṽ', u'ⱴ'],
-		'w': ['vv', u'ŵ', u'ẁ', u'ẃ', u'ẅ', u'ⱳ', u'ẇ', u'ẉ', u'ẘ'],
-		'y': [u'ʏ', u'ý', u'ÿ', u'ŷ', u'ƴ', u'ȳ', u'ɏ', u'ỿ', u'ẏ', u'ỵ'],
-		'z': [u'ʐ', u'ż', u'ź', u'ᴢ', u'ƶ', u'ẓ', u'ẕ', u'ⱬ']
-		}
+			'a': [u'à', u'á', u'â', u'ã', u'ä', u'å', u'ɑ', u'ạ', u'ǎ', u'ă', u'ȧ', u'ą'],
+			'b': ['d', 'lb', u'ʙ', u'ɓ', u'ḃ', u'ḅ', u'ḇ', u'ƅ'],
+			'c': ['e', u'ƈ', u'ċ', u'ć', u'ç', u'č', u'ĉ'],
+			'd': ['b', 'cl', 'dl', u'ɗ', u'đ', u'ď', u'ɖ', u'ḑ', u'ḋ', u'ḍ', u'ḏ', u'ḓ'],
+			'e': ['c', u'é', u'è', u'ê', u'ë', u'ē', u'ĕ', u'ě', u'ė', u'ẹ', u'ę', u'ȩ', u'ɇ', u'ḛ'],
+			'f': [u'ƒ', u'ḟ'],
+			'g': ['q', u'ɢ', u'ɡ', u'ġ', u'ğ', u'ǵ', u'ģ', u'ĝ', u'ǧ', u'ǥ'],
+			'h': ['lh', u'ĥ', u'ȟ', u'ħ', u'ɦ', u'ḧ', u'ḩ', u'ⱨ', u'ḣ', u'ḥ', u'ḫ', u'ẖ'],
+			'i': ['1', 'l', u'í', u'ì', u'ï', u'ı', u'ɩ', u'ǐ', u'ĭ', u'ỉ', u'ị', u'ɨ', u'ȋ', u'ī'],
+			'j': [u'ʝ', u'ɉ'],
+			'k': ['lk', 'ik', 'lc', u'ḳ', u'ḵ', u'ⱪ', u'ķ'],
+			'l': ['1', 'i', u'ɫ', u'ł'],
+			'm': ['n', 'nn', 'rn', 'rr', u'ṁ', u'ṃ', u'ᴍ', u'ɱ', u'ḿ'],
+			'n': ['m', 'r', u'ń', u'ṅ', u'ṇ', u'ṉ', u'ñ', u'ņ', u'ǹ', u'ň', u'ꞑ'],
+			'o': ['0', u'ȯ', u'ọ', u'ỏ', u'ơ', u'ó', u'ö'],
+			'p': [u'ƿ', u'ƥ', u'ṕ', u'ṗ'],
+			'q': ['g', u'ʠ'],
+			'r': [u'ʀ', u'ɼ', u'ɽ', u'ŕ', u'ŗ', u'ř', u'ɍ', u'ɾ', u'ȓ', u'ȑ', u'ṙ', u'ṛ', u'ṟ'],
+			's': [u'ʂ', u'ś', u'ṣ', u'ṡ', u'ș', u'ŝ', u'š'],
+			't': [u'ţ', u'ŧ', u'ṫ', u'ṭ', u'ț', u'ƫ'],
+			'u': [u'ᴜ', u'ǔ', u'ŭ', u'ü', u'ʉ', u'ù', u'ú', u'û', u'ũ', u'ū', u'ų', u'ư', u'ů', u'ű', u'ȕ', u'ȗ', u'ụ'],
+			'v': [u'ṿ', u'ⱱ', u'ᶌ', u'ṽ', u'ⱴ'],
+			'w': ['vv', u'ŵ', u'ẁ', u'ẃ', u'ẅ', u'ⱳ', u'ẇ', u'ẉ', u'ẘ'],
+			'y': [u'ʏ', u'ý', u'ÿ', u'ŷ', u'ƴ', u'ȳ', u'ɏ', u'ỿ', u'ẏ', u'ỵ'],
+			'z': [u'ʐ', u'ż', u'ź', u'ᴢ', u'ƶ', u'ẓ', u'ẕ', u'ⱬ']
+			}
 
 		result_1pass = set()
 
@@ -753,7 +753,8 @@ def generate_csv(domains):
 	output = 'fuzzer,domain-name,dns-a,dns-aaaa,dns-mx,dns-ns,geoip-country,whois-created,whois-updated,ssdeep-score\n'
 
 	for domain in domains:
-		output += '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (domain.get('fuzzer'),
+		output += '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
+			domain.get('fuzzer'),
 			domain.get('domain-name').encode('idna').decode(),
 			one_or_all(domain.get('dns-a', [''])),
 			one_or_all(domain.get('dns-aaaa', [''])),
@@ -762,18 +763,15 @@ def generate_csv(domains):
 			domain.get('geoip-country', ''),
 			domain.get('whois-created', ''),
 			domain.get('whois-updated', ''),
-			str(domain.get('ssdeep-score', '')))
+			str(domain.get('ssdeep-score', ''))
+			)
 
 	return output
 
 
 def generate_idle(domains):
-	output = ''
-
-	for domain in domains:
-		output += '%s\n' % domain.get('domain-name').encode('idna').decode()
-
-	return output
+	idle = '\n'.join([x.get('domain-name').encode('idna').decode() for x in domains])
+	return idle + '\n'
 
 
 def generate_cli(domains):
@@ -836,16 +834,15 @@ def main():
 	signal.signal(signal.SIGINT, sigint_handler)
 
 	parser = argparse.ArgumentParser(
-	usage='%s [OPTION]... DOMAIN' % sys.argv[0],
-	add_help = False,
-	description=
-	'''Find similar-looking domain names that adversaries can use to attack you. '''
-	'''Can detect typosquatters, phishing attacks, fraud and corporate espionage. '''
-	'''Useful as an additional source of targeted threat intelligence.''',
-	formatter_class=lambda prog: argparse.HelpFormatter(prog,max_help_position=30)
-	)
+		usage='%s [OPTION]... DOMAIN' % sys.argv[0],
+		add_help=False,
+		description=
+		'''Domain name permutation engine for detecting homograph phishing attacks, '''
+		'''typosquatting, fraud and brand impersonation.''',
+		formatter_class=lambda prog: argparse.HelpFormatter(prog,max_help_position=30)
+		)
 
-	parser.add_argument('domain', help='Domain name or URL to check')
+	parser.add_argument('domain', help='Domain name or URL to scan')
 	parser.add_argument('-a', '--all', action='store_true', help='Show all DNS records')
 	parser.add_argument('-b', '--banners', action='store_true', help='Determine HTTP and SMTP service banners')
 	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='Generate more domains using dictionary FILE')
@@ -857,7 +854,7 @@ def main():
 	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT, help='Start specified NUMBER of threads (default: %d)' % THREAD_COUNT_DEFAULT)
 	parser.add_argument('-w', '--whois', action='store_true', help='Lookup for WHOIS creation/update time (slow!)')
 	parser.add_argument('--tld', type=str, metavar='FILE', help='Generate more domains by swapping TLD from FILE')
-	parser.add_argument('--nameservers', type=str, metavar='LIST', help='DNS servers to query (separate with comma)')
+	parser.add_argument('--nameservers', type=str, metavar='LIST', help='DNS servers to query (separated with commas)')
 	parser.add_argument('--port', type=int, metavar='PORT', help='DNS server port number (default: 53)')
 	parser.add_argument('--useragent', type=str, metavar='STRING', default='Mozilla/5.0 dnstwist/%s' % __version__, help='User-Agent STRING to send with HTTP requests (default: Mozilla/5.0 dnstwist/%s)' % __version__)
 
@@ -875,7 +872,7 @@ def main():
 	try:
 		url = UrlParser(args.domain)
 	except ValueError as err:
-		p_err('error: %s\n' % err)
+		p_err('Error: %s\n' % err)
 		bye(-1)
 
 	dfuzz = DomainFuzz(url.domain)
@@ -884,7 +881,7 @@ def main():
 
 	if args.dictionary:
 		if not path.exists(args.dictionary):
-			p_err('error: dictionary not found: %s\n' % args.dictionary)
+			p_err('Error: Dictionary not found: %s\n' % args.dictionary)
 			bye(-1)
 		ddict = DomainDict(url.domain)
 		ddict.load_dict(args.dictionary)
@@ -893,7 +890,7 @@ def main():
 
 	if args.tld:
 		if not path.exists(args.tld):
-			p_err('error: dictionary not found: %s\n' % args.tld)
+			p_err('Error: Dictionary not found: %s\n' % args.tld)
 			bye(-1)
 		tlddict = TldDict(url.domain)
 		tlddict.load_dict(args.tld)
@@ -905,15 +902,15 @@ def main():
 		bye(0)
 
 	if not MODULE_DNSPYTHON:
-		p_err('notice: missing module: dnspython (DNS features limited)\n')
+		p_err('Notice: Missing module DNSPython (DNS features limited)\n')
 	if not MODULE_GEOIP and args.geoip:
-		p_err('notice: missing module: GeoIP (geographical location not available)\n')
+		p_err('Notice: Missing module GeoIP (geographical location not available)\n')
 	if not MODULE_WHOIS and args.whois:
-		p_err('notice: missing module: whois (WHOIS database not accessible)\n')
+		p_err('Notice: Missing module whois (WHOIS database not accessible)\n')
 	if not MODULE_SSDEEP and args.ssdeep:
-		p_err('notice: missing module: ssdeep (fuzzy hashes not available)\n')
+		p_err('Notice: Missing module ssdeep (fuzzy hashes not available)\n')
 	if not MODULE_REQUESTS and args.ssdeep:
-		p_err('notice: missing module: Requests (web page downloads not possible)\n')
+		p_err('Notice: Missing module Requests (webpage downloads not possible)\n')
 
 	p_cli(FG_RND + ST_BRI +
 '''     _           _            _     _
@@ -925,7 +922,7 @@ def main():
 ''' % __version__ + FG_RST + ST_RST)
 
 	if MODULE_WHOIS and args.whois:
-		p_cli('Disabling multithreaded job distribution in order to query WHOIS servers\n')
+		p_err('Notice: Disabled multithreading in order to query WHOIS servers\n')
 		args.threads = 1
 
 	if args.ssdeep and MODULE_SSDEEP and MODULE_REQUESTS:
