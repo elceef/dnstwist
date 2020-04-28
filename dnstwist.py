@@ -44,6 +44,7 @@ except ImportError:
 
 try:
 	import dns.resolver
+	import dns.rdatatype
 	from dns.exception import DNSException
 	MODULE_DNSPYTHON = True
 except ImportError:
@@ -608,8 +609,14 @@ class DomainThread(threading.Thread):
 				resolv.timeout = REQUEST_TIMEOUT_DNS
 
 				nxdomain = False
+				dns_ns = False
+				dns_a = False
+				dns_aaaa = False
+				dns_mx = False
+
 				try:
-					domain['dns-ns'] = self.answer_to_list(resolv.query(domain['domain-name'], 'NS'))
+					domain['dns-ns'] = self.answer_to_list(resolv.query(domain['domain-name'], rdtype=dns.rdatatype.NS))
+					dns_ns = True
 				except dns.resolver.NXDOMAIN:
 					nxdomain = True
 					pass
@@ -621,7 +628,8 @@ class DomainThread(threading.Thread):
 
 				if nxdomain is False:
 					try:
-						domain['dns-a'] = self.answer_to_list(resolv.query(domain['domain-name'], 'A'))
+						domain['dns-a'] = self.answer_to_list(resolv.query(domain['domain-name'], rdtype=dns.rdatatype.A))
+						dns_a = True
 					except dns.resolver.NoNameservers:
 						domain['dns-a'] = ['!ServFail']
 						pass
@@ -629,16 +637,18 @@ class DomainThread(threading.Thread):
 						pass
 
 					try:
-						domain['dns-aaaa'] = self.answer_to_list(resolv.query(domain['domain-name'], 'AAAA'))
+						domain['dns-aaaa'] = self.answer_to_list(resolv.query(domain['domain-name'], rdtype=dns.rdatatype.AAAA))
+						dns_aaaa = True
 					except dns.resolver.NoNameservers:
 						domain['dns-aaaa'] = ['!ServFail']
 						pass
 					except DNSException:
 						pass
 
-				if nxdomain is False and 'dns-ns' in domain:
+				if nxdomain is False and dns_ns is True:
 					try:
-						domain['dns-mx'] = self.answer_to_list(resolv.query(domain['domain-name'], 'MX'))
+						domain['dns-mx'] = self.answer_to_list(resolv.query(domain['domain-name'], rdtype=dns.rdatatype.MX))
+						dns_mx = True
 					except dns.resolver.NoNameservers:
 						domain['dns-mx'] = ['!ServFail']
 						pass
@@ -663,15 +673,17 @@ class DomainThread(threading.Thread):
 							domain['dns-aaaa'].append(j[4][0])
 					domain['dns-a'] = sorted(domain['dns-a'])
 					domain['dns-aaaa'] = sorted(domain['dns-aaaa'])
+					dns_a = True
+					dns_aaaa = True
 
 			if self.option_mxcheck:
-				if 'dns-mx' in domain:
+				if dns_mx is True:
 					if domain['domain-name'] is not self.domain_orig:
 						if self.__mxcheck(domain['dns-mx'][0], self.domain_orig, domain['domain-name']):
 							domain['mx-spy'] = True
 
 			if self.option_whois:
-				if nxdomain is False and 'dns-ns' in domain:
+				if nxdomain is False and dns_ns is True:
 					try:
 						whoisdb = whois.query(domain['domain-name'])
 						domain['whois-created'] = str(whoisdb.creation_date).split(' ')[0]
@@ -680,7 +692,7 @@ class DomainThread(threading.Thread):
 						pass
 
 			if self.option_geoip:
-				if 'dns-a' in domain:
+				if dns_a is True:
 					gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
 					try:
 						country = gi.country_name_by_addr(domain['dns-a'][0])
@@ -691,17 +703,17 @@ class DomainThread(threading.Thread):
 							domain['geoip-country'] = country.split(',')[0]
 
 			if self.option_banners:
-				if 'dns-a' in domain:
+				if dns_a is True or dns_aaaa is True:
 					banner = self.__banner_http(domain['dns-a'][0], domain['domain-name'])
 					if banner:
 						domain['banner-http'] = banner
-				if 'dns-mx' in domain:
+				if dns_mx is True:
 					banner = self.__banner_smtp(domain['dns-mx'][0])
 					if banner:
 						domain['banner-smtp'] = banner
 
 			if self.option_ssdeep:
-				if 'dns-a' in domain:
+				if dns_a is True or dns_aaaa is True:
 					try:
 						req = requests.get(self.uri_scheme + '://' + domain['domain-name'] + self.uri_path + self.uri_query, timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': args.useragent}, verify=False)
 						#ssdeep_fuzz = ssdeep.hash(req.text.replace(' ', '').replace('\n', ''))
