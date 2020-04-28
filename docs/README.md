@@ -6,7 +6,7 @@ Find lookalike domains that adversaries can use to attack you. Can detect
 typosquatters, phishing attacks, fraud, and corporate espionage. Useful as an
 additional source of targeted threat intelligence.
 
-![Demo](/docs/dnstwist_demo.gif)
+![Demo](/docs/demo.gif)
 
 The idea is quite straightforward: with the original domain name as input, the
 tool generates a list of potentially malicious domains and then checks which
@@ -179,13 +179,6 @@ addresses. Use `--geoip` option to display country name next to each address.
 $ dnstwist.py --geoip domain.name
 ```
 
-Of course all of the features offered by this tool together with brief
-descriptions are always available at your fingertips:
-
-```
-$ dnstwist.py --help
-```
-
 Happy hunting!
 
 
@@ -216,7 +209,5 @@ You can also reach the author via:
 - Twitter: [@elceef](https://twitter.com/elceef)
 - LinkedIn: [Marcin Ulikowski](https://pl.linkedin.com/in/elceef)
 
-Any feedback is appreciated. If you were able to run the tool and you are happy
-with the results just let me know. If you have found some confirmed phishing
-domains with this tool and are comfortable with sharing them, also please send
-me a message. Thank you.
+Any feedback is appreciated. If you have found some confirmed phishing domains
+or just like this tool, please don't hesitate and send a message. Thank you.
