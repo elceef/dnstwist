@@ -1,19 +1,15 @@
-import setuptools
-from dnstwist import __version__ as version
+from setuptools import setup
+import dnstwist
 
-with open('README.md', 'r') as fh:
-	long_description = fh.read()
-
-setuptools.setup(
+setup(
 	name='dnstwist',
-	version=version,
+	version=dnstwist.__version__,
 	author='Marcin Ulikowski',
 	author_email='marcin@ulikowski.pl',
-	description='Domain name permutation engine for detecting homograph phishing attacks, typo squatting, and brand impersonation.',
-	long_description=long_description,
-	long_description_content_type='text/markdown',
+	description='Domain name permutation engine for detecting homograph phishing attacks, typo squatting, and brand impersonation',
+	long_description='Project website: https://github.com/elceef/dnstwist',
 	url='https://github.com/elceef/dnstwist',
-	packages=setuptools.find_packages(),
+	py_modules=['dnstwist'],
 	entry_points={
 		'console_scripts': ['dnstwist=dnstwist:main']
 	},
