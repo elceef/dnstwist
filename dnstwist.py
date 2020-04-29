@@ -163,14 +163,14 @@ class UrlParser:
     def __parse(self):
         re_rfc3986_enhanced = re.compile(
             r"""
-			^
-			(?:(?P<scheme>[^:/?#\s]+):)?
-			(?://(?P<authority>[^/?#\s]*))?
-			(?P<path>[^?#\s]*)
-			(?:\?(?P<query>[^#\s]*))?
-			(?:\#(?P<fragment>[^\s]*))?
-			$
-			""",
+            ^
+            (?:(?P<scheme>[^:/?#\s]+):)?
+            (?://(?P<authority>[^/?#\s]*))?
+            (?P<path>[^?#\s]*)
+            (?:\?(?P<query>[^#\s]*))?
+            (?:\#(?P<fragment>[^\s]*))?
+            $
+            """,
             re.MULTILINE | re.VERBOSE,
         )
 
