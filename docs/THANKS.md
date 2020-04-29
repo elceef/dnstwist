@@ -12,6 +12,7 @@ you'd prefer a different name be used, please let me know.
 - Charles McCauley
 - Christopher Schmidt
 - Eugene Kogan
+- Francisco Roldán
 - James Lane
 - Julien Rottenberg
 - Kristov Atlas
