@@ -4,7 +4,7 @@
 #   __| |_ __  ___| |___      _(_)___| |_
 #  / _` | '_ \/ __| __\ \ /\ / / / __| __|
 # | (_| | | | \__ \ |_ \ V  V /| \__ \ |_
-#  \__,_|_| |_|___/\__| \_/\_/ |_|___/\__|
+#  \__,_|_| |_|___/\__| \_/\_/ |_|___/\__| mod
 #
 # Generate and resolve domain variations to detect typo squatting,
 # phishing and corporate espionage.
@@ -21,9 +21,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__author__ = 'Marcin Ulikowski'
-__version__ = '20200427'
-__email__ = 'marcin@ulikowski.pl'
+__author__ = 'mod by Bryce B'
+__version__ = '20200429'
+__email__ = 'swarvingprogrammer@gmail.com'
 
 import re
 import sys
@@ -917,7 +917,7 @@ def main():
   __| |_ __  ___| |___      _(_)___| |_
  / _` | '_ \/ __| __\ \ /\ / / / __| __|
 | (_| | | | \__ \ |_ \ V  V /| \__ \ |_
- \__,_|_| |_|___/\__| \_/\_/ |_|___/\__| {%s}
+ \__,_|_| |_|___/\__| \_/\_/ |_|___/\__| mod {%s}
 
 ''' % __version__ + FG_RST + ST_RST)
 
