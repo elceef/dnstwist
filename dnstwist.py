@@ -393,7 +393,6 @@ class DomainFuzz():
 
 	def generate(self):
 		self.domains.append({ 'fuzzer': 'Original*', 'domain-name': '.'.join(filter(None, [self.subdomain, self.domain, self.tld])) })
-
 		for domain in self.__addition():
 			self.domains.append({ 'fuzzer': 'Addition', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for domain in self.__bitsquatting():
@@ -420,7 +419,6 @@ class DomainFuzz():
 			self.domains.append({ 'fuzzer': 'Dictionary', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld])) })
 		for tld in self.__tld():
 			self.domains.append({ 'fuzzer': 'TLD-swap', 'domain-name': '.'.join(filter(None, [self.subdomain, self.domain, tld])) })
-
 		if '.' in self.tld:
 			self.domains.append({ 'fuzzer': 'Various', 'domain-name': self.domain + '.' + self.tld.split('.')[-1] })
 			self.domains.append({ 'fuzzer': 'Various', 'domain-name': self.domain + self.tld })
@@ -428,7 +426,6 @@ class DomainFuzz():
 			self.domains.append({ 'fuzzer': 'Various', 'domain-name': self.domain + self.tld + '.' + self.tld })
 		if self.tld != 'com' and '.' not in self.tld:
 			self.domains.append({ 'fuzzer': 'Various', 'domain-name': self.domain + '-' + self.tld + '.com' })
-
 		self.__filter_domains()
 
 
@@ -451,6 +448,8 @@ class DomainThread(threading.Thread):
 		self.option_ssdeep = False
 		self.option_banners = False
 		self.option_mxcheck = False
+
+		self.nameservers = []
 
 	def __banner_http(self, ip, vhost):
 		try:
@@ -518,9 +517,9 @@ class DomainThread(threading.Thread):
 			domain['domain-name'] = domain['domain-name'].encode('idna').decode()
 
 			if self.option_extdns:
-				if args.nameservers:
+				if self.nameservers:
 					resolv = dns.resolver.Resolver(configure=False)
-					resolv.nameservers = args.nameservers.split(',')
+					resolv.nameservers = self.nameservers
 					if args.port:
 						resolv.port = args.port
 				else:
@@ -921,6 +920,8 @@ def main():
 			worker.ssdeep_orig = ssdeep_orig
 		if args.mxcheck:
 			worker.option_mxcheck = True
+		if args.nameservers:
+			worker.nameservers = args.nameservers.split(',')
 
 		worker.start()
 		threads.append(worker)
