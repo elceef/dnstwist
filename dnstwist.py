@@ -69,7 +69,11 @@ try:
 	import ssdeep
 	MODULE_SSDEEP = True
 except ImportError:
+	import ppdeep as ssdeep
+	MODULE_SSDEEP = True
+except ImportError:
 	MODULE_SSDEEP = False
+	pass
 
 try:
 	import requests
