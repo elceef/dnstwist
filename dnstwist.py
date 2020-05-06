@@ -191,7 +191,7 @@ class DomainFuzz():
 			'q': 'zswa', 's': 'edxwqz', 'd': 'rfcxse', 'f': 'tgvcdr', 'g': 'yhbvft', 'h': 'ujnbgy', 'j': 'iknhu', 'k': 'olji', 'l': 'kopm', 'm': 'lp',
 			'w': 'sxq', 'x': 'wsdc', 'c': 'xdfv', 'v': 'cfgb', 'b': 'vghn', 'n': 'bhj'
 			}
-		self.keyboards = [ self.qwerty, self.qwertz, self.azerty ]
+		self.keyboards = [self.qwerty, self.qwertz, self.azerty]
 
 	def __domain_tld(self, domain):
 		try:
@@ -645,19 +645,7 @@ class DomainThread(threading.Thread):
 							domain['ssdeep-score'] = ssdeep.compare(self.ssdeep_orig, ssdeep_fuzz)
 
 			domain['domain-name'] = domain['domain-name'].encode().decode('idna')
-
 			self.jobs.task_done()
-
-
-def one_or_all(answers):
-	if args.all:
-		result = ';'.join(answers)
-	else:
-		if len(answers):
-			result = answers[0]
-		else:
-			result = ''
-	return result
 
 
 def generate_json(domains):
@@ -665,28 +653,20 @@ def generate_json(domains):
 	for domain in json_domains:
 		domain['domain-name'] = domain['domain-name'].lower().encode('idna').decode()
 		domain['fuzzer'] = domain['fuzzer'].lower()
-
 	return json.dumps(json_domains, indent=4, sort_keys=True)
 
 
 def generate_csv(domains):
-	output = 'fuzzer,domain-name,dns-a,dns-aaaa,dns-mx,dns-ns,geoip-country,whois-created,whois-updated,ssdeep-score\n'
-
+	csv = ['fuzzer,domain-name,dns-a,dns-aaaa,dns-mx,dns-ns,geoip-country,whois-created,whois-updated,ssdeep-score']
 	for domain in domains:
-		output += '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
-			domain.get('fuzzer'),
-			domain.get('domain-name').encode('idna').decode(),
-			one_or_all(domain.get('dns-a', [''])),
-			one_or_all(domain.get('dns-aaaa', [''])),
-			one_or_all(domain.get('dns-mx', [''])),
-			one_or_all(domain.get('dns-ns', [''])),
-			domain.get('geoip-country', ''),
-			domain.get('whois-created', ''),
-			domain.get('whois-updated', ''),
-			str(domain.get('ssdeep-score', ''))
-			)
-
-	return output
+		csv.append(','.join([domain.get('fuzzer'), domain.get('domain-name').encode('idna').decode(),
+			';'.join(domain.get('dns-a', [''])),
+			';'.join(domain.get('dns-aaaa', [''])),
+			';'.join(domain.get('dns-mx', [''])),
+			';'.join(domain.get('dns-ns', [''])),
+			domain.get('geoip-country', ''), domain.get('whois-created', ''), domain.get('whois-updated', ''),
+			str(domain.get('ssdeep-score', ''))]))
+	return '\n'.join(csv)
 
 
 def generate_idle(domains):
@@ -695,38 +675,29 @@ def generate_idle(domains):
 
 
 def generate_cli(domains):
-	output = ''
-
+	cli = []
 	width_fuzzer = max([len(d['fuzzer']) for d in domains]) + 1
 	width_domain = max([len(d['domain-name']) for d in domains]) + 1
-
 	for domain in domains:
-		info = ''
-
+		info = str()
 		if 'dns-a' in domain:
-			info += one_or_all(domain['dns-a'])
+			info += ';'.join(domain['dns-a'])
 			if 'geoip-country' in domain:
 				info += FG_CYA + '/' + domain['geoip-country'] + FG_RST
 			info += ' '
-
 		if 'dns-aaaa' in domain:
-			info += one_or_all(domain['dns-aaaa']) + ' '
-
+			info += ';'.join(domain['dns-aaaa']) + ' '
 		if 'dns-ns' in domain:
-			info += '%sNS:%s%s%s ' % (FG_YEL, FG_CYA, one_or_all(domain['dns-ns']), FG_RST)
-
+			info += '%sNS:%s%s%s ' % (FG_YEL, FG_CYA, ';'.join(domain['dns-ns']), FG_RST)
 		if 'dns-mx' in domain:
 			if 'mx-spy' in domain:
 				info += '%sSPYING-MX:%s%s' % (FG_YEL, domain['dns-mx'][0], FG_RST)
 			else:
-				info += '%sMX:%s%s%s ' % (FG_YEL, FG_CYA, one_or_all(domain['dns-mx']), FG_RST)
-
+				info += '%sMX:%s%s%s ' % (FG_YEL, FG_CYA, ';'.join(domain['dns-mx']), FG_RST)
 		if 'banner-http' in domain:
 			info += '%sHTTP:%s"%s"%s ' % (FG_YEL, FG_CYA, domain['banner-http'], FG_RST)
-
 		if 'banner-smtp' in domain:
 			info += '%sSMTP:%s"%s"%s ' % (FG_YEL, FG_CYA, domain['banner-smtp'], FG_RST)
-
 		if 'whois-created' in domain and 'whois-updated' in domain:
 			if domain['whois-created'] == domain['whois-updated']:
 				info += '%sCreated/Updated:%s%s%s ' % (FG_YEL, FG_CYA, domain['whois-created'], FG_RST)
@@ -735,19 +706,15 @@ def generate_cli(domains):
 					info += '%sCreated:%s%s%s ' % (FG_YEL, FG_CYA, domain['whois-created'], FG_RST)
 				if 'whois-updated' in domain:
 					info += '%sUpdated:%s%s%s ' % (FG_YEL, FG_CYA, domain['whois-updated'], FG_RST)
-
 		if 'ssdeep-score' in domain:
 			if domain['ssdeep-score'] > 0:
 				info += '%sSSDEEP:%d%%%s ' % (FG_YEL, domain['ssdeep-score'], FG_RST)
-
 		info = info.strip()
-
 		if not info:
 			info = '-'
-
-		output += '%s%s%s %s %s\n' % (FG_BLU, domain['fuzzer'].ljust(width_fuzzer), FG_RST, domain['domain-name'].ljust(width_domain), info)
-
-	return output
+		cli.append('{} {} {}'.format(FG_BLU + domain['fuzzer'].ljust(width_fuzzer) + FG_RST,
+			domain['domain-name'].ljust(width_domain), info))
+	return '\n'.join(cli)
 
 
 def main():
@@ -783,7 +750,6 @@ def main():
 
 	threads = []
 
-	global args
 	args = parser.parse_args()
 
 	def p_cli(text):
@@ -944,7 +910,13 @@ def main():
 	p_cli(' %d hits (%d%%)\n\n' % (hits_total, hits_percent))
 
 	if args.registered:
-		domains[:] = [d for d in domains if len(d) > 2]
+		domains[:] = [x for x in domains if len(x) > 2]
+
+	if not args.all:
+		for i in range(len(domains)):
+			for k in ['dns-ns', 'dns-a', 'dns-aaaa', 'dns-mx']:
+				if k in domains[i]:
+					domains[i][k] = domains[i][k][:1]
 
 	if domains:
 		if args.format == 'csv':
@@ -952,7 +924,7 @@ def main():
 		elif args.format == 'json':
 			print(generate_json(domains))
 		else:
-			p_cli(generate_cli(domains))
+			print(generate_cli(domains))
 
 	bye(0)
 
