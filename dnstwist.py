@@ -104,30 +104,6 @@ else:
 	FG_RND = FG_RED = FG_YEL = FG_GRE = FG_MAG = FG_CYA = FG_BLU = FG_RST = ST_BRI = ST_RST = ''
 
 
-def p_cli(data):
-	global args
-	if args.format == 'cli':
-		sys.stdout.write(data)
-		sys.stdout.flush()
-
-
-def p_err(data):
-	sys.stderr.write(path.basename(sys.argv[0]) + ': ' + data)
-	sys.stderr.flush()
-
-
-def p_csv(data):
-	global args
-	if args.format == 'csv':
-		sys.stdout.write(data)
-
-
-def p_json(data):
-	global args
-	if args.format == 'json':
-		sys.stdout.write(data)
-
-
 def bye(code):
 	sys.stdout.write(FG_RST + ST_RST)
 	sys.exit(code)
@@ -144,7 +120,6 @@ def sigint_handler(signal, frame):
 
 
 class UrlParser():
-
 	def __init__(self, url):
 		if '://' not in url:
 			self.url = 'http://' + url
@@ -203,7 +178,6 @@ class UrlParser():
 
 
 class DomainFuzz():
-
 	def __init__(self, domain):
 		self.subdomain, self.domain, self.tld = self.__domain_tld(domain)
 		self.domains = []
@@ -477,7 +451,6 @@ class DomainFuzz():
 
 
 class DomainDict(DomainFuzz):
-
 	def __init__(self, domain):
 		DomainFuzz.__init__(self, domain)
 		self.dictionary = []
@@ -506,7 +479,6 @@ class DomainDict(DomainFuzz):
 
 
 class TldDict(DomainDict):
-
 	def generate(self):
 		if self.tld in self.dictionary:
 			self.dictionary.remove(self.tld)
@@ -515,7 +487,6 @@ class TldDict(DomainDict):
 
 
 class DomainThread(threading.Thread):
-
 	def __init__(self, queue):
 		threading.Thread.__init__(self)
 		self.jobs = queue
@@ -775,7 +746,7 @@ def generate_csv(domains):
 
 def generate_idle(domains):
 	idle = '\n'.join([x.get('domain-name').encode('idna').decode() for x in domains])
-	return idle + '\n'
+	return idle
 
 
 def generate_cli(domains):
@@ -863,12 +834,17 @@ def main():
 	parser.add_argument('--useragent', type=str, metavar='STRING', default='Mozilla/5.0 dnstwist/%s' % __version__, help='User-Agent STRING to send with HTTP requests (default: Mozilla/5.0 dnstwist/%s)' % __version__)
 
 	if len(sys.argv) < 2:
-		sys.stdout.write('%sdnstwist %s by <%s>%s\n\n' % (ST_BRI, __version__, __email__, ST_RST))
+		print('{}dnstwist {} by <{}>{}\n'.format(ST_BRI, __version__, __email__, ST_RST))
 		parser.print_help()
 		bye(0)
 
 	global args
 	args = parser.parse_args()
+
+	def p_cli(text):
+		if args.format == 'cli': print(text, end='', flush=True)
+	def p_err(text):
+		print('{0}: {1}'.format(sys.argv[0], text), file=sys.stderr, end='', flush=True)
 
 	if args.threads < 1:
 		args.threads = THREAD_COUNT_DEFAULT
@@ -902,7 +878,7 @@ def main():
 		domains += tlddict.domains
 
 	if args.format == 'idle':
-		sys.stdout.write(generate_idle(domains))
+		print(generate_idle(domains))
 		bye(0)
 
 	if not MODULE_DNSPYTHON:
@@ -1016,9 +992,9 @@ def main():
 
 	if domains:
 		if args.format == 'csv':
-			p_csv(generate_csv(domains))
+			print(generate_csv(domains))
 		elif args.format == 'json':
-			p_json(generate_json(domains))
+			print(generate_json(domains))
 		else:
 			p_cli(generate_cli(domains))
 
