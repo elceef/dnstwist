@@ -109,16 +109,6 @@ def bye(code):
 	sys.exit(code)
 
 
-def sigint_handler(signal, frame):
-	sys.stdout.write('\nStopping threads... ')
-	sys.stdout.flush()
-	for worker in threads:
-		worker.stop()
-		worker.join()
-	sys.stdout.write('Done\n')
-	bye(0)
-
-
 class UrlParser():
 	def __init__(self, url):
 		if '://' not in url:
@@ -806,8 +796,6 @@ def generate_cli(domains):
 
 
 def main():
-	signal.signal(signal.SIGINT, sigint_handler)
-
 	parser = argparse.ArgumentParser(
 		usage='%s [OPTION]... DOMAIN' % sys.argv[0],
 		add_help=False,
@@ -838,6 +826,8 @@ def main():
 		parser.print_help()
 		bye(0)
 
+	threads = []
+
 	global args
 	args = parser.parse_args()
 
@@ -845,6 +835,18 @@ def main():
 		if args.format == 'cli': print(text, end='', flush=True)
 	def p_err(text):
 		print('{0}: {1}'.format(sys.argv[0], text), file=sys.stderr, end='', flush=True)
+
+	def signal_handler(signal, frame):
+		sys.stdout.write('\nStopping threads... ')
+		sys.stdout.flush()
+		for worker in threads:
+			worker.stop()
+			worker.join()
+		sys.stdout.write('Done\n')
+		bye(0)
+
+	signal.signal(signal.SIGINT, signal_handler)
+	signal.signal(signal.SIGTERM, signal_handler)
 
 	if args.threads < 1:
 		args.threads = THREAD_COUNT_DEFAULT
@@ -936,9 +938,6 @@ def main():
 	p_cli('Processing %d domain variants ' % len(domains))
 
 	jobs = queue.Queue()
-
-	global threads
-	threads = []
 
 	for i in range(len(domains)):
 		jobs.put(domains[i])
