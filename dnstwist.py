@@ -445,13 +445,14 @@ class DomainThread(threading.Thread):
 		self.option_mxcheck = False
 
 		self.nameservers = []
+		self.useragent = ''
 
 	def __banner_http(self, ip, vhost):
 		try:
 			http = socket.socket()
 			http.settimeout(1)
 			http.connect((ip, 80))
-			http.send(b'HEAD / HTTP/1.1\r\nHost: %s\r\nUser-agent: %s\r\n\r\n' % (vhost.encode(), args.useragent.encode()))
+			http.send(b'HEAD / HTTP/1.1\r\nHost: %s\r\nUser-agent: %s\r\n\r\n' % (vhost.encode(), self.useragent.encode()))
 			response = http.recv(1024).decode()
 			http.close()
 		except Exception:
@@ -628,7 +629,8 @@ class DomainThread(threading.Thread):
 			if self.option_ssdeep:
 				if dns_a is True or dns_aaaa is True:
 					try:
-						req = requests.get(self.uri_scheme + '://' + domain['domain-name'] + self.uri_path + self.uri_query, timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': args.useragent}, verify=False)
+						req = requests.get(self.uri_scheme + '://' + domain['domain-name'] + self.uri_path + self.uri_query,
+							timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': self.useragent}, verify=False)
 						#ssdeep_fuzz = ssdeep.hash(req.text.replace(' ', '').replace('\n', ''))
 						ssdeep_fuzz = ssdeep.hash(req.text)
 					except Exception:
@@ -893,6 +895,7 @@ def main():
 			worker.option_mxcheck = True
 		if args.nameservers:
 			worker.nameservers = nameservers
+		worker.useragent = args.useragent
 
 		worker.start()
 		threads.append(worker)
