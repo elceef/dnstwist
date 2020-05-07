@@ -826,33 +826,32 @@ def main():
 		p_err('Notice: Disabled multithreading in order to query WHOIS servers\n')
 		args.threads = 1
 
+	ssdeep_orig = str()
 	if args.ssdeep and MODULE_SSDEEP and MODULE_REQUESTS:
 		p_cli('Fetching content from: ' + url.get_full_uri() + ' ... ')
 		try:
 			req = requests.get(url.get_full_uri(), timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': args.useragent})
 		except requests.exceptions.ConnectionError:
 			p_cli('Connection error\n')
-			args.ssdeep = False
 			pass
 		except requests.exceptions.HTTPError:
 			p_cli('Invalid HTTP response\n')
-			args.ssdeep = False
 			pass
 		except requests.exceptions.Timeout:
 			p_cli('Timeout (%d seconds)\n' % REQUEST_TIMEOUT_HTTP)
-			args.ssdeep = False
 			pass
 		except Exception:
 			p_cli('Failed!\n')
-			args.ssdeep = False
 			pass
 		else:
 			p_cli('%d %s (%.1f Kbytes)\n' % (req.status_code, req.reason, float(len(req.text))/1000))
-			if req.status_code / 100 == 2:
+			if req.status_code // 100 == 2:
 				#ssdeep_orig = ssdeep.hash(req.text.replace(' ', '').replace('\n', ''))
 				ssdeep_orig = ssdeep.hash(req.text)
 			else:
 				args.ssdeep = False
+		finally:
+			args.ssdeep = False
 
 	p_cli('Processing %d domain variants ' % len(domains))
 
@@ -879,7 +878,7 @@ def main():
 			worker.option_geoip = True
 		if args.banners:
 			worker.option_banners = True
-		if args.ssdeep and MODULE_REQUESTS and MODULE_SSDEEP and 'ssdeep_orig' in locals():
+		if args.ssdeep and MODULE_REQUESTS and MODULE_SSDEEP and ssdeep_orig:
 			worker.option_ssdeep = True
 			worker.ssdeep_orig = ssdeep_orig
 		if args.mxcheck:
