@@ -458,14 +458,10 @@ class DomainThread(threading.Thread):
 		except Exception:
 			pass
 		else:
-			sep = '\r\n' if '\r\n' in response else '\n'
-			headers = response.split(sep)
+			headers = response.splitlines()
 			for field in headers:
-				if field.startswith('Server: '):
+				if field.lower().startswith('server: '):
 					return field[8:]
-			banner = headers[0].split(' ')
-			if len(banner) > 1:
-				return 'HTTP %s' % banner[1]
 
 	def __banner_smtp(self, mx):
 		try:
@@ -477,8 +473,7 @@ class DomainThread(threading.Thread):
 		except Exception:
 			pass
 		else:
-			sep = '\r\n' if '\r\n' in response else '\n'
-			hello = response.split(sep)[0]
+			hello = response.splitlines()[0]
 			if hello.startswith('220'):
 				return hello[4:].strip()
 			return hello[:40]
