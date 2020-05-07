@@ -515,8 +515,6 @@ class DomainThread(threading.Thread):
 				if self.nameservers:
 					resolv = dns.resolver.Resolver(configure=False)
 					resolv.nameservers = self.nameservers
-					if args.port:
-						resolv.port = args.port
 				else:
 					resolv = dns.resolver.Resolver()
 
@@ -735,7 +733,6 @@ def main():
 	parser.add_argument('-w', '--whois', action='store_true', help='Lookup for WHOIS creation/update time (slow!)')
 	parser.add_argument('--tld', type=str, metavar='FILE', help='Generate more domains by swapping TLD from FILE')
 	parser.add_argument('--nameservers', type=str, metavar='LIST', help='DNS servers to query (separated with commas)')
-	parser.add_argument('--port', type=int, metavar='PORT', help='DNS server port number (default: 53)')
 	parser.add_argument('--useragent', type=str, metavar='STRING', default='Mozilla/5.0 dnstwist/%s' % __version__, help='User-Agent STRING to send with HTTP requests (default: Mozilla/5.0 dnstwist/%s)' % __version__)
 
 	def _exit(code):
@@ -775,6 +772,17 @@ def main():
 	except ValueError as err:
 		p_err('Error: %s\n' % err)
 		_exit(-1)
+
+	nameservers = []
+	if args.nameservers:
+		nameservers = args.nameservers.split(',')
+		if not nameservers:
+			p_err('Error: Invalid DNS resolvers provided\n')
+			_exit(-1)
+		for r in nameservers:
+			if len(r.split('.')) != 4:
+				p_err('Error: Invalid DNS resolver: %s\n' % r)
+				_exit(-1)
 
 	dictionary = []
 	if args.dictionary:
@@ -884,7 +892,7 @@ def main():
 		if args.mxcheck:
 			worker.option_mxcheck = True
 		if args.nameservers:
-			worker.nameservers = args.nameservers.split(',')
+			worker.nameservers = nameservers
 
 		worker.start()
 		threads.append(worker)
