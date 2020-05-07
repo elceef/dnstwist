@@ -903,7 +903,7 @@ def main():
 		worker.stop()
 		worker.join()
 
-	hits_total = sum('dns-ns' in d or 'dns-a' in d for d in domains)
+	hits_total = sum([1 for x in domains if len(x) > 2])
 	hits_percent = 100 * hits_total / len(domains)
 	p_cli(' %d hits (%d%%)\n\n' % (hits_total, hits_percent))
 
