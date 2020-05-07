@@ -666,44 +666,42 @@ def generate_idle(domains):
 
 def generate_cli(domains):
 	cli = []
-	width_fuzzer = max([len(d['fuzzer']) for d in domains]) + 1
-	width_domain = max([len(d['domain-name']) for d in domains]) + 1
+	width_fuzzer = max([len(x['fuzzer']) for x in domains]) + 1
+	width_domain = max([len(x['domain-name']) for x in domains]) + 1
 	for domain in domains:
-		info = str()
+		info = []
 		if 'dns-a' in domain:
-			info += ';'.join(domain['dns-a'])
 			if 'geoip-country' in domain:
-				info += FG_CYA + '/' + domain['geoip-country'] + FG_RST
-			info += ' '
+				info.append(';'.join(domain['dns-a']) + FG_CYA + '/' + domain['geoip-country'].replace(' ', '') + FG_RST)
+			else:
+				info.append(';'.join(domain['dns-a']))
 		if 'dns-aaaa' in domain:
-			info += ';'.join(domain['dns-aaaa']) + ' '
+			info.append(';'.join(domain['dns-aaaa']))
 		if 'dns-ns' in domain:
-			info += '%sNS:%s%s%s ' % (FG_YEL, FG_CYA, ';'.join(domain['dns-ns']), FG_RST)
+			info.append(FG_YEL + 'NS:' + FG_CYA + ';'.join(domain['dns-ns']) + FG_RST)
 		if 'dns-mx' in domain:
 			if 'mx-spy' in domain:
-				info += '%sSPYING-MX:%s%s' % (FG_YEL, domain['dns-mx'][0], FG_RST)
+				info.append(FG_YEL + 'SPYING-MX:' + FG_CYA + ';'.join(domain['dns-mx']) + FG_RST)
 			else:
-				info += '%sMX:%s%s%s ' % (FG_YEL, FG_CYA, ';'.join(domain['dns-mx']), FG_RST)
+				info.append(FG_YEL + 'MX:' + FG_CYA + ';'.join(domain['dns-mx']) + FG_RST)
 		if 'banner-http' in domain:
-			info += '%sHTTP:%s"%s"%s ' % (FG_YEL, FG_CYA, domain['banner-http'], FG_RST)
+			info.append(FG_YEL + 'HTTP:' + FG_CYA + '"' + domain['banner-http'] + '"' + FG_RST)
 		if 'banner-smtp' in domain:
-			info += '%sSMTP:%s"%s"%s ' % (FG_YEL, FG_CYA, domain['banner-smtp'], FG_RST)
+			info.append(FG_YEL + 'SMTP:' + FG_CYA + '"' + domain['banner-smtp'] + '"' + FG_RST)
 		if 'whois-created' in domain and 'whois-updated' in domain:
 			if domain['whois-created'] == domain['whois-updated']:
-				info += '%sCreated/Updated:%s%s%s ' % (FG_YEL, FG_CYA, domain['whois-created'], FG_RST)
+				info.append(FG_YEL + 'Created:' + FG_CYA + domain['whois-created'] + FG_RST)
 			else:
 				if 'whois-created' in domain:
-					info += '%sCreated:%s%s%s ' % (FG_YEL, FG_CYA, domain['whois-created'], FG_RST)
+					info.append(FG_YEL + 'Created:' + FG_CYA + domain['whois-created'] + FG_RST)
 				if 'whois-updated' in domain:
-					info += '%sUpdated:%s%s%s ' % (FG_YEL, FG_CYA, domain['whois-updated'], FG_RST)
-		if 'ssdeep-score' in domain:
-			if domain['ssdeep-score'] > 0:
-				info += '%sSSDEEP:%d%%%s ' % (FG_YEL, domain['ssdeep-score'], FG_RST)
-		info = info.strip()
+					info.append(FG_YEL + 'Updated' + FG_CYA + domain['whois-updated'] + FG_RST)
+		if domain.get('ssdeep-score', 0) > 0:
+			info.append(FG_YEL + 'SSDEEP:' + str(domain['ssdeep-score']) + FG_RST)
 		if not info:
-			info = '-'
-		cli.append('{} {} {}'.format(FG_BLU + domain['fuzzer'].ljust(width_fuzzer) + FG_RST,
-			domain['domain-name'].ljust(width_domain), info))
+			info = ['-']
+		cli.append(' '.join([FG_BLU + domain['fuzzer'].ljust(width_fuzzer) + FG_RST,
+			domain['domain-name'].ljust(width_domain), ' '.join(info)]))
 	return '\n'.join(cli)
 
 
