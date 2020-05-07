@@ -104,11 +104,6 @@ else:
 	FG_RND = FG_YEL = FG_CYA = FG_BLU = FG_RST = ST_BRI = ST_RST = ''
 
 
-def bye(code):
-	sys.stdout.write(FG_RST + ST_RST)
-	sys.exit(code)
-
-
 class UrlParser():
 	def __init__(self, url):
 		if '://' not in url:
@@ -743,10 +738,14 @@ def main():
 	parser.add_argument('--port', type=int, metavar='PORT', help='DNS server port number (default: 53)')
 	parser.add_argument('--useragent', type=str, metavar='STRING', default='Mozilla/5.0 dnstwist/%s' % __version__, help='User-Agent STRING to send with HTTP requests (default: Mozilla/5.0 dnstwist/%s)' % __version__)
 
+	def _exit(code):
+		print(FG_RST + ST_RST, end='')
+		sys.exit(code)
+
 	if len(sys.argv) < 2:
 		print('{}dnstwist {} by <{}>{}\n'.format(ST_BRI, __version__, __email__, ST_RST))
 		parser.print_help()
-		bye(0)
+		_exit(0)
 
 	threads = []
 
@@ -758,13 +757,12 @@ def main():
 		print('{0}: {1}'.format(sys.argv[0], text), file=sys.stderr, end='', flush=True)
 
 	def signal_handler(signal, frame):
-		sys.stdout.write('\nStopping threads... ')
-		sys.stdout.flush()
+		print('\nStopping threads... ', end='', flush=True)
 		for worker in threads:
 			worker.stop()
 			worker.join()
-		sys.stdout.write('Done\n')
-		bye(0)
+		print('Done')
+		_exit(0)
 
 	signal.signal(signal.SIGINT, signal_handler)
 	signal.signal(signal.SIGTERM, signal_handler)
@@ -776,13 +774,13 @@ def main():
 		url = UrlParser(args.domain)
 	except ValueError as err:
 		p_err('Error: %s\n' % err)
-		bye(-1)
+		_exit(-1)
 
 	dictionary = []
 	if args.dictionary:
 		if not path.exists(args.dictionary):
 			p_err('Error: Dictionary not found: %s\n' % args.dictionary)
-			bye(-1)
+			_exit(-1)
 		with open(args.dictionary) as f:
 			dictionary = set(f.read().splitlines())
 			dictionary = [x for x in dictionary if x.isalpha()]
@@ -791,7 +789,7 @@ def main():
 	if args.tld:
 		if not path.exists(args.tld):
 			p_err('Error: Dictionary not found: %s\n' % args.tld)
-			bye(-1)
+			_exit(-1)
 		with open(args.tld) as f:
 			tld = set(f.read().splitlines())
 			tld = [x for x in tld if x.isalpha()]
@@ -802,7 +800,7 @@ def main():
 
 	if args.format == 'idle':
 		print(generate_idle(domains))
-		bye(0)
+		_exit(0)
 
 	if not MODULE_DNSPYTHON:
 		p_err('Notice: Missing module DNSPython (DNS features limited)\n')
@@ -926,7 +924,7 @@ def main():
 		else:
 			print(generate_cli(domains))
 
-	bye(0)
+	_exit(0)
 
 
 if __name__ == '__main__':
