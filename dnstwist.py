@@ -626,12 +626,11 @@ class DomainThread(threading.Thread):
 					try:
 						req = requests.get(self.uri_scheme + '://' + domain['domain-name'] + self.uri_path + self.uri_query,
 							timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': self.useragent}, verify=False)
-						#ssdeep_curr = ssdeep.hash(req.text.replace(' ', '').replace('\n', ''))
-						ssdeep_curr = ssdeep.hash(req.text)
 					except Exception:
 						pass
 					else:
 						if req.status_code // 100 == 2:
+							ssdeep_curr = ssdeep.hash(''.join(req.text.split()).lower())
 							domain['ssdeep-score'] = ssdeep.compare(self.ssdeep_init, ssdeep_curr)
 
 			domain['domain-name'] = domain['domain-name'].encode().decode('idna')
@@ -852,8 +851,7 @@ def main():
 		else:
 			p_cli('%d %s (%.1f Kbytes)\n' % (req.status_code, req.reason, float(len(req.text))/1000))
 			if req.status_code // 100 == 2:
-				#ssdeep_orig = ssdeep.hash(req.text.replace(' ', '').replace('\n', ''))
-				ssdeep_init = ssdeep.hash(req.text)
+				ssdeep_init = ssdeep.hash(''.join(req.text.split()).lower())
 			else:
 				args.ssdeep = False
 
