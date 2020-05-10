@@ -149,14 +149,13 @@ class UrlParser():
 					self.query = '?' + m_uri.group('query')
 
 	def __validate_domain(self, domain):
-		if len(domain) > 255:
+		if len(domain) > 253:
 			return False
-		if domain[-1] == '.':
-			domain = domain[:-1]
+		domain = domain.strip('.')
 		allowed = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
 		return allowed.match(domain)
 
-	def get_full_uri(self):
+	def full_uri(self):
 		return self.scheme + '://' + self.domain + self.path + self.query
 
 
@@ -609,7 +608,7 @@ class DomainThread(threading.Thread):
 							domain['geoip-country'] = country.split(',')[0]
 
 			if self.option_banners:
-				if dns_a is True or dns_aaaa is True:
+				if dns_a is True:
 					banner = self.__banner_http(domain['dns-a'][0], domain['domain-name'])
 					if banner:
 						domain['banner-http'] = banner
@@ -634,14 +633,14 @@ class DomainThread(threading.Thread):
 			self.jobs.task_done()
 
 
-def generate_json(domains):
-	json_domains = domains
-	for domain in json_domains:
+def create_json(domains=[]):
+	domains = list(domains)
+	for domain in domains:
 		domain['domain-name'] = domain['domain-name'].encode('idna').decode()
-	return json.dumps(json_domains, indent=4, sort_keys=True)
+	return json.dumps(domains, indent=4, sort_keys=True)
 
 
-def generate_csv(domains):
+def create_csv(domains=[]):
 	csv = ['fuzzer,domain-name,dns-a,dns-aaaa,dns-mx,dns-ns,geoip-country,whois-created,whois-updated,ssdeep-score']
 	for domain in domains:
 		csv.append(','.join([domain.get('fuzzer'), domain.get('domain-name').encode('idna').decode(),
@@ -654,12 +653,12 @@ def generate_csv(domains):
 	return '\n'.join(csv)
 
 
-def generate_idle(domains):
+def create_idle(domains=[]):
 	idle = '\n'.join([x.get('domain-name').encode('idna').decode() for x in domains])
 	return idle
 
 
-def generate_cli(domains):
+def create_cli(domains=[]):
 	cli = []
 	width_fuzzer = max([len(x['fuzzer']) for x in domains]) + 1
 	width_domain = max([len(x['domain-name']) for x in domains]) + 1
@@ -801,7 +800,7 @@ def main():
 	domains = fuzz.domains
 
 	if args.format == 'idle':
-		print(generate_idle(domains))
+		print(create_idle(domains))
 		_exit(0)
 
 	if not MODULE_DNSPYTHON:
@@ -826,9 +825,9 @@ def main():
 
 	ssdeep_init = str()
 	if args.ssdeep and MODULE_SSDEEP and MODULE_REQUESTS:
-		p_cli('Fetching content from: ' + url.get_full_uri() + ' ... ')
+		p_cli('Fetching content from: ' + url.full_uri() + ' ... ')
 		try:
-			req = requests.get(url.get_full_uri(), timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': args.useragent})
+			req = requests.get(url.full_uri(), timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': args.useragent})
 		except requests.exceptions.ConnectionError:
 			p_cli('Connection error\n')
 			args.ssdeep = False
@@ -917,11 +916,11 @@ def main():
 
 	if domains:
 		if args.format == 'csv':
-			print(generate_csv(domains))
+			print(create_csv(domains))
 		elif args.format == 'json':
-			print(generate_json(domains))
+			print(create_json(domains))
 		else:
-			print(generate_cli(domains))
+			print(create_cli(domains))
 
 	_exit(0)
 
