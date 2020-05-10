@@ -39,11 +39,7 @@ from random import randint
 from os import path
 import smtplib
 import json
-
-try:
-	import queue
-except ImportError:
-	import Queue as queue
+import queue
 
 try:
 	import dns.resolver
@@ -86,6 +82,7 @@ try:
 except ImportError:
 	MODULE_REQUESTS = False
 	pass
+
 
 REQUEST_TIMEOUT_DNS = 2.5
 REQUEST_RETRIES_DNS = 2
