@@ -1,1 +1,0 @@
-../dnstwist.py
