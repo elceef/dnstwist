@@ -713,9 +713,10 @@ def main():
 	parser.add_argument('-a', '--all', action='store_true', help='Show all DNS records')
 	parser.add_argument('-b', '--banners', action='store_true', help='Determine HTTP and SMTP service banners')
 	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='Generate more domains using dictionary FILE')
+	parser.add_argument('-f', '--format', type=str, choices=['cli', 'csv', 'json', 'idle'], default='cli', help='Output format (default: cli)')
 	parser.add_argument('-g', '--geoip', action='store_true', help='Lookup for GeoIP location')
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='Check if MX can be used to intercept emails')
-	parser.add_argument('-f', '--format', type=str, choices=['cli', 'csv', 'json', 'idle'], default='cli', help='Output format (default: cli)')
+	parser.add_argument('-o', '--output', type=str, metavar='FILE', help='Save output to FILE')
 	parser.add_argument('-r', '--registered', action='store_true', help='Show only registered domain names')
 	parser.add_argument('-s', '--ssdeep', action='store_true', help='Fetch web pages and compare their fuzzy hashes to evaluate similarity')
 	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT,
@@ -745,11 +746,11 @@ def main():
 		print(text, file=sys.stderr, flush=True)
 
 	def signal_handler(signal, frame):
-		print('\nStopping threads... ', end='', flush=True)
+		print('\nStopping threads... ', file=sys.stderr, end='', flush=True)
 		for worker in threads:
 			worker.stop()
 			worker.join()
-		print('Done')
+		print('Done', file=sys.stderr)
 		_exit(0)
 
 	signal.signal(signal.SIGINT, signal_handler)
@@ -757,25 +758,21 @@ def main():
 
 	if args.threads < 1:
 		parser.error('number of threads must be greater than zero')
-		_exit(-1)
 
 	if MODULE_WHOIS and args.whois and args.threads != 1:
 		parser.error('to prevent abusing WHOIS policies argument --whois can be used only with --threads=1')
-		_exit(-1)
 
 	nameservers = []
 	if args.nameservers:
 		nameservers = args.nameservers.split(',')
 		for r in nameservers:
 			if len(r.split('.')) != 4:
-				parser.error('invalid DNS resolver')
-				_exit(-1)
+				parser.error('invalid DNS nameserver')
 
 	dictionary = []
 	if args.dictionary:
 		if not path.exists(args.dictionary):
 			parser.error('dictionary file not found: %s' % args.dictionary)
-			_exit(-1)
 		with open(args.dictionary) as f:
 			dictionary = set(f.read().splitlines())
 			dictionary = [x for x in dictionary if x.isalpha()]
@@ -784,10 +781,19 @@ def main():
 	if args.tld:
 		if not path.exists(args.tld):
 			parser.error('dictionary file not found: %s' % args.tld)
-			_exit(-1)
 		with open(args.tld) as f:
 			tld = set(f.read().splitlines())
 			tld = [x for x in tld if x.isalpha()]
+
+	if args.output:
+		try:
+			sys.stdout = open(args.output, 'x')
+		except FileExistsError:
+			parser.error('file already exists: %s' % args.output)
+		except FileNotFoundError:
+			parser.error('not such file or directory: %s' % args.output)
+		except PermissionError:
+			parser.error('permission denied: %s' % args.output)
 
 	try:
 		url = UrlParser(args.domain)
