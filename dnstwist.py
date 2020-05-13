@@ -205,27 +205,20 @@ class DomainFuzz():
 				d = ('',) * (3-len(d)) + d
 			return d
 
-	def __validate_domain(self, domain):
-		try:
-			domain_idna = domain.encode('idna').decode()
-		except UnicodeError:
-			# '.tla'.encode('idna') raises UnicodeError: label empty or too long
-			# This can be obtained when __omission takes a one-letter domain.
-			return False
-		if len(domain) == len(domain_idna) and domain != domain_idna:
-			return False
-		allowed = re.compile('(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}\.?$)', re.IGNORECASE)
-		return allowed.match(domain_idna)
-
 	def __filter_domains(self):
+		def idna(domain):
+			try:
+				return domain.encode('idna').decode()
+			except UnicodeError:
+				return b''
+		idna_domains = list(map(idna, [x['domain-name'] for x in self.domains]))
+		valid_regex = re.compile('(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}\.?$)', re.IGNORECASE)
 		seen = set()
 		filtered = []
-		for d in self.domains:
-			#if not self.__validate_domain(d['domain-name']):
-				#p_err("debug: invalid domain %s\n" % d['domain-name'])
-			if self.__validate_domain(d['domain-name']) and d['domain-name'] not in seen:
-				seen.add(d['domain-name'])
-				filtered.append(d)
+		for idx, domain in enumerate(idna_domains):
+			if valid_regex.match(domain) and domain not in seen:
+				filtered.append(self.domains[idx])
+				seen.add(domain)
 		self.domains = filtered
 
 	def __bitsquatting(self):
