@@ -1,4 +1,8 @@
+__pycache__/
 venv/
 # PyCharm project directory
 .idea
 *.pyc
+# domain monitor files
+domains.txt
+domainData.json
