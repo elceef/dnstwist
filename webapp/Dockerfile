@@ -14,4 +14,4 @@ COPY       ./dnstwist.py /opt/dnstwist/
 
 EXPOSE     8000
 
-CMD        ["gunicorn3", "webapp:app", "--bind", "0.0.0.0:8000", "--log-level", "debug"]
+CMD        ["gunicorn3", "webapp:app", "--bind", "0.0.0.0:8000", "--workers", "1", "--threads", "3", "--log-level", "debug"]
