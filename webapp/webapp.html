@@ -1,16 +1,18 @@
 <html>
 <head>
-<title>dnstwist webapp</title>
+<meta charset="utf-8">
+<meta name="author" content="Marcin Ulikowski">
+<title>dnstwist webapp | phishing domain scanner</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <style>
 html {
 	overflow-y: scroll;
-	}
+}
 body {
 	font-family: -apple-system,Segoe UI,Ubuntu,Helvetica,Arial;
 	background-color: #f7f7f7;
 	color: #353739;
-	}
+}
 div#container {
 	position: relative;
 	width: 66%;
@@ -22,31 +24,31 @@ table {
 	width: 100%;
 	margin: 50px 0;
 	table-layout: fixed;
-	}
+}
 tr {
 	border-bottom: 1px solid #ccc;
-	}
+}
 td {
 	padding: 5px 0;
 	vertical-align: top;
 	word-wrap: break-word;
-	}
+}
 header {
 	text-align: center;
-	}
+}
 header h1 {
 	color: #ef006f;
 	font: italic bold 333% Verdana;
-	}
+}
 header p {
 	color: #804090;
 	font: bold 100% Verdana;
 	margin-top: -50px;
 	margin-right: -15em;
-	}
+}
 div#searchbox {
 	display: flex;
-	}
+}
 input#url {
 	font-size: 1.1em;
 	height: 2.8em;
@@ -54,7 +56,7 @@ input#url {
 	border-radius: 5px 0 0 5px;
 	padding-left: .75em;
 	width: 100%;
-	}
+}
 button#scan {
 	color: white;
 	background-color: #894d9a;
@@ -65,28 +67,33 @@ button#scan {
 	font-size: 1.1em;
 	font-weight: 600;
 	flex-grow: 1;
-	}
+}
 sup {
 	color: #777;
-	}
-progress[value] {
+}
+progress {
 	height: 5px;
 	width: 100%;
 	background-color: transparent;
 	border: 0;
 	margin: 5px 0;
-	}
+}
 span#status {
 	float: right;
 	font-size: 80%;
 }
 a {
 	color: inherit;
-	text-decoration: none;
-	}
+	text-decoration: underline dotted;
+}
 a:hover {
 	text-decoration: underline;
-	}
+}
+span#source {
+	position: fixed;
+	right: 20px;
+	bottom: 20px;
+}
 </style>
 </head>
 <body>
@@ -97,7 +104,8 @@ a:hover {
 				<p>webapp</p>
 			</header>
 			<div id="searchbox">
-				<input type="text" id="url" placeholder="Enter a domain name or URL">
+				<input type="hidden" id="sid">
+				<input type="text" id="url" placeholder="Enter domain name">
 				<button id="scan">Scan</button>
 			</div>
 			<progress id="progress" value="0"></progress>
@@ -105,11 +113,12 @@ a:hover {
 		</div>
 		<table id="data"></table>
 	</div>
+	<span id="source"><a href="https://github.com/elceef/dnstwist">[source code]</a></span>
 </body>
 <script>
 function healthCheck() {
 	$.get({
-			url: '/api/status',
+			url: '/api/healthcheck',
 			error: function() {
 				alert('Backend API is unreachable');
 			}
@@ -120,7 +129,7 @@ healthCheck();
 setInterval(healthCheck, 10000);
 
 function fetchDomains() {
-	$.getJSON('/api/domains', function(data) {
+	$.getJSON('/api/scans/' + $('#sid').val() + '/domains', function(data) {
 		$('#data').empty();
 		$('<tr>').html(
 				'<td><b>PERMUTATION</b></td>' +
@@ -134,7 +143,7 @@ function fetchDomains() {
 			ipaddr = [
 				(item['dns-a'] || [''])[0].replace('!ServFail', '✖'),
 				(item['dns-aaaa'] || [''])[0].replace('!ServFail', '')
-			].join(' ');
+			].filter(Boolean).join('</br>');
 			dns_ns = (item['dns-ns'] || [''])[0].replace('!ServFail', '✖');
 			dns_mx = (item['dns-mx'] || [''])[0].replace('!ServFail', '✖');
 			geoip = item['geoip-country'] || '';
@@ -149,7 +158,7 @@ function fetchDomains() {
 }
 
 function pollScan() {
-    $.getJSON('/api/status', function(data) {
+    $.getJSON('/api/scans/' + $('#sid').val(), function(data) {
         $('#status').html('Processed ' + data['complete'] + ' of ' + data['total']);
         $('#progress').val(data['complete']/data['total']);
 		if (data['remaining'] > 0) {
@@ -170,10 +179,11 @@ function actionScan() {
 
 	if ($('#scan').text() == 'Scan') {
 		$.post({
-			url: '/api/scan',
+			url: '/api/scans',
 			data: JSON.stringify({'url': $('#url').val()}),
 			contentType: 'application/json',
-			success: function() {
+			success: function(data) {
+				$('#sid').val(data['id']);
 				$('#scan').text('Stop');
 				pollScan();
 			},
@@ -182,8 +192,9 @@ function actionScan() {
 			}
 		});
 	} else {
+		stop();
 		$.post({
-			url: '/api/stop',
+			url: '/api/scans/' + $('#sid').val() + '/stop',
 			contentType: 'application/json',
 			success: function() {
 				$('#scan').text('Scan');
