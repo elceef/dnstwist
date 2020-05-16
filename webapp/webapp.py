@@ -13,12 +13,12 @@ from dnstwist import UrlParser, DomainFuzz, DomainThread, THREAD_COUNT_DEFAULT
 
 PORT = int(os.environ.get('PORT', 8000))
 HOST= os.environ.get('HOST', '127.0.0.1')
-THREAD_COUNT = int(os.environ.get('THREAD_COUNT', THREAD_COUNT_DEFAULT))
+THREADS = int(os.environ.get('THREADS', THREAD_COUNT_DEFAULT))
 NAMESERVER = os.environ.get('NAMESERVER')
 SESSION_TTL = int(os.environ.get('SESSION_TTL', 300))
 SESSION_MAX = int(os.environ.get('SESSION_MAX', 20))
-WEBAPP_HTML = 'webapp.html'
-WEBAPP_DIR = os.path.dirname(__file__)
+WEBAPP_HTML = os.environ.get('WEBAPP_HTML', 'webapp.html')
+WEBAPP_DIR = os.environ.get('WEBAPP_DIR', os.path.dirname(__file__))
 
 
 sessions = []
@@ -26,7 +26,7 @@ app = Flask(__name__)
 
 
 class Session():
-	def __init__(self, url, nameserver=None, thread_count=THREAD_COUNT):
+	def __init__(self, url, nameserver=None, thread_count=THREADS):
 		self.id = str(uuid4())
 		self.timestamp = int(time())
 		self.url = UrlParser(url)
@@ -73,6 +73,20 @@ class Session():
 	def domains(self):
 		return [x for x in self.permutations if len(x) > 2]
 
+	def csv(self):
+		csv = ['fuzzer,domain-name,dns-a,dns-aaaa,dns-ns,dns-mx,geoip-country']
+		for domain in self.domains():
+			csv.append(','.join([
+				domain.get('fuzzer'),
+				domain.get('domain-name'),
+				domain.get('dns-a', [''])[0],
+				domain.get('dns-aaaa', [''])[0],
+				domain.get('dns-ns', [''])[0],
+				domain.get('dns-mx', [''])[0],
+				domain.get('geoip-country', '')
+				]))
+		return '\n'.join(csv)
+
 
 @app.route('/')
 def root():
@@ -93,7 +107,7 @@ def api_scan():
 		if len(suburl) > 15:
 			return jsonify({'message': 'Domain name is too long'}), 400
 	try:
-		session = Session(request.json.get('url'), nameserver=NAMESERVER, thread_count=THREAD_COUNT)
+		session = Session(request.json.get('url'), nameserver=NAMESERVER)
 	except Exception as err:
 		return jsonify({'message': 'Invalid domain name'}), 400
 	else:
@@ -118,6 +132,14 @@ def api_domains(sid):
 	return jsonify({'message': 'Scan session not found'}), 404
 
 
+@app.route('/api/scans/<sid>/csv')
+def api_csv(sid):
+	for s in sessions:
+		if s.id == sid:
+			return s.csv(), 200, {'Content-Type': 'text/csv', 'Content-Disposition': 'attachment; filename=dnstwist.csv'}
+	return jsonify({'message': 'Scan session not found'}), 404
+
+
 @app.route('/api/scans/<sid>/stop', methods=['POST'])
 def api_stop(sid):
 	for s in sessions:
@@ -125,11 +147,6 @@ def api_stop(sid):
 			s.stop()
 			return jsonify({})
 	return jsonify({'message': 'Scan session not found'}), 404
-
-
-@app.route('/api/healthcheck')
-def api_healthcheck():
-	return jsonify({'message': 'OK'})
 
 
 if __name__ == '__main__':

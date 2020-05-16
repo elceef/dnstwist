@@ -10,7 +10,7 @@ html {
 }
 body {
 	font-family: -apple-system,Segoe UI,Ubuntu,Helvetica,Arial;
-	background-color: #f7f7f7;
+	background-color: #fafbfc;
 	color: #353739;
 }
 div#container {
@@ -26,7 +26,7 @@ table {
 	table-layout: fixed;
 }
 tr {
-	border-bottom: 1px solid #ccc;
+	border-bottom: 1px solid #ddd;
 }
 td {
 	padding: 5px 0;
@@ -84,10 +84,11 @@ span#status {
 }
 a {
 	color: inherit;
-	text-decoration: underline dotted;
+	text-decoration: underline;
+	text-decoration-skip: ink;
 }
 a:hover {
-	text-decoration: underline;
+	text-decoration: none;
 }
 span#source {
 	position: fixed;
@@ -113,21 +114,9 @@ span#source {
 		</div>
 		<table id="data"></table>
 	</div>
-	<span id="source"><a href="https://github.com/elceef/dnstwist">[source code]</a></span>
+	<span id="source">[<a href="https://github.com/elceef/dnstwist">source code</a>]</span>
 </body>
 <script>
-function healthCheck() {
-	$.get({
-			url: '/api/healthcheck',
-			error: function() {
-				alert('Backend API is unreachable');
-			}
-	});
-}
-
-healthCheck();
-setInterval(healthCheck, 10000);
-
 function fetchDomains() {
 	$.getJSON('/api/scans/' + $('#sid').val() + '/domains', function(data) {
 		$('#data').empty();
@@ -164,7 +153,7 @@ function pollScan() {
 		if (data['remaining'] > 0) {
 			setTimeout(pollScan, 250);
 		} else {
-			$('#status').html('Scan complete');
+			$('#status').html('Scan complete: <a href="/api/scans/' + $('#sid').val() + '/csv">download as CSV</a>');
 			$('#scan').text('Scan');
 		}
         fetchDomains();
