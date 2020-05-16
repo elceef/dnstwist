@@ -57,21 +57,23 @@ class Session():
 			worker.stop()
 			worker.join()
 
+	def domains(self):
+		return [x for x in self.permutations if len(x) > 2]
+
 	def status(self):
 		total = len(self.permutations)
 		remaining = self.jobs.qsize()
 		complete = total - remaining
+		registered = len(self.domains())
 		return {
 			'id': self.id,
 			'timestamp': self.timestamp,
 			'url': self.url.full_uri(),
 			'total': total,
 			'complete': complete,
-			'remaining': remaining
+			'remaining': remaining,
+			'registered': registered
 			}
-
-	def domains(self):
-		return [x for x in self.permutations if len(x) > 2]
 
 	def csv(self):
 		csv = ['fuzzer,domain-name,dns-a,dns-aaaa,dns-ns,dns-mx,geoip-country']
