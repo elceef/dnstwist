@@ -96,7 +96,7 @@ $ pip3 install -r requirements.txt
 ```
 
 
-Quick start quide
+Quick start guide
 -----------------
 
 The tool will run the provided domain name through its fuzzing algorithms and
