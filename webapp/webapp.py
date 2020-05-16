@@ -20,6 +20,11 @@ SESSION_MAX = int(os.environ.get('SESSION_MAX', 20))
 WEBAPP_HTML = os.environ.get('WEBAPP_HTML', 'webapp.html')
 WEBAPP_DIR = os.environ.get('WEBAPP_DIR', os.path.dirname(__file__))
 
+DICTIONARY = ['auth', 'account', 'confirm', 'connect', 'enroll', 'http', 'https', 'login', 'mail', 'my', 'online',
+	'payment', 'portal', 'recovery', 'register', 'ssl', 'safe', 'secure', 'signin', 'signup', 'support', 'update',
+	'user', 'verify', 'verification', 'web', 'www']
+TLD_DICTIONARY = ['com', 'cn', 'net', 'eu', 'ga', 'tk', 'ml', 'cf', 'info', 'app', 'ooo', 'xyz', 'online', 'site']
+
 
 sessions = []
 app = Flask(__name__)
@@ -34,7 +39,7 @@ class Session():
 		self.thread_count = thread_count
 		self.jobs = Queue()
 		self.threads = []
-		fuzz = DomainFuzz(self.url.domain)
+		fuzz = DomainFuzz(self.url.domain, dictionary=DICTIONARY, tld_dictionary=TLD_DICTIONARY)
 		fuzz.generate()
 		self.permutations = fuzz.domains
 
