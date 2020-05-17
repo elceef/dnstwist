@@ -3,6 +3,7 @@
 <meta charset="utf-8">
 <meta name="author" content="Marcin Ulikowski">
 <meta name="description" content="Find lookalike phishing domains that adversaries can use to attack you">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>dnstwist | phishing domain scanner</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <style>
@@ -13,17 +14,17 @@ body {
 	font-family: -apple-system,Segoe UI,Ubuntu,Helvetica,Arial;
 	background-color: #fafbfc;
 	color: #353739;
+	margin: 0;
 }
 div#container {
 	position: relative;
-	width: 66%;
-	min-width: 1000px;
-	margin: 0 auto;
+	width: 70%;
+	margin: 2em auto 0 auto;
 	}
 table {
 	border-collapse: collapse;
 	width: 100%;
-	margin: 50px 0;
+	margin: 3em 0;
 	table-layout: fixed;
 }
 tr {
@@ -40,15 +41,18 @@ header {
 header h1 {
 	color: #ef006f;
 	font: italic bold 333% Verdana;
+	margin: 0;
 }
 header p {
 	color: #804090;
 	font: bold 100% Verdana;
-	margin-top: -50px;
-	margin-right: -15em;
+	margin: 0;
+	width: 75%;
+	float: right;
 }
 div#searchbox {
 	display: flex;
+	margin: 3em auto 0 auto;
 }
 input#url {
 	font-size: 1.1em;
@@ -56,7 +60,7 @@ input#url {
 	border: 1px solid #ccc;
 	border-radius: 5px 0 0 5px;
 	padding-left: .75em;
-	width: 100%;
+	width: 80%;
 }
 button#scan {
 	color: white;
@@ -64,7 +68,6 @@ button#scan {
 	border: 0;
 	border-radius: 0 5px 5px 0;
 	height: 2.8em;
-	width: 10em;
 	font-size: 1.1em;
 	font-weight: 600;
 	flex-grow: 1;
@@ -93,8 +96,17 @@ a:hover {
 }
 span#source {
 	position: fixed;
-	right: 20px;
-	bottom: 20px;
+	right: 1em;
+	bottom: 1em;
+	background-color: #fafbfc;
+}
+@media (max-width: 800px) {
+	body, table, span {
+		font-size: 75%;
+	}
+	div#container {
+		width: 95%;
+	}
 }
 </style>
 </head>
