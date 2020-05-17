@@ -850,7 +850,7 @@ def main():
 			else:
 				args.ssdeep = False
 
-	p_cli('Processing %d domain variants ' % len(domains))
+	p_cli('Processing %d permutations ' % len(domains))
 
 	jobs = queue.Queue()
 
@@ -889,20 +889,20 @@ def main():
 
 	qperc = 0
 	while not jobs.empty():
-		p_cli('.')
+		p_cli('·')
 		qcurr = 100 * (len(domains) - jobs.qsize()) / len(domains)
-		if qcurr - 15 >= qperc:
+		if qcurr - 20 >= qperc:
 			qperc = qcurr
 			p_cli('%u%%' % qperc)
-		time.sleep(1)
-
-	for worker in threads:
-		worker.stop()
-		worker.join()
+		time.sleep(1.0)
 
 	hits_total = sum([1 for x in domains if len(x) > 2])
 	hits_percent = 100 * hits_total / len(domains)
 	p_cli(' %d hits (%d%%)\n\n' % (hits_total, hits_percent))
+
+	for worker in threads:
+		worker.stop()
+		worker.join()
 
 	if args.registered:
 		domains[:] = [x for x in domains if len(x) > 2]
