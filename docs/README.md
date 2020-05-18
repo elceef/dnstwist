@@ -3,38 +3,78 @@ dnstwist
 
 See what sort of trouble users can get in trying to type your domain name.
 Find lookalike domains that adversaries can use to attack you. Can detect
-typosquatters, phishing attacks, fraud, and corporate espionage. Useful as an
+typosquatters, phishing attacks, fraud, and brand impersonation. Useful as an
 additional source of targeted threat intelligence.
 
-![Demo](/docs/dnstwist_demo.gif)
+![Demo](/docs/demo.gif)
 
-The idea is quite straightforward: with the original domain name as input, the
-tool generates a list of potentially malicious domains and then checks which
-are registered. Additionally, it can generate fuzzy hashes of the web pages to
-see if they are part of an ongoing phishing attack or brand impersonation, and
-much more!
+DNS fuzzing is an automated workflow for discovering potentially malicious
+domains targeting your organisation. This tool works by generating a large list
+of permutations based on a domain name you provide and then checking if any of
+those permutations are in use.
+Additionally, it can generate fuzzy hashes of the web pages to see if they are
+part of an ongoing phishing attack or brand impersonation, and much more!
+
+In a hurry? There is [web version](https://dnstwist.it) available - try it!
 
 
 Key features
 ------------
 
-- A wide range of efficient domain fuzzing algorithms
+- Variety of highly effective domain fuzzing algorithms
 - Unicode domain names (IDN)
 - Additional domain permutations using dictionary files
-- Multithreaded job distribution
-- Queries IPv4, IPv6, NS and MX records
-- Evaluates web page similarity with fuzzy hashes to find live phishing sites
-- Tests if MX host (mail server) can be used to intercept misdirected e-mails
-- GeoIP location information
-- Grabs HTTP and SMTP service banners
-- WHOIS lookups for creation and modification date
-- Output in CSV and JSON format
+- Efficient multithreaded task distribution
+- Live phishing webpage detection
+- Rogue MX host detection (intercepting misdirected e-mails)
+- GeoIP location
+- Export to CSV and JSON format
+
+
+Installation
+------------
+
+**Python PIP**
+
+```
+$ pip install dnstwist
+```
+
+**Git**
+
+If you want to run the latest version of the code, you can install it from Git:
+
+```
+$ git clone https://github.com/elceef/dnstwist.git
+$ cd dnstwist
+$ pip install .
+```
+
+**OSX**
+
+Installation is simplified thanks to [Homebrew](https://brew.sh/) package:
+
+```
+$ brew install dnstwist
+```
+
+This will install `dnstwist` along with all dependencies, and the binary will
+be added to `$PATH`.
+
+**Docker**
+
+If you prefer Docker, you can pull and run official image from the Docker Hub:
+
+```
+$ docker run elceef/dnstwist
+```
 
 
 Requirements
 ------------
-This tool is designed to run fine with just standard Python library. However,
-a couple of third-party libraries are required to show its full potential.
+
+This tool is designed to run fine with just standard Python3 library. However,
+a couple of third-party packages are required to show its full potential.
 
 **Debian/Ubuntu/Kali Linux**
 
@@ -46,7 +86,7 @@ $ sudo apt install python3-dnspython python3-tld python3-geoip python3-whois \
 python3-requests python3-ssdeep
 ```
 
-Alternatively, you can use Python tooling. This can be done within a virtual
+Alternatively, you can use Python PIP. This can be done within a virtual
 environment to avoid conflicts with other installations. However, you will
 still need essential build tools and a couple of libraries installed.
 
@@ -55,40 +95,19 @@ $ sudo apt install libfuzzy-dev
 $ pip3 install -r requirements.txt
 ```
 
-**OSX**
 
-Installation is simplified thanks to [Homebrew](https://brew.sh/):
-
-```
-$ brew install dnstwist
-```
-
-This is going to install `dnstwist.py` as `dnstwist` only, along with all
-requirements mentioned above. The usage is the same, you can just omit the
-file extension, and the binary will be added to `PATH`.
-
-**Docker**
-
-If you prefer Docker, you can pull and run official image from Docker Hub:
-
-```
-$ docker run elceef/dnstwist domain.name
-```
-
-
-How to use
-----------
+Quick start guide
+-----------------
 
 The tool will run the provided domain name through its fuzzing algorithms and
-generate a list of potential phishing domains with the following DNS records:
-A, AAAA, NS and MX.
+generate a list of potential phishing domains.
 
 Usually thousands of domain permutations are generated - especially for longer
 input domains. In such cases, it may be practical to display only registered
 (resolvable) ones using `--registered` argument.
 
 ```
-$ dnstwist.py --registered domain.name
+$ dnstwist --registered domain.name
 ```
 
 Ensure your DNS server can handle thousands of requests within a short period
@@ -110,7 +129,7 @@ generated web page. However, each notification should be inspected carefully
 regardless of the score.
 
 ```
-$ dnstwist.py --ssdeep domain.name
+$ dnstwist --ssdeep domain.name
 ```
 
 In some cases, phishing sites are served from a specific URL. If you provide a
@@ -119,8 +138,8 @@ for each generated domain name variant. This is obviously useful only with the
 fuzzy hashing feature.
 
 ```
-$ dnstwist.py --ssdeep https://domain.name/owa/
-$ dnstwist.py --ssdeep domain.name/crm/login
+$ dnstwist --ssdeep https://domain.name/owa/
+$ dnstwist --ssdeep domain.name/login
 ```
 
 Very often attackers set up e-mail honey pots on phishing domains and wait for
@@ -136,7 +155,7 @@ accept incorrectly addressed e-mails but then discard those messages. This
 technique is used to prevent "directory harvesting attack".
 
 ```
-$ dnstwist.py --mxcheck domain.name
+$ dnstwist --mxcheck domain.name
 ```
 
 If domain permutations generated by the fuzzing algorithms are insufficient,
@@ -145,7 +164,7 @@ a list of the most common words used in phishing campaigns are included. Feel
 free to adapt it to your needs.
 
 ```
-$ dnstwist.py --dictionary dictionaries/english.dict domain.name
+$ dnstwist --dictionary dictionaries/english.dict domain.name
 ```
 
 If you need to check whether domains with different TLDs exist, you can use the
@@ -153,38 +172,28 @@ If you need to check whether domains with different TLDs exist, you can use the
 file is provided.
 
 ```
-$ dnstwist.py --tld dictionaries/common_tlds.dict example.com
+$ dnstwist --tld dictionaries/common_tlds.dict example.com
 ```
 
-Apart from the default nice and colorful text terminal output, the tool
-provides two well known and easy to parse output formats: CSV and JSON. Use it
-for convenient data interchange.
+Apart from the colorful terminal output, the tool allows exporting results to
+CSV and JSON. In case you want to chain it with other tools and need just the
+permutations without making any DNS lookups, use `--format idle`:
 
 ```
-$ dnstwist.py --format csv domain.name > out.csv
-$ dnstwist.py --format json domain.name > out.json
-```
-
-In case you want to chain `dnstwist` with other tools and you need only domain
-variants without performing any DNS lookups, you can use `--format idle`:
-
-```
-$ dnstwist.py --format idle domain.name | tr '\n' ','
+$ dnstwist --format csv domain.name | column -t -s,
+$ dnstwist --format json domain.name | jq
+$ dnstwist --format idle domain.name
 ```
 
 The tool can perform real-time lookups to return geographical location of IPv4
 addresses. Use `--geoip` option to display country name next to each address.
 
 ```
-$ dnstwist.py --geoip domain.name
+$ dnstwist --geoip domain.name
 ```
 
-Of course all of the features offered by this tool together with brief
-descriptions are always available at your fingertips:
-
-```
-$ dnstwist.py --help
-```
+To display all available options with brief descriptions simply execute the
+tool without any arguments.
 
 Happy hunting!
 
@@ -193,30 +202,33 @@ Coverage
 --------
 
 Along with the length of the domain, the number of variants generated by the
-algorithms increases considerably, and therefore the number of DNS queries
-needed to verify them. For example, to check all variants for google.com, you
-would have to send over 300k queries. For the domain facebook.com the number
-increases to over 5 million. How easy it is to guess it takes a lot of
-resources and most importantly even more time. For longer domains checking all
-is simply not feasible.
+algorithms increases considerably, and therefore the time and resources needed
+to verify them. It's mathematically impossible to check all domain
+permutations - especially for longer input domains which would require millions
+of DNS lookups.
 For this reason, this tool generates and checks domains very close to the
 original one. Theoretically, these are the most attractive domains from the
 attacker's point of view. However, be aware that the imagination of the
 aggressors is unlimited.
 
 
+It works
+--------
+
+The scanner is utilized by tens of SOC and incident response teams around the
+globe, as well as independent information security analysts and researchers.
+On the top of this, it's integrated into products and services of many security
+providers, in particular but not only:
+Splunk, RecordedFuture, SpiderFoot, DigitalShadows, SecurityRisk, SmartFense,
+ThreatPipes, Cortex XSOAR, Mimecast.
+
+
 Contact
 -------
 
-To send questions, comments or a bar of chocolate, just drop an e-mail at
-[marcin@ulikowski.pl](mailto:marcin@ulikowski.pl)
-
-You can also reach the author via:
-
-- Twitter: [@elceef](https://twitter.com/elceef)
-- LinkedIn: [Marcin Ulikowski](https://pl.linkedin.com/in/elceef)
-
-Any feedback is appreciated. If you were able to run the tool and you are happy
-with the results just let me know. If you have found some confirmed phishing
-domains with this tool and are comfortable with sharing them, also please send
-me a message. Thank you.
+To send questions, thoughts or a bar of chocolate, just drop an e-mail at
+[marcin@ulikowski.pl](mailto:marcin@ulikowski.pl).
+You can [follow the author on Twitter](https://twitter.com/elceef) to stay in
+the loop on major improvements and related news.
+Any feedback is appreciated. If you have found some confirmed phishing domains
+or just like this tool, please don't hesitate and send a message. Thank you.
