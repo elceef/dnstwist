@@ -618,7 +618,7 @@ class DomainThread(threading.Thread):
 					except Exception:
 						pass
 					else:
-						if req.status_code // 100 == 2 and req.url != self.ssdeep_effective_url:
+						if req.status_code // 100 == 2 and req.url.split('?')[0] != self.ssdeep_effective_url:
 							ssdeep_curr = ssdeep.hash(''.join(req.text.split()).lower())
 							domain['ssdeep-score'] = ssdeep.compare(self.ssdeep_init, ssdeep_curr)
 
@@ -846,11 +846,11 @@ def main():
 			pass
 		else:
 			if len(req.history) > 1:
-				p_cli(' ➔ %s' % req.url)
+				p_cli(' ➔ %s' % req.url.split('?')[0])
 			p_cli(' %d %s (%.1f Kbytes)\n' % (req.status_code, req.reason, float(len(req.text))/1000))
 			if req.status_code // 100 == 2:
 				ssdeep_init = ssdeep.hash(''.join(req.text.split()).lower())
-				ssdeep_effective_url = req.url
+				ssdeep_effective_url = req.url.split('?')[0]
 			else:
 				args.ssdeep = False
 
