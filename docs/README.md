@@ -99,11 +99,11 @@ Quick start guide
 -----------------
 
 The tool will run the provided domain name through its fuzzing algorithms and
-generate a list of potential phishing domains.
+generate a list of potential phishing domains along with DNS records.
 
 Usually thousands of domain permutations are generated - especially for longer
-input domains. In such cases, it may be practical to display only registered
-(resolvable) ones using `--registered` argument.
+input domains. In such cases, it may be practical to display only the ones that
+are registered:
 
 ```
 $ dnstwist --registered domain.name
@@ -123,9 +123,10 @@ fetch content from responding HTTP server (following possible redirects) and
 compare its fuzzy hash with the one for the original (initial) domain. The
 level of similarity will be expressed as a percentage.
 
-Please keep in mind it's rather unlikely to get 100% match for a dynamically
-generated web page. However, each notification should be inspected carefully
-regardless of the score.
+Note: Keep in mind it's rather unlikely to get 100% match for a dynamically
+generated web page, and that a phishing site can have completely different HTML
+source code. However, each notification is a strong indicator and should be
+inspected carefully regardless of the score.
 
 ```
 $ dnstwist --ssdeep domain.name
@@ -141,7 +142,7 @@ $ dnstwist --ssdeep https://domain.name/owa/
 $ dnstwist --ssdeep domain.name/login
 ```
 
-Very often attackers set up e-mail honey pots on phishing domains and wait for
+Sometimes attackers set up e-mail honey pots on phishing domains and wait for
 mistyped e-mails to arrive. In this scenario, attackers would configure their
 server to vacuum up all e-mail addressed to that domain, regardless of the user
 it was sent towards. Another `dnstwist` feature allows performing a simple test
@@ -149,7 +150,7 @@ on each mail server (advertised through DNS MX record) to check which one can
 be used for such hostile intent. Suspicious servers will be flagged with
 `SPYING-MX` string.
 
-Please be aware of possible false positives. Some mail servers only pretend to
+Note: Be aware of possible false positives. Some mail servers only pretend to
 accept incorrectly addressed e-mails but then discard those messages. This
 technique is used to prevent "directory harvesting attack".
 
@@ -165,8 +166,8 @@ a list of the most common words used in phishing campaigns are included.
 $ dnstwist --dictionary dictionaries/english.dict domain.name
 ```
 
-If you need to check whether domains with different TLDs exist, you can use the
-`--tld` option. You'll need to supply the TLDs list in a text file.
+If you need to check whether domains with different TLD exist, just supply
+a dictionary file with the list of TLD.
 
 ```
 $ dnstwist --tld dictionaries/common_tlds.dict example.com
@@ -174,7 +175,7 @@ $ dnstwist --tld dictionaries/common_tlds.dict example.com
 
 Apart from the colorful terminal output, the tool allows exporting results to
 CSV and JSON. In case you need just the permutations without making any DNS
-lookups, use `--format idle`:
+lookups, use `--format idle` argument:
 
 ```
 $ dnstwist --format csv domain.name | column -t -s,
@@ -182,8 +183,8 @@ $ dnstwist --format json domain.name | jq
 $ dnstwist --format idle domain.name
 ```
 
-The tool can perform real-time lookups to return geographical location of IPv4
-addresses. Use `--geoip` option to display country name next to each address.
+The tool can perform real-time lookups to return geographical location
+(approximated to the country) of IPv4 addresses.
 
 ```
 $ dnstwist --geoip domain.name
