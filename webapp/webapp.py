@@ -85,7 +85,7 @@ class Session():
 		for domain in self.domains():
 			csv.append(','.join([
 				domain.get('fuzzer'),
-				domain.get('domain-name'),
+				domain.get('domain-name').encode('idna').decode(),
 				domain.get('dns-a', [''])[0],
 				domain.get('dns-aaaa', [''])[0],
 				domain.get('dns-ns', [''])[0],
