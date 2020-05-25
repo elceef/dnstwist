@@ -768,7 +768,7 @@ def main():
 			parser.error('dictionary file not found: %s' % args.dictionary)
 		with open(args.dictionary) as f:
 			dictionary = set(f.read().splitlines())
-			dictionary = [x for x in dictionary if x.isalpha()]
+			dictionary = [x for x in dictionary if x.isalnum()]
 
 	tld = []
 	if args.tld:
