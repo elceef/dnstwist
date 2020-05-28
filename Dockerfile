@@ -1,13 +1,14 @@
-FROM       debian:stable-slim
+FROM debian:stable-slim
 MAINTAINER elceef@gmail.com
 
-WORKDIR    /opt/dnstwist
-RUN        apt-get update && \
-           apt-get install -y --no-install-recommends python3-dnspython python3-tld python3-geoip python3-whois python3-requests python3-ssdeep locales && \
-           locale-gen en_US.UTF-8
-ENV        LC_ALL=en_US.UTF-8
-ENV        LANG=en_US.UTF-8
-ENV        LANGUAGE=en_US.UTF-8
+WORKDIR /opt/dnstwist
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends python3-dnspython python3-tld python3-geoip python3-whois python3-requests python3-ssdeep && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-COPY       . /opt/dnstwist/
+COPY dnstwist.py /opt/dnstwist/
+COPY dictionaries /opt/dnstwist/dictionaries/
+
 ENTRYPOINT ["./dnstwist.py"]
