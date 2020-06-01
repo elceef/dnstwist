@@ -25,7 +25,7 @@ limitations under the License.
 '''
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20200429'
+__version__ = '20200521'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -421,7 +421,7 @@ class DomainThread(threading.Thread):
 		self.kill_received = False
 
 		self.ssdeep_init = ''
-		self.domain_init = ''
+		self.ssdeep_effective_url = ''
 
 		self.uri_scheme = 'http'
 		self.uri_path = ''
@@ -618,7 +618,7 @@ class DomainThread(threading.Thread):
 					except Exception:
 						pass
 					else:
-						if req.status_code // 100 == 2:
+						if req.status_code // 100 == 2 and req.url.split('?')[0] != self.ssdeep_effective_url:
 							ssdeep_curr = ssdeep.hash(''.join(req.text.split()).lower())
 							domain['ssdeep-score'] = ssdeep.compare(self.ssdeep_init, ssdeep_curr)
 
@@ -768,7 +768,7 @@ def main():
 			parser.error('dictionary file not found: %s' % args.dictionary)
 		with open(args.dictionary) as f:
 			dictionary = set(f.read().splitlines())
-			dictionary = [x for x in dictionary if x.isalpha()]
+			dictionary = [x for x in dictionary if x.isalnum()]
 
 	tld = []
 	if args.tld:
@@ -823,8 +823,9 @@ def main():
 ''' % __version__ + FG_RST + ST_RST)
 
 	ssdeep_init = str()
+	ssdeep_effective_url = str()
 	if args.ssdeep and MODULE_SSDEEP and MODULE_REQUESTS:
-		p_cli('Fetching content from: ' + url.full_uri() + ' ... ')
+		p_cli('Fetching content from: ' + url.full_uri())
 		try:
 			req = requests.get(url.full_uri(), timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': args.useragent})
 		except requests.exceptions.ConnectionError:
@@ -844,9 +845,12 @@ def main():
 			args.ssdeep = False
 			pass
 		else:
-			p_cli('%d %s (%.1f Kbytes)\n' % (req.status_code, req.reason, float(len(req.text))/1000))
+			if len(req.history) > 1:
+				p_cli(' ➔ %s' % req.url.split('?')[0])
+			p_cli(' %d %s (%.1f Kbytes)\n' % (req.status_code, req.reason, float(len(req.text))/1000))
 			if req.status_code // 100 == 2:
 				ssdeep_init = ssdeep.hash(''.join(req.text.split()).lower())
+				ssdeep_effective_url = req.url.split('?')[0]
 			else:
 				args.ssdeep = False
 
@@ -878,6 +882,7 @@ def main():
 		if args.ssdeep and MODULE_REQUESTS and MODULE_SSDEEP and ssdeep_init:
 			worker.option_ssdeep = True
 			worker.ssdeep_init = ssdeep_init
+			worker.ssdeep_effective_url = ssdeep_effective_url
 		if args.mxcheck:
 			worker.option_mxcheck = True
 		if args.nameservers:
