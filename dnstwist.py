@@ -712,6 +712,7 @@ def main():
 	parser.add_argument('-o', '--output', type=str, metavar='FILE', help='Save output to FILE')
 	parser.add_argument('-r', '--registered', action='store_true', help='Show only registered domain names')
 	parser.add_argument('-s', '--ssdeep', action='store_true', help='Fetch web pages and compare their fuzzy hashes to evaluate similarity')
+	parser.add_argument('--ssdeep-url', metavar='URL', help='Override URL to fetch the original web page from')
 	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT,
 		help='Start specified NUMBER of threads (default: %s)' % THREAD_COUNT_DEFAULT)
 	parser.add_argument('-w', '--whois', action='store_true', help='Lookup for WHOIS creation/update time (slow!)')
@@ -788,11 +789,17 @@ def main():
 		except PermissionError:
 			parser.error('permission denied: %s' % args.output)
 
+	ssdeep_url = None
+	if args.ssdeep_url:
+		try:
+			ssdeep_url = UrlParser(args.ssdeep_url)
+		except ValueError:
+			parser.error('invalid domain name: ' + args.ssdeep_url)
+
 	try:
 		url = UrlParser(args.domain)
-	except ValueError as err:
-		p_err('Error: %s' % err)
-		_exit(-1)
+	except ValueError:
+		parser.error('invalid domain name: ' + args.domain)
 
 	fuzz = DomainFuzz(url.domain, dictionary=dictionary, tld_dictionary=tld)
 	fuzz.generate()
@@ -825,9 +832,10 @@ def main():
 	ssdeep_init = str()
 	ssdeep_effective_url = str()
 	if args.ssdeep and MODULE_SSDEEP and MODULE_REQUESTS:
-		p_cli('Fetching content from: ' + url.full_uri())
+		request_url = ssdeep_url.full_uri() if ssdeep_url else url.full_uri()
+		p_cli('Fetching content from: ' + request_url)
 		try:
-			req = requests.get(url.full_uri(), timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': args.useragent})
+			req = requests.get(request_url, timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': args.useragent})
 		except requests.exceptions.ConnectionError:
 			p_cli('Connection error\n')
 			args.ssdeep = False
