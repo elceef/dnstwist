@@ -576,8 +576,8 @@ class DomainThread(threading.Thread):
 
 			if self.option_mxcheck:
 				if dns_mx is True:
-					if domain['domain-name'] is not self.domain_orig:
-						if self.__mxcheck(domain['dns-mx'][0], self.domain_orig, domain['domain-name']):
+					if domain['domain-name'] != self.domain_init:
+						if self.__mxcheck(domain['dns-mx'][0], self.domain_init, domain['domain-name']):
 							domain['mx-spy'] = True
 
 			if self.option_whois:
