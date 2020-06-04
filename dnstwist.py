@@ -833,29 +833,25 @@ def main():
 	ssdeep_effective_url = str()
 	if args.ssdeep and MODULE_SSDEEP and MODULE_REQUESTS:
 		request_url = ssdeep_url.full_uri() if ssdeep_url else url.full_uri()
-		p_cli('Fetching content from: ' + request_url)
+		p_cli('Fetching content from: %s ' % request_url)
 		try:
 			req = requests.get(request_url, timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': args.useragent})
 		except requests.exceptions.ConnectionError:
 			p_cli('Connection error\n')
-			args.ssdeep = False
-			pass
+			_exit(1)
 		except requests.exceptions.HTTPError:
 			p_cli('Invalid HTTP response\n')
-			args.ssdeep = False
-			pass
+			_exit(1)
 		except requests.exceptions.Timeout:
 			p_cli('Timeout (%d seconds)\n' % REQUEST_TIMEOUT_HTTP)
-			args.ssdeep = False
-			pass
+			_exit(1)
 		except Exception:
 			p_cli('Failed!\n')
-			args.ssdeep = False
-			pass
+			_exit(1)
 		else:
 			if len(req.history) > 1:
-				p_cli(' ➔ %s' % req.url.split('?')[0])
-			p_cli(' %d %s (%.1f Kbytes)\n' % (req.status_code, req.reason, float(len(req.text))/1000))
+				p_cli('➔ %s ' % req.url.split('?')[0])
+			p_cli('%d %s (%.1f Kbytes)\n' % (req.status_code, req.reason, float(len(req.text))/1000))
 			if req.status_code // 100 == 2:
 				ssdeep_init = ssdeep.hash(''.join(req.text.split()).lower())
 				ssdeep_effective_url = req.url.split('?')[0]
