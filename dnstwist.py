@@ -429,7 +429,6 @@ class DomainThread(threading.Thread):
 
 		self.option_extdns = False
 		self.option_geoip = False
-		self.option_whois = False
 		self.option_ssdeep = False
 		self.option_banners = False
 		self.option_mxcheck = False
@@ -580,15 +579,6 @@ class DomainThread(threading.Thread):
 						if self.__mxcheck(domain['dns-mx'][0], self.domain_init, domain['domain-name']):
 							domain['mx-spy'] = True
 
-			if self.option_whois:
-				if nxdomain is False and dns_ns is True:
-					try:
-						whoisdb = whois.query(domain['domain-name'])
-						domain['whois-created'] = str(whoisdb.creation_date).split(' ')[0]
-						domain['whois-updated'] = str(whoisdb.last_updated).split(' ')[0]
-					except Exception:
-						pass
-
 			if self.option_geoip:
 				if dns_a is True:
 					gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
@@ -634,14 +624,14 @@ def create_json(domains=[]):
 
 
 def create_csv(domains=[]):
-	csv = ['fuzzer,domain-name,dns-a,dns-aaaa,dns-mx,dns-ns,geoip-country,whois-created,whois-updated,ssdeep-score']
+	csv = ['fuzzer,domain-name,dns-a,dns-aaaa,dns-mx,dns-ns,geoip-country,whois-created,ssdeep-score']
 	for domain in domains:
 		csv.append(','.join([domain.get('fuzzer'), domain.get('domain-name').encode('idna').decode(),
 			';'.join(domain.get('dns-a', [])),
 			';'.join(domain.get('dns-aaaa', [])),
 			';'.join(domain.get('dns-mx', [])),
 			';'.join(domain.get('dns-ns', [])),
-			domain.get('geoip-country', ''), domain.get('whois-created', ''), domain.get('whois-updated', ''),
+			domain.get('geoip-country', ''), domain.get('whois-created', ''),
 			str(domain.get('ssdeep-score', ''))]))
 	return '\n'.join(csv)
 
@@ -675,14 +665,8 @@ def create_cli(domains=[]):
 			info.append(FG_YEL + 'HTTP:' + FG_CYA + '"' + domain['banner-http'] + '"' + FG_RST)
 		if 'banner-smtp' in domain:
 			info.append(FG_YEL + 'SMTP:' + FG_CYA + '"' + domain['banner-smtp'] + '"' + FG_RST)
-		if 'whois-created' in domain and 'whois-updated' in domain:
-			if domain['whois-created'] == domain['whois-updated']:
-				info.append(FG_YEL + 'Created:' + FG_CYA + domain['whois-created'] + FG_RST)
-			else:
-				if 'whois-created' in domain:
-					info.append(FG_YEL + 'Created:' + FG_CYA + domain['whois-created'] + FG_RST)
-				if 'whois-updated' in domain:
-					info.append(FG_YEL + 'Updated' + FG_CYA + domain['whois-updated'] + FG_RST)
+		if 'whois-created' in domain:
+			info.append(FG_YEL + 'CREATED:' + FG_CYA + domain['whois-created'] + FG_RST)
 		if domain.get('ssdeep-score', 0) > 0:
 			info.append(FG_YEL + 'SSDEEP:' + str(domain['ssdeep-score']) + FG_RST)
 		if not info:
@@ -715,7 +699,7 @@ def main():
 	parser.add_argument('--ssdeep-url', metavar='URL', help='Override URL to fetch the original web page from')
 	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT,
 		help='Start specified NUMBER of threads (default: %s)' % THREAD_COUNT_DEFAULT)
-	parser.add_argument('-w', '--whois', action='store_true', help='Lookup for WHOIS creation/update time (slow!)')
+	parser.add_argument('-w', '--whois', action='store_true', help='Lookup WHOIS database for creation date')
 	parser.add_argument('--tld', type=str, metavar='FILE', help='Generate more domains by swapping TLD from FILE')
 	parser.add_argument('--nameservers', type=str, metavar='LIST', help='DNS servers to query (separated with commas)')
 	parser.add_argument('--useragent', type=str, metavar='STRING', default='Mozilla/5.0 dnstwist/%s' % __version__,
@@ -752,9 +736,6 @@ def main():
 
 	if args.threads < 1:
 		parser.error('number of threads must be greater than zero')
-
-	if MODULE_WHOIS and args.whois and args.threads != 1:
-		parser.error('to prevent abusing WHOIS policies argument --whois can be used only with --threads=1')
 
 	nameservers = []
 	if args.nameservers:
@@ -877,8 +858,6 @@ def main():
 
 		if MODULE_DNSPYTHON:
 			worker.option_extdns = True
-		if MODULE_WHOIS and args.whois:
-			worker.option_whois = True
 		if MODULE_GEOIP and args.geoip:
 			worker.option_geoip = True
 		if args.banners:
@@ -906,8 +885,7 @@ def main():
 		time.sleep(1.0)
 
 	hits_total = sum([1 for x in domains if len(x) > 2])
-	hits_percent = 100 * hits_total / len(domains)
-	p_cli(' %d hits (%d%%)\n\n' % (hits_total, hits_percent))
+	p_cli(' %d hits\n' % hits_total)
 
 	for worker in threads:
 		worker.stop()
@@ -915,6 +893,21 @@ def main():
 
 	if args.registered:
 		domains[:] = [x for x in domains if len(x) > 2]
+
+	if MODULE_WHOIS and args.whois and not fuzz.subdomain:
+		p_cli('Querying WHOIS servers ')
+		for domain in domains:
+			if len(domain) > 2:
+				p_cli('·')
+				try:
+					whoisq = whois.query(domain['domain-name'].encode('idna').decode())
+					if whoisq:
+						domain['whois-created'] = str(whoisq.creation_date).split(' ')[0]
+				except Exception:
+					pass
+		p_cli(' Done\n')
+
+	p_cli('\n')
 
 	if not args.all:
 		for i in range(len(domains)):
