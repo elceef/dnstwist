@@ -181,7 +181,7 @@ class UrlParser():
 		allowed = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
 		return allowed.match(domain)
 
-	def get_full_uri(self):
+	def full_uri(self):
 		return self.scheme + '://' + self.domain + self.path + self.query
 
 class DomainFuzz():
