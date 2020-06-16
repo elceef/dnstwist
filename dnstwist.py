@@ -56,7 +56,7 @@ except ImportError:
 	pass
 
 try:
-	import whois
+	import whois as whoislib
 	MODULE_WHOIS = True
 except ImportError:
 	MODULE_WHOIS = False
@@ -944,7 +944,7 @@ def dnstwist(domain,all=False,banners=False,dictionary=None,geoip=False,mxcheck=
 				if cli:
 					p_cli('·')
 				try:
-					whoisq = whois.query(domain['domain-name'].encode('idna').decode())
+					whoisq = whoislib.query(domain['domain-name'].encode('idna').decode())
 					if whoisq:
 						domain['whois-created'] = str(whoisq.creation_date).split(' ')[0]
 						domain['whois-updated'] = str(whoisq.last_updated).split(' ')[0]
