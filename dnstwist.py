@@ -1013,10 +1013,6 @@ def main():
 	argNamespace = parser.parse_args()
 	args = vars(argNamespace)
 
-	# wonky, but function defs don't like "-" in the parameter name
-	args['ssdeep_url'] = args['ssdeep-url']
-	del args['ssdeep-url']
-
 	dnstwist(**args,cli=True)
 
 
