@@ -1,0 +1,218 @@
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="author" content="Marcin Ulikowski">
+<meta name="description" content="Find lookalike phishing domains that adversaries can use to attack you">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>dnstwist | phishing domain scanner</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<style>
+html {
+	overflow-y: scroll;
+}
+body {
+	font-family: -apple-system,Segoe UI,Ubuntu,Helvetica,Arial;
+	background-color: #fafbfc;
+	color: #353739;
+	margin: 0;
+}
+div#container {
+	position: relative;
+	width: 70%;
+	margin: 2em auto 0 auto;
+	}
+table {
+	border-collapse: collapse;
+	width: 100%;
+	margin: 3em 0;
+	table-layout: fixed;
+}
+tr {
+	border-bottom: 1px solid #ddd;
+}
+td {
+	padding: 5px 0;
+	vertical-align: top;
+	word-wrap: break-word;
+}
+header {
+	text-align: center;
+}
+header h1 {
+	color: #ef006f;
+	font: italic bold 333% Verdana;
+	margin: 0;
+}
+header p {
+	color: #804090;
+	font: bold 100% Verdana;
+	margin: 0;
+	width: 75%;
+	float: right;
+}
+div#searchbox {
+	display: flex;
+	margin: 3em auto 0 auto;
+}
+input#url {
+	font-size: 1.1em;
+	height: 2.8em;
+	border: 1px solid #ccc;
+	border-radius: 5px 0 0 5px;
+	padding-left: .75em;
+	width: 80%;
+}
+button#scan {
+	color: white;
+	background-color: #894d9a;
+	border: 0;
+	border-radius: 0 5px 5px 0;
+	height: 2.8em;
+	font-size: 1.1em;
+	font-weight: 600;
+	flex-grow: 1;
+}
+sup {
+	color: #777;
+}
+progress {
+	height: 5px;
+	width: 100%;
+	background-color: transparent;
+	border: 0;
+	margin: 5px 0;
+}
+span#status {
+	float: right;
+	font-size: 80%;
+}
+a {
+	color: inherit;
+	text-decoration: underline;
+	text-decoration-skip: ink;
+}
+a:hover {
+	text-decoration: none;
+}
+span#source {
+	position: fixed;
+	right: 1em;
+	bottom: 1em;
+	background-color: #fafbfc;
+}
+@media (max-width: 800px) {
+	body, table, span {
+		font-size: 75%;
+	}
+	div#container {
+		width: 95%;
+	}
+}
+</style>
+</head>
+<body>
+	<div id="container">
+		<div>
+			<header>
+				<h1>dnstwist</h1>
+				<p>phishing domain scanner</p>
+			</header>
+			<div id="searchbox">
+				<input type="hidden" id="sid">
+				<input type="text" id="url" placeholder="Enter domain name">
+				<button id="scan">Scan</button>
+			</div>
+			<progress id="progress" value="0"></progress>
+			<span id="status"></span>
+		</div>
+		<table id="data"></table>
+	</div>
+	<span id="source">[<a href="https://github.com/elceef/dnstwist">source code</a>]</span>
+</body>
+<script>
+function fetchDomains() {
+	$.getJSON('/api/scans/' + $('#sid').val() + '/domains', function(data) {
+		$('#data').empty();
+		$('<tr>').html(
+				'<td><b>PERMUTATION</b></td>' +
+				'<td><b>IP ADDRESS</b></td>' +
+				'<td><b>NAME SERVER</b></td>' +
+				'<td><b>MAIL SERVER</b></td>'
+			).appendTo('#data');
+		$.each(data, function(i, item) {
+			fuzzer = item['fuzzer'] || ''
+			permutation = item['domain-name'] || ''
+			ipaddr = [
+				(item['dns-a'] || [''])[0].replace('!ServFail', '✖'),
+				(item['dns-aaaa'] || [''])[0].replace('!ServFail', '')
+			].filter(Boolean).join('</br>');
+			dns_ns = (item['dns-ns'] || [''])[0].replace('!ServFail', '✖');
+			dns_mx = (item['dns-mx'] || [''])[0].replace('!ServFail', '✖');
+			geoip = item['geoip-country'] || '';
+			$('<tr>').html(
+				'<td><a href="http://' + permutation + '">' + permutation + '</a></br><sup>' + fuzzer + '</sup></td>' +
+				'<td>' + ipaddr + '</br><sup>' + geoip + '</sup></td>' +
+				'<td>' + dns_ns + '</td>' +
+				'<td>' + dns_mx + '</td>'
+			).appendTo('#data');
+		});
+	});
+}
+
+function pollScan() {
+    $.getJSON('/api/scans/' + $('#sid').val(), function(data) {
+        $('#status').html('Processed ' + data['complete'] + ' of ' + data['total']);
+        $('#progress').val(data['complete']/data['total']);
+		if (data['remaining'] > 0) {
+			setTimeout(pollScan, 250);
+		} else {
+			$('#status').html('Found ' + data['registered'] + ' suspicious domains: <a href="/api/scans/' + $('#sid').val() + '/csv">download as CSV</a>');
+			$('#scan').text('Scan');
+		}
+        fetchDomains();
+    });
+}
+
+function actionScan() {
+	if (!$('#url').val()) {
+		$('#status').html('↖ You need to type in a domain name first');
+		return
+	}
+
+	if ($('#scan').text() == 'Scan') {
+		$.post({
+			url: '/api/scans',
+			data: JSON.stringify({'url': $('#url').val()}),
+			contentType: 'application/json',
+			success: function(data) {
+				$('#sid').val(data['id']);
+				$('#scan').text('Stop');
+				pollScan();
+			},
+			error: function(xhr, status, error) {
+				$('#status').html(xhr.responseJSON['message'] || 'Something went wrong');
+			}
+		});
+	} else {
+		stop();
+		$.post({
+			url: '/api/scans/' + $('#sid').val() + '/stop',
+			contentType: 'application/json',
+			success: function() {
+				$('#scan').text('Scan');
+			}
+		});
+	}
+}
+
+$('#scan').click(function() {
+	actionScan();
+});
+
+$('#url').on('keypress',function(e) {
+    if(e.which == 13) {
+        actionScan();
+    }
+});
+</script>
+</html>
