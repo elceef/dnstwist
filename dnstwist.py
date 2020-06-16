@@ -118,14 +118,13 @@ def _exit(code):
 	sys.exit(code)
 
 
-def sigint_handler(signal, frame):
-	sys.stdout.write('\nStopping threads... ')
-	sys.stdout.flush()
-	for worker in threads:
-		worker.stop()
-		worker.join()
-	sys.stdout.write('Done\n')
-	_exit(0)
+def signal_handler(signal, frame):
+		print('\nStopping threads... ', file=sys.stderr, end='', flush=True)
+		for worker in threads:
+			worker.stop()
+			worker.join()
+		print('Done', file=sys.stderr)
+		_exit(0)
 
 
 class UrlParser():
