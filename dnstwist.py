@@ -667,9 +667,9 @@ def create_csv(domains=[]):
 			';'.join(domain.get('dns-aaaa', [])),
 			';'.join(domain.get('dns-mx', [])),
 			';'.join(domain.get('dns-ns', [])),
-			str(domain.get('geoip-country', ''),''), 
-			str(domain.get('whois-created', ''),''),
-			str(domain.get('whois-updated'),''),
+			domain.get('geoip-country') if 'geoip-country' in domain else '', 
+			domain.get('whois-created') if 'whois-created' in domain else'',
+			domain.get('whois-updated') if 'whois-updated' in domain else '',
 			str(domain.get('ssdeep-score', ''))]))
 	return '\n'.join(csv)
 
