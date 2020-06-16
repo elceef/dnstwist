@@ -870,7 +870,7 @@ def dnstwist(domain,all=False,banners=False,dictionary=None,geoip=False,mxcheck=
 				p_cli('➔ %s ' % req.url.split('?')[0])
 			write_log('%d %s (%.1f Kbytes)\n' % (req.status_code, req.reason, float(len(req.text))/1000),cli)
 			if req.status_code / 100 == 2:
-				ssdeep_init = ssdeep.hash(''.join(req.text.split()).lower())
+				ssdeep_init = ssdeeplib.hash(''.join(req.text.split()).lower())
 				ssdeep_effective_url = req.url.split('?')[0]
 			else:
 				args.ssdeep = False
