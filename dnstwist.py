@@ -612,7 +612,7 @@ class DomainThread(threading.Thread):
 							domain['mx-spy'] = True
 
 			if self.option_geoip:
-				domain['geoip-country'] = None
+				domain['geoip-country'] = str()
 				if dns_a is True:
 					gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
 					try:
@@ -624,8 +624,8 @@ class DomainThread(threading.Thread):
 							domain['geoip-country'] = country.split(',')[0]
 
 			if self.option_banners:
-				domain['banner-http'] = None
-				domain['banner-smtp'] = None
+				domain['banner-http'] = str()
+				domain['banner-smtp'] = str()
 				if dns_a is True or dns_aaaa is True:
 					banner = self.__banner_http(domain['dns-a'][0], domain['domain-name'])
 					if banner:
