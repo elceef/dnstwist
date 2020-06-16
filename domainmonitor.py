@@ -168,8 +168,8 @@ new_origin_options = {}):
 					domain['whois-created'] = str(whoisdb.creation_date).split(' ')[0]
 					domain['whois-updated'] = str(whoisdb.last_updated).split(' ')[0]
 				except:
-					domain['whois-created'] = None
-					domain['whois-updated'] = None
+					domain['whois-created'] = str()
+					domain['whois-updated'] = str()
 
 	# overwrite the datafile with newest results
 	print("Writing new results to data file")

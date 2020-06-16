@@ -709,7 +709,7 @@ def create_cli(domains=[]):
 
 		if 'banner-smtp' in domain:
 			info.append(FG_YEL + 'SMTP:' + FG_CYA + '"' + domain['banner-smtp'] + '"' + FG_RST)
-		if 'whois-created' in domain and 'whois-updated' in domain and (domain['whois-created'] != None or domain['whois-updated'] != None):
+		if 'whois-created' in domain and 'whois-updated' in domain and ((len(domain['whois-created']) > 1 or len(domain['whois-updated']) > 1):
 			if domain['whois-created'] == domain['whois-updated']:
 				info.append(FG_YEL + 'CREATED/UPDATED:' + FG_CYA + domain['whois-created'] + FG_RST)
 			else:
@@ -938,8 +938,8 @@ def dnstwist(domain,all=False,banners=False,dictionary=None,geoip=False,mxcheck=
 	if MODULE_WHOIS and args.whois and not fuzz.subdomain:
 		write_log('Querying WHOIS servers ',cli)
 		for domain in domains:
-			domain['whois-created'] = None
-			domain['whois-updated'] = None
+			domain['whois-created'] = str()
+			domain['whois-updated'] = str()
 			if len(domain) > 2:
 				if cli:
 					p_cli('·')
