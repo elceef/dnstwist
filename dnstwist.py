@@ -765,7 +765,7 @@ def dnstwist(domain,all=False,banners=False,dictionary=None,geoip=False,mxcheck=
 	tld = []
 	ssdeep_url = None
 
-	signal.signal(signal.SIGINT, sigint_handler)
+	signal.signal(signal.SIGINT, signal_handler)
 	signal.signal(signal.SIGTERM, signal_handler)
 
 	if args.threadcount < 1:
