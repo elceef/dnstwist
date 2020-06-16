@@ -546,7 +546,7 @@ class DomainThread(threading.Thread):
 				domain['dns-mx'] = list()
 
 				try:
-					domain['dns-ns'] = self.answer_to_list(resolv.query(domain['domain-name'], rdtype=dns.rdatatype.NS))
+					domain['dns-ns'] = self.__answer_to_list(resolv.query(domain['domain-name'], rdtype=dns.rdatatype.NS))
 					dns_ns = True
 				except dns.resolver.NXDOMAIN:
 					nxdomain = True
@@ -559,7 +559,7 @@ class DomainThread(threading.Thread):
 
 				if nxdomain is False:
 					try:
-						domain['dns-a'] = self.answer_to_list(resolv.query(domain['domain-name'], rdtype=dns.rdatatype.A))
+						domain['dns-a'] = self.__answer_to_list(resolv.query(domain['domain-name'], rdtype=dns.rdatatype.A))
 						dns_a = True
 					except dns.resolver.NoNameservers:
 						domain['dns-a'] = ['!ServFail']
@@ -568,7 +568,7 @@ class DomainThread(threading.Thread):
 						pass
 
 					try:
-						domain['dns-aaaa'] = self.answer_to_list(resolv.query(domain['domain-name'], rdtype=dns.rdatatype.AAAA))
+						domain['dns-aaaa'] = self.__answer_to_list(resolv.query(domain['domain-name'], rdtype=dns.rdatatype.AAAA))
 						dns_aaaa = True
 					except dns.resolver.NoNameservers:
 						domain['dns-aaaa'] = ['!ServFail']
@@ -578,7 +578,7 @@ class DomainThread(threading.Thread):
 
 				if nxdomain is False and dns_ns is True:
 					try:
-						domain['dns-mx'] = self.answer_to_list(resolv.query(domain['domain-name'], rdtype=dns.rdatatype.MX))
+						domain['dns-mx'] = self.__answer_to_list(resolv.query(domain['domain-name'], rdtype=dns.rdatatype.MX))
 						dns_mx = True
 					except dns.resolver.NoNameservers:
 						domain['dns-mx'] = ['!ServFail']
@@ -677,12 +677,6 @@ def create_csv(domains=[]):
 def create_idle(domains=[]):
 	idle = '\n'.join([x.get('domain-name').encode('idna').decode() for x in domains])
 	return idle
-
-#TODO: replace references
-def generate_idle(domains):
-	idle = '\n'.join([x.get('domain-name').encode('idna').decode() for x in domains])
-	return idle + '\n'
-
 
 def create_cli(domains=[]):
 	cli = []
