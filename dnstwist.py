@@ -746,7 +746,7 @@ def write_error(error,cli=False):
 		raise error
 
 
-def dnstwist(domain,all=False,banners=False,dictionary=None,geoip=False,mxcheck=False,registered=False,ssdeep=False,threadcount=THREAD_COUNT_DEFAULT,whois=False,tld=None,nameservers=None,port=53,useragent=None,cli=False,format="cli"):
+def dnstwist(domain,all=False,banners=False,dictionary=None,geoip=False,mxcheck=False,output=None,registered=False,ssdeep=False,ssdeep_url=None,threadcount=THREAD_COUNT_DEFAULT,whois=False,tld=None,nameservers=None,port=53,useragent=None,cli=False,format="cli"):
 	# When args are parsed in from the cli, they create a Namespace object
 	# this object is essentially just strings that are parsed out to objects at time of use
 	# most are bool or string, so nbd, but namespaces can take a list... kind of
@@ -763,7 +763,6 @@ def dnstwist(domain,all=False,banners=False,dictionary=None,geoip=False,mxcheck=
 	nameservers = []
 	dictionary = []
 	tld = []
-	ssdeep_url = None
 
 	signal.signal(signal.SIGINT, signal_handler)
 	signal.signal(signal.SIGTERM, signal_handler)
@@ -1014,6 +1013,9 @@ def main():
 	argNamespace = parser.parse_args()
 	args = vars(argNamespace)
 
+	# wonky, but function defs don't like "-" in the parameter name
+	args['ssdeep_url'] = args['ssdeep-url']
+	del args['ssdeep-url']
 
 	dnstwist(**args,cli=True)
 
