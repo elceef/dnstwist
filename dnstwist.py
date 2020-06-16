@@ -966,7 +966,7 @@ def dnstwist(domain,all=False,banners=False,dictionary=None,geoip=False,mxcheck=
 		else:
 			if args.format == 'csv':
 				print(create_csv(domains))
-			if args.format == 'json':
+			elif args.format == 'json':
 				print(create_json(domains))
 			else:
 				print(create_cli(domains))
