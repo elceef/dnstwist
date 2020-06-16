@@ -719,7 +719,6 @@ def create_cli(domains=[]):
 					info.append(FG_YEL + 'UPDATED:' + FG_CYA + domain['whois-updated'] + FG_RST)
 		if domain.get('ssdeep-score', 0) > 0:
 			info.append(FG_YEL + 'SSDEEP:' + str(domain['ssdeep-score']) + FG_RST)
-		info = info.strip()
 		if not info:
 			info = ['-']
 		cli.append(' '.join([FG_BLU + domain['fuzzer'].ljust(width_fuzzer) + FG_RST,
