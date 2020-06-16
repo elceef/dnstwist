@@ -709,7 +709,7 @@ def create_cli(domains=[]):
 
 		if 'banner-smtp' in domain:
 			info.append(FG_YEL + 'SMTP:' + FG_CYA + '"' + domain['banner-smtp'] + '"' + FG_RST)
-		if 'whois-created' in domain and 'whois-updated' in domain and ((len(domain['whois-created']) > 1 or len(domain['whois-updated']) > 1):
+		if 'whois-created' in domain and 'whois-updated' in domain and (len(domain['whois-created']) > 1 or len(domain['whois-updated']) > 1):
 			if domain['whois-created'] == domain['whois-updated']:
 				info.append(FG_YEL + 'CREATED/UPDATED:' + FG_CYA + domain['whois-created'] + FG_RST)
 			else:
