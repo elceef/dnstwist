@@ -636,9 +636,8 @@ def create_csv(domains=[]):
 	return '\n'.join(csv)
 
 
-def create_idle(domains=[]):
-	idle = '\n'.join([x.get('domain-name').encode('idna').decode() for x in domains])
-	return idle
+def create_list(domains=[]):
+	return '\n'.join([x.get('domain-name').encode('idna').decode() for x in domains])
 
 
 def create_cli(domains=[]):
@@ -690,7 +689,7 @@ def main():
 	parser.add_argument('-a', '--all', action='store_true', help='Show all DNS records')
 	parser.add_argument('-b', '--banners', action='store_true', help='Determine HTTP and SMTP service banners')
 	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='Generate more domains using dictionary FILE')
-	parser.add_argument('-f', '--format', type=str, choices=['cli', 'csv', 'json', 'idle'], default='cli', help='Output format (default: cli)')
+	parser.add_argument('-f', '--format', type=str, choices=['cli', 'csv', 'json', 'list'], default='cli', help='Output format (default: cli)')
 	parser.add_argument('-g', '--geoip', action='store_true', help='Lookup for GeoIP location')
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='Check if MX can be used to intercept emails')
 	parser.add_argument('-o', '--output', type=str, metavar='FILE', help='Save output to FILE')
@@ -786,8 +785,8 @@ def main():
 	fuzz.generate()
 	domains = fuzz.domains
 
-	if args.format == 'idle':
-		print(create_idle(domains))
+	if args.format == 'list':
+		print(create_list(domains))
 		_exit(0)
 
 	if not MODULE_DNSPYTHON:
