@@ -360,7 +360,7 @@ class DomainFuzz():
 
 	def __subdomain(self):
 		result = []
-		for i in range(1, len(self.domain)-3):
+		for i in range(1, len(self.domain)-1):
 			if self.domain[i] not in ['-', '.'] and self.domain[i-1] not in ['-', '.']:
 				result.append(self.domain[:i] + '.' + self.domain[i:])
 		return result
@@ -673,9 +673,8 @@ def create_csv(domains=[]):
 			str(domain.get('ssdeep-score', ''))]))
 	return '\n'.join(csv)
 
-def create_idle(domains=[]):
-	idle = '\n'.join([x.get('domain-name').encode('idna').decode() for x in domains])
-	return idle
+def create_list(domains=[]):
+	return '\n'.join([x.get('domain-name').encode('idna').decode() for x in domains])
 
 def create_cli(domains=[]):
 	cli = []
@@ -818,8 +817,8 @@ def dnstwist(domain,all=False,banners=False,dictionary=None,geoip=False,mxcheck=
 	fuzz.generate()
 	domains = fuzz.domains
 
-	if args.format == 'idle' and cli:
-		print(create_idle(domains))
+	if args.format == 'list' and cli:
+		print(create_list(domains))
 		_exit(0)
 
 	if not MODULE_DNSPYTHON:
@@ -921,14 +920,11 @@ def dnstwist(domain,all=False,banners=False,dictionary=None,geoip=False,mxcheck=
 			write_log('%u%%' % qperc,cli)
 		time.sleep(1.0)
 
-	hits_total = sum([1 for x in domains if len(x) > 2])
-	write_log(' %d hits\n' % hits_total,cli)
-
 	for worker in threads:
 		worker.stop()
 		worker.join()
 
-	hits_total = sum('dns-ns' in d or 'dns-a' in d for d in domains)
+	hits_total = sum(('dns-ns' in d and len(d['dns-ns']) > 1) or ('dns-a' in d and len(d['dns-a']) > 1) for d in domains)
 	hits_percent = 100 * hits_total / len(domains)
 	write_log(' %d hits (%d%%)\n\n' % (hits_total, hits_percent),cli)
 
@@ -988,7 +984,7 @@ def main():
 	parser.add_argument('-a', '--all', action='store_true', help='Show all DNS records')
 	parser.add_argument('-b', '--banners', action='store_true', help='Determine HTTP and SMTP service banners')
 	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='Generate more domains using dictionary FILE')
-	parser.add_argument('-f', '--format', type=str, choices=['cli', 'csv', 'json', 'idle'], default='cli', help='Output format (default: cli)')
+	parser.add_argument('-f', '--format', type=str, choices=['cli', 'csv', 'json', 'list'], default='cli', help='Output format (default: cli)')
 	parser.add_argument('-g', '--geoip', action='store_true', help='Lookup for GeoIP location')
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='Check if MX can be used to intercept emails')
 	parser.add_argument('-o', '--output', type=str, metavar='FILE', help='Save output to FILE')
