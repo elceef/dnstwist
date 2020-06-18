@@ -883,12 +883,11 @@ def main():
 			p_cli('%u%%' % qperc)
 		time.sleep(1.0)
 
-	hits_total = sum([1 for x in domains if len(x) > 2])
-	p_cli(' %d hits\n' % hits_total)
-
 	for worker in threads:
 		worker.stop()
 		worker.join()
+
+	p_cli(' %d hits\n' % sum([1 for x in domains if len(x) > 2]))
 
 	if args.registered:
 		domains[:] = [x for x in domains if len(x) > 2]
