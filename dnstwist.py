@@ -335,7 +335,7 @@ class DomainFuzz():
 
 	def __subdomain(self):
 		result = []
-		for i in range(1, len(self.domain)-3):
+		for i in range(1, len(self.domain)-1):
 			if self.domain[i] not in ['-', '.'] and self.domain[i-1] not in ['-', '.']:
 				result.append(self.domain[:i] + '.' + self.domain[i:])
 		return result
