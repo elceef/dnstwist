@@ -56,6 +56,12 @@ try:
 except ImportError:
 	MODULE_GEOIP = False
 	pass
+else:
+	try:
+		_ = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
+	except Exception:
+		MODULE_GEOIP = False
+		pass
 
 try:
 	import whois
@@ -581,9 +587,8 @@ class DomainThread(threading.Thread):
 
 			if self.option_geoip:
 				if dns_a is True:
-					gi = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
 					try:
-						country = gi.country_name_by_addr(domain['dns-a'][0])
+						country = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE).country_name_by_addr(domain['dns-a'][0])
 					except Exception:
 						pass
 					else:
@@ -792,7 +797,7 @@ def main():
 	if not MODULE_DNSPYTHON:
 		p_err('Notice: Missing module DNSPython (DNS features limited)')
 	if not MODULE_GEOIP and args.geoip:
-		p_err('Notice: Missing module GeoIP (geographical location not available)')
+		p_err('Notice: Missing GeoIP module or database (geographical location not available)')
 	if not MODULE_WHOIS and args.whois:
 		p_err('Notice: Missing module whois (WHOIS database not accessible)')
 	if not MODULE_SSDEEP and args.ssdeep:
