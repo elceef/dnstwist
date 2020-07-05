@@ -1,5 +1,5 @@
 .\" Manpage for dnstwist
-.TH DNSTWIST 1 "2020-05-08" "" "User Commands"
+.TH DNSTWIST 1 "2020-07-05" "" "User Commands"
 
 .SH NAME
 dnstwist - domain name permutation engine
@@ -12,8 +12,10 @@ dnstwist - domain name permutation engine
 .OP \-f|\-\-format FORMAT
 .OP \-g|\-\-geoip
 .OP \-m|\-\-mxcheck
+.OP \-o|\-\-output FILE
 .OP \-r|\-\-registered
 .OP \-s|\-\-ssdeep
+.OP \-\-ssdeep-url URL
 .OP \-t|\-\-threads NUMBER
 .OP \-w|\-\-whois
 .OP \-\-nameservers LIST
@@ -24,7 +26,9 @@ dnstwist - domain name permutation engine
 
 .SH DESCRIPTION
 Find similar-looking domain names that adversaries can use to attack you.
-Detect typosquatters, phishing attacks, fraud and corporate espionage.
+
+Detect typosquatters, phishing attacks, fraud and brand impersonation.
+
 Useful as an additional source of targeted threat intelligence.
 
 .SH OPTIONS
@@ -39,7 +43,7 @@ Determine HTTP and SMTP service banners.
 Generate additional domains using a dictionary read from \fIFILE\fR.
 .TP
 \fB\-f\fR, \fB\-\-format\fR \fIFORMAT\fR
-Select the output format. Supported values are: \fBcli\fR (default), \fBcsv\fR, \fBidle\fR, \fBjson\fR.
+Select the output format. Supported values are: \fBcli\fR (default), \fBcsv\fR, \fBlist\fR, \fBjson\fR.
 .TP
 \fB\-g\fR, \fB\-\-geoip\fR
 Perform lookup for GeoIP location.
@@ -50,17 +54,23 @@ Display a help message and exit.
 \fB\-m\fR, \fB\-\-mxcheck\fR
 Check if MX host can be used to intercept e-mails.
 .TP
+\fB\-o\fR, \fB\-\-output\fR \fIFILE\fR
+Save output to \fIFILE\fR.
+.TP
 \fB\-r\fR, \fB\-\-registered\fR
 Show only registered domain names.
 .TP
 \fB\-s\fR, \fB\-\-ssdeep\fR
 Fetch web pages and compare their fuzzy hashes to evaluate similarity.
 .TP
+\fB\-\-ssdeep-url\fR \fIURL\fR
+Override \fIURL\fR to fetch the original web page from.
+.TP
 \fB\-t\fR, \fB\-\-threads\fR \fINUMBER\fR
 Start specified \fINUMBER\fR of threads (default: \fB10\fR).
 .TP
 \fB\-w\fR, \fB\-\-whois\fR
-Perform lookup for WHOIS creation/update time (slow).
+Perform lookup for WHOIS creation date.
 .TP
 \fB\-\-nameservers\fR \fILIST\fR
 DNS servers to query (comma-separated \fILIST\fR).
