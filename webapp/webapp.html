@@ -40,12 +40,12 @@ header {
 }
 header h1 {
 	color: #ef006f;
-	font: italic bold 333% Verdana;
+	font: italic bold 350% Verdana;
 	margin: 0;
 }
 header p {
 	color: #804090;
-	font: bold 100% Verdana;
+	font: bold 125% Verdana;
 	margin: 0;
 	width: 75%;
 	float: right;
@@ -61,26 +61,42 @@ input#url {
 	border-radius: 5px 0 0 5px;
 	padding-left: .75em;
 	width: 80%;
+	outline: none;
 }
 button#scan {
 	color: white;
-	background-color: #894d9a;
+	background-color: #3490dc;
 	border: 0;
 	border-radius: 0 5px 5px 0;
 	height: 2.8em;
 	font-size: 1.1em;
 	font-weight: 600;
 	flex-grow: 1;
+	outline: none;
+}
+button#scan:hover {
+	background-color: #2779bd;
 }
 sup {
 	color: #777;
 }
 progress {
+	-webkit-appearance: none;
+	-moz-appearance: none;
 	height: 5px;
 	width: 100%;
 	background-color: transparent;
 	border: 0;
 	margin: 5px 0;
+}
+progress::-webkit-progress-bar {
+	background-color: transparent;
+}
+progress::-webkit-progress-value {
+	background-color: #3490dc;
+}
+progress::-moz-progress-bar {
+	background-color: #3490dc;
 }
 span#status {
 	float: right;
