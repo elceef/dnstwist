@@ -175,12 +175,12 @@ $ dnstwist --tld dictionaries/common_tlds.dict example.com
 
 Apart from the colorful terminal output, the tool allows exporting results to
 CSV and JSON. In case you need just the permutations without making any DNS
-lookups, use `--format idle` argument:
+lookups, use `--format list` argument:
 
 ```
 $ dnstwist --format csv domain.name | column -t -s,
 $ dnstwist --format json domain.name | jq
-$ dnstwist --format idle domain.name
+$ dnstwist --format list domain.name
 ```
 
 The tool can perform real-time lookups to return geographical location
