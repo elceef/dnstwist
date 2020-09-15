@@ -531,7 +531,7 @@ class DomainThread(threading.Thread):
 
 				if nxdomain is False:
 					try:
-						domain['dns-a'] = self.__answer_to_list(resolv.query(domain['domain-name'], rdtype=dns.rdatatype.A))
+						domain['dns-a'] = self.__answer_to_list(resolv.resolve(domain['domain-name'], rdtype=dns.rdatatype.A))
 						dns_a = True
 					except dns.resolver.NoNameservers:
 						domain['dns-a'] = ['!ServFail']
@@ -540,7 +540,7 @@ class DomainThread(threading.Thread):
 						pass
 
 					try:
-						domain['dns-aaaa'] = self.__answer_to_list(resolv.query(domain['domain-name'], rdtype=dns.rdatatype.AAAA))
+						domain['dns-aaaa'] = self.__answer_to_list(resolv.resolve(domain['domain-name'], rdtype=dns.rdatatype.AAAA))
 						dns_aaaa = True
 					except dns.resolver.NoNameservers:
 						domain['dns-aaaa'] = ['!ServFail']
@@ -550,7 +550,7 @@ class DomainThread(threading.Thread):
 
 				if nxdomain is False and dns_ns is True:
 					try:
-						domain['dns-mx'] = self.__answer_to_list(resolv.query(domain['domain-name'], rdtype=dns.rdatatype.MX))
+						domain['dns-mx'] = self.__answer_to_list(resolv.resolve(domain['domain-name'], rdtype=dns.rdatatype.MX))
 						dns_mx = True
 					except dns.resolver.NoNameservers:
 						domain['dns-mx'] = ['!ServFail']
