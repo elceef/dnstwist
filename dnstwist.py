@@ -425,6 +425,7 @@ class DomainThread(threading.Thread):
 		threading.Thread.__init__(self)
 		self.jobs = queue
 		self.kill_received = False
+		self.debug = False
 
 		self.ssdeep_init = ''
 		self.ssdeep_effective_url = ''
@@ -441,6 +442,10 @@ class DomainThread(threading.Thread):
 
 		self.nameservers = []
 		self.useragent = ''
+
+	def __debug(self, text):
+		if self.debug:
+			print(str(text), file=sys.stderr, flush=True)
 
 	def __banner_http(self, ip, vhost):
 		try:
@@ -526,7 +531,8 @@ class DomainThread(threading.Thread):
 				except dns.resolver.NoNameservers:
 					domain['dns-ns'] = ['!ServFail']
 					pass
-				except DNSException:
+				except DNSException as e:
+					self.__debug(e)
 					pass
 
 				if nxdomain is False:
@@ -536,7 +542,8 @@ class DomainThread(threading.Thread):
 					except dns.resolver.NoNameservers:
 						domain['dns-a'] = ['!ServFail']
 						pass
-					except DNSException:
+					except DNSException as e:
+						self.__debug(e)
 						pass
 
 					try:
@@ -545,7 +552,8 @@ class DomainThread(threading.Thread):
 					except dns.resolver.NoNameservers:
 						domain['dns-aaaa'] = ['!ServFail']
 						pass
-					except DNSException:
+					except DNSException as e:
+						self.__debug(e)
 						pass
 
 				if nxdomain is False and dns_ns is True:
@@ -555,7 +563,8 @@ class DomainThread(threading.Thread):
 					except dns.resolver.NoNameservers:
 						domain['dns-mx'] = ['!ServFail']
 						pass
-					except DNSException:
+					except DNSException as e:
+						self.__debug(e)
 						pass
 			else:
 				try:
@@ -564,7 +573,8 @@ class DomainThread(threading.Thread):
 					if e.errno == -3:
 						domain['dns-a'] = ['!ServFail']
 					pass
-				except Exception:
+				except Exception as e:
+					self.__debug(e)
 					pass
 				else:
 					domain['dns-a'] = list()
@@ -589,7 +599,8 @@ class DomainThread(threading.Thread):
 				if dns_a is True:
 					try:
 						country = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE).country_name_by_addr(domain['dns-a'][0])
-					except Exception:
+					except Exception as e:
+						self.__debug(e)
 						pass
 					else:
 						if country:
@@ -610,7 +621,8 @@ class DomainThread(threading.Thread):
 					try:
 						req = requests.get(self.uri_scheme + '://' + domain['domain-name'] + self.uri_path + self.uri_query,
 							timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': self.useragent}, verify=False)
-					except Exception:
+					except Exception as e:
+						self.__debug(e)
 						pass
 					else:
 						if req.status_code // 100 == 2 and req.url.split('?')[0] != self.ssdeep_effective_url:
@@ -708,6 +720,7 @@ def main():
 	parser.add_argument('--nameservers', type=str, metavar='LIST', help='DNS servers to query (separated with commas)')
 	parser.add_argument('--useragent', type=str, metavar='STRING', default='Mozilla/5.0 dnstwist/%s' % __version__,
 		help='User-Agent STRING to send with HTTP requests (default: Mozilla/5.0 dnstwist/%s)' % __version__)
+	parser.add_argument('--debug', action='store_true', help='Display debug messages')
 
 	def _exit(code):
 		print(FG_RST + ST_RST, end='')
@@ -725,7 +738,7 @@ def main():
 	def p_cli(text):
 		if args.format == 'cli': print(text, end='', flush=True)
 	def p_err(text):
-		print(text, file=sys.stderr, flush=True)
+		print(str(text), file=sys.stderr, flush=True)
 
 	def signal_handler(signal, frame):
 		print('\nStopping threads... ', file=sys.stderr, end='', flush=True)
@@ -850,7 +863,7 @@ def main():
 	for i in range(len(domains)):
 		jobs.put(domains[i])
 
-	for i in range(args.threads):
+	for _ in range(args.threads):
 		worker = DomainThread(jobs)
 		worker.setDaemon(True)
 
@@ -875,6 +888,8 @@ def main():
 		if args.nameservers:
 			worker.nameservers = nameservers
 		worker.useragent = args.useragent
+
+		worker.debug = args.debug
 
 		worker.start()
 		threads.append(worker)
@@ -906,7 +921,9 @@ def main():
 					whoisq = whois.query(domain['domain-name'].encode('idna').decode())
 					if whoisq:
 						domain['whois-created'] = str(whoisq.creation_date).split(' ')[0]
-				except Exception:
+				except Exception as e:
+					if args.debug:
+						p_err(e)
 					pass
 		p_cli(' Done\n')
 
