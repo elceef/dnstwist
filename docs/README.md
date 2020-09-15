@@ -212,7 +212,7 @@ aggressors is unlimited.
 Unicode tables consist of thousands of characters with many of them visually
 similar to each other. However, despite the fact certain characters are
 encodable using punycode, most TLD authorities will reject them during domain
-registration process. In genaral, TLD authorities disallow mixing of characters
+registration process. In general, TLD authorities disallow mixing of characters
 coming from different Unicode scripts or maintain their own sets of acceptable
 characters. With that being said, the homogylph fuzzer was build on top of
 carefully researched range of Unicode characters (homoglyphs) to ensure that
