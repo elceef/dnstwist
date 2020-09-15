@@ -497,6 +497,17 @@ class DomainThread(threading.Thread):
 		self.kill_received = True
 
 	def run(self):
+		if self.option_extdns:
+			if self.nameservers:
+				resolv = dns.resolver.Resolver(configure=False)
+				resolv.nameservers = self.nameservers
+			else:
+				resolv = dns.resolver.Resolver()
+				resolv.search = []
+
+			resolv.lifetime = REQUEST_TIMEOUT_DNS * REQUEST_RETRIES_DNS
+			resolv.timeout = REQUEST_TIMEOUT_DNS
+
 		while not self.kill_received:
 			try:
 				domain = self.jobs.get(block=False)
@@ -507,15 +518,6 @@ class DomainThread(threading.Thread):
 			domain['domain-name'] = domain['domain-name'].encode('idna').decode()
 
 			if self.option_extdns:
-				if self.nameservers:
-					resolv = dns.resolver.Resolver(configure=False)
-					resolv.nameservers = self.nameservers
-				else:
-					resolv = dns.resolver.Resolver()
-
-				resolv.lifetime = REQUEST_TIMEOUT_DNS * REQUEST_RETRIES_DNS
-				resolv.timeout = REQUEST_TIMEOUT_DNS
-
 				nxdomain = False
 				dns_ns = False
 				dns_a = False
