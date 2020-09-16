@@ -21,6 +21,7 @@ you'd prefer a different name be used, please let me know.
 - Mario Uher
 - Mike Saunders
 - Patricia Lipp
+- Peter Wienemann
 - Phillip Martin
 - Piotr Chmyłkowski
 - Piotr Wojtyła
