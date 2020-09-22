@@ -648,14 +648,14 @@ def create_json(domains=[]):
 
 
 def create_csv(domains=[]):
-	csv = ['fuzzer,domain-name,dns-a,dns-aaaa,dns-mx,dns-ns,geoip-country,whois-created,ssdeep-score']
+	csv = ['fuzzer,domain-name,dns-a,dns-aaaa,dns-mx,dns-ns,geoip-country,whois-registrar,whois-created,ssdeep-score']
 	for domain in domains:
 		csv.append(','.join([domain.get('fuzzer'), domain.get('domain-name').encode('idna').decode(),
 			';'.join(domain.get('dns-a', [])),
 			';'.join(domain.get('dns-aaaa', [])),
 			';'.join(domain.get('dns-mx', [])),
 			';'.join(domain.get('dns-ns', [])),
-			domain.get('geoip-country', ''), domain.get('whois-created', ''),
+			domain.get('geoip-country', ''), domain.get('whois-registrar', ''), domain.get('whois-created', ''),
 			str(domain.get('ssdeep-score', ''))]))
 	return '\n'.join(csv)
 
@@ -688,6 +688,8 @@ def create_cli(domains=[]):
 			info.append(FG_YEL + 'HTTP:' + FG_CYA + '"' + domain['banner-http'] + '"' + FG_RST)
 		if 'banner-smtp' in domain:
 			info.append(FG_YEL + 'SMTP:' + FG_CYA + '"' + domain['banner-smtp'] + '"' + FG_RST)
+		if 'whois-registrar' in domain:
+			info.append(FG_YEL + 'REGISTRAR:' + FG_CYA + domain['whois-registrar'] + FG_RST)
 		if 'whois-created' in domain:
 			info.append(FG_YEL + 'CREATED:' + FG_CYA + domain['whois-created'] + FG_RST)
 		if domain.get('ssdeep-score', 0) > 0:
@@ -928,6 +930,7 @@ def main():
 					whoisq = whois.query(domain['domain-name'].encode('idna').decode())
 					if whoisq:
 						domain['whois-created'] = str(whoisq.creation_date).split(' ')[0]
+						domain['whois-registrar'] = str(whoisq.registrar)
 				except Exception as e:
 					if args.debug:
 						p_err(e)
