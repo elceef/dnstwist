@@ -382,6 +382,13 @@ class DomainFuzz():
 			self.tld_dictionary.remove(self.tld)
 		return list(set(self.tld_dictionary))
 
+        def __tld_prepend(self):
+                result = []
+                for _tld in self.__tld():
+                        result.append(_tld + '-' + self.domain)
+                        result.append(self.domain + '-' +_tld)
+                return list(set(result))
+
 	def generate(self):
 		self.domains.append({'fuzzer': 'original*', 'domain-name': '.'.join(filter(None, [self.subdomain, self.domain, self.tld]))})
 		for domain in self.__addition():
@@ -410,6 +417,8 @@ class DomainFuzz():
 			self.domains.append({'fuzzer': 'dictionary', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld]))})
 		for tld in self.__tld():
 			self.domains.append({'fuzzer': 'tld-swap', 'domain-name': '.'.join(filter(None, [self.subdomain, self.domain, tld]))})
+                for domain in self.__tld_prepend():
+                        self.domains.append({'fuzzer': 'tld-prepend', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld]))})
 		if '.' in self.tld:
 			self.domains.append({'fuzzer': 'various', 'domain-name': self.domain + '.' + self.tld.split('.')[-1]})
 			self.domains.append({'fuzzer': 'various', 'domain-name': self.domain + self.tld})
