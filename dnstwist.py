@@ -685,9 +685,9 @@ def create_cli(domains=[]):
 			else:
 				info.append(FG_YEL + 'MX:' + FG_CYA + ';'.join(domain['dns-mx']) + FG_RST)
 		if 'banner-http' in domain:
-			info.append(FG_YEL + 'HTTP:' + FG_CYA + '"' + domain['banner-http'] + '"' + FG_RST)
+			info.append(FG_YEL + 'HTTP:' + FG_CYA + domain['banner-http'] + FG_RST)
 		if 'banner-smtp' in domain:
-			info.append(FG_YEL + 'SMTP:' + FG_CYA + '"' + domain['banner-smtp'] + '"' + FG_RST)
+			info.append(FG_YEL + 'SMTP:' + FG_CYA + domain['banner-smtp'] + FG_RST)
 		if 'whois-registrar' in domain:
 			info.append(FG_YEL + 'REGISTRAR:' + FG_CYA + domain['whois-registrar'] + FG_RST)
 		if 'whois-created' in domain:
