@@ -928,13 +928,15 @@ def main():
 				p_cli('·')
 				try:
 					whoisq = whois.query(domain['domain-name'].encode('idna').decode())
-					if whoisq:
-						domain['whois-created'] = str(whoisq.creation_date).split(' ')[0]
-						domain['whois-registrar'] = str(whoisq.registrar)
 				except Exception as e:
 					if args.debug:
 						p_err(e)
 					pass
+				else:
+					if whoisq.creation_date:
+						domain['whois-created'] = str(whoisq.creation_date).split(' ')[0]
+					if whoisq.registrar:
+						domain['whois-registrar'] = str(whoisq.registrar)
 		p_cli(' Done\n')
 
 	p_cli('\n')
