@@ -57,7 +57,7 @@ except ImportError:
 	pass
 else:
 	try:
-		_ = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
+		_ = GeoIP.new(-1)
 	except Exception:
 		MODULE_GEOIP = False
 		pass
@@ -87,6 +87,7 @@ try:
 except ImportError:
 	MODULE_REQUESTS = False
 	pass
+
 
 REQUEST_TIMEOUT_DNS = 2.5
 REQUEST_RETRIES_DNS = 2
