@@ -35,11 +35,10 @@ import signal
 import time
 import argparse
 import threading
-from random import randint
-from os import path
 import smtplib
 import json
 import queue
+
 
 try:
 	from dns.resolver import Resolver, NXDOMAIN, NoNameservers
@@ -89,7 +88,6 @@ except ImportError:
 	MODULE_REQUESTS = False
 	pass
 
-
 REQUEST_TIMEOUT_DNS = 2.5
 REQUEST_RETRIES_DNS = 2
 REQUEST_TIMEOUT_HTTP = 5
@@ -97,7 +95,7 @@ REQUEST_TIMEOUT_SMTP = 5
 THREAD_COUNT_DEFAULT = 10
 
 if sys.platform != 'win32' and sys.stdout.isatty():
-	FG_RND = '\x1b[3%dm' % randint(1, 8)
+	FG_RND = '\x1b[3{}m'.format(int(time.time())%8+1)
 	FG_YEL = '\x1b[33m'
 	FG_CYA = '\x1b[36m'
 	FG_BLU = '\x1b[34m'
@@ -479,8 +477,8 @@ class DomainThread(threading.Thread):
 			return hello[:40]
 
 	def __mxcheck(self, mx, from_domain, to_domain):
-		from_addr = 'randombob' + str(randint(1, 9)) + '@' + from_domain
-		to_addr = 'randomalice' + str(randint(1, 9)) + '@' + to_domain
+		from_addr = 'randombob1986@' + from_domain
+		to_addr = 'randomalice1986@' + to_domain
 		try:
 			smtp = smtplib.SMTP(mx, 25, timeout=REQUEST_TIMEOUT_SMTP)
 			smtp.sendmail(from_addr, to_addr, 'And that\'s how the cookie crumbles')
