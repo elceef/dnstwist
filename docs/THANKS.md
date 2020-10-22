@@ -15,6 +15,7 @@ you'd prefer a different name be used, please let me know.
 - Francisco Roldán
 - James Lane
 - Julien Rottenberg
+- Kevin Daudt
 - Kristov Atlas
 - Kyle Maxwell
 - Luke Snyder
