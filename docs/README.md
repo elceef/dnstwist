@@ -214,7 +214,7 @@ similar to each other. However, despite the fact certain characters are
 encodable using punycode, most TLD authorities will reject them during domain
 registration process. In general, TLD authorities disallow mixing of characters
 coming from different Unicode scripts or maintain their own sets of acceptable
-characters. With that being said, the homogylph fuzzer was build on top of
+characters. With that being said, the homoglyph fuzzer was build on top of
 carefully researched range of Unicode characters (homoglyphs) to ensure that
 generated domains can be registered in practice.
 
@@ -227,7 +227,7 @@ globe, as well as independent information security analysts and researchers.
 On top of this, it's integrated into products and services of many security
 providers, in particular but not only:
 Splunk, RecordedFuture, SpiderFoot, DigitalShadows, SecurityRisk, SmartFense,
-ThreatPipes, Cortex XSOAR, Mimecast.
+ThreatPipes, Cortex XSOAR, Mimecast, Watcher.
 
 
 Contact
