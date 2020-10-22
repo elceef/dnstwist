@@ -35,6 +35,7 @@ import signal
 import time
 import argparse
 import threading
+from os import path
 import smtplib
 import json
 import queue
