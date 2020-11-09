@@ -1,6 +1,9 @@
 from setuptools import setup
 import dnstwist
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
 setup(
 	name='dnstwist',
 	version=dnstwist.__version__,
@@ -18,4 +21,5 @@ setup(
 		'License :: OSI Approved :: Apache Software License',
 		'Operating System :: OS Independent',
 	],
+	install_requires=requirements
 )
