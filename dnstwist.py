@@ -390,10 +390,11 @@ class DomainFuzz():
 	def __dictionary(self):
 		result = []
 		for word in self.dictionary:
-			result.append(self.domain + '-' + word)
-			result.append(self.domain + word)
-			result.append(word + '-' + self.domain)
-			result.append(word + self.domain)
+			if not (self.domain.startswith(word) and self.domain.endswith(word)):
+				result.append(self.domain + '-' + word)
+				result.append(self.domain + word)
+				result.append(word + '-' + self.domain)
+				result.append(word + self.domain)
 		return list(set(result))
 
 	def __tld(self):
