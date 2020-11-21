@@ -345,7 +345,7 @@ class DomainFuzz():
 	def __repetition(self):
 		result = []
 		for i in range(0, len(self.domain)):
-			if self.domain[i].isalpha():
+			if self.domain[i].isalnum():
 				result.append(self.domain[:i] + self.domain[i] + self.domain[i] + self.domain[i+1:])
 		return list(set(result))
 
