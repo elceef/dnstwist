@@ -40,7 +40,6 @@ import smtplib
 import json
 import queue
 
-
 try:
 	from dns.resolver import Resolver, NXDOMAIN, NoNameservers
 	import dns.rdatatype
@@ -89,6 +88,19 @@ except ImportError:
 	MODULE_REQUESTS = False
 	pass
 
+try:
+	import idna
+except ImportError:
+	class idna:
+		@staticmethod
+		def decode(domain):
+			return domain.encode().decode('idna')
+		@staticmethod
+		def encode(domain):
+			return domain.encode('idna')
+	pass
+
+VALID_FQDN_REGEX = re.compile(r'(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}$)', re.IGNORECASE)
 
 REQUEST_TIMEOUT_DNS = 2.5
 REQUEST_RETRIES_DNS = 2
@@ -157,9 +169,14 @@ class UrlParser():
 	def __validate_domain(self, domain):
 		if len(domain) > 253:
 			return False
-		domain = domain.strip('.')
-		allowed = re.compile('\A([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\Z', re.IGNORECASE)
-		return allowed.match(domain)
+		if VALID_FQDN_REGEX.match(domain):
+			try:
+				_ = idna.decode(domain)
+			except Exception:
+				return False
+			else:
+				return True
+		return False
 
 	def full_uri(self):
 		return self.scheme + '://' + self.domain + self.path + self.query
@@ -168,6 +185,7 @@ class UrlParser():
 class DomainFuzz():
 	def __init__(self, domain, dictionary=[], tld_dictionary=[]):
 		self.subdomain, self.domain, self.tld = self.__domain_tld(domain)
+		self.domain = idna.decode(self.domain)
 		self.dictionary = dictionary
 		self.tld_dictionary = tld_dictionary
 		self.domains = []
@@ -211,20 +229,21 @@ class DomainFuzz():
 				d = ('',) * (3-len(d)) + d
 			return d
 
-	def __filter_domains(self):
-		def idna(domain):
+	def __postprocess(self):
+		def punycode(domain):
 			try:
-				return domain.encode('idna').decode()
-			except UnicodeError:
-				return b''
-		idna_domains = list(map(idna, [x['domain-name'] for x in self.domains]))
-		valid_regex = re.compile('(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}\.?$)', re.IGNORECASE)
+				return idna.encode(domain).decode()
+			except Exception:
+				return ''
+		for idx, domain in enumerate(map(punycode, [x.get('domain-name') for x in self.domains])):
+			self.domains[idx]['domain-name'] = domain
 		seen = set()
 		filtered = []
-		for idx, domain in enumerate(idna_domains):
-			if valid_regex.match(domain) and domain not in seen:
-				filtered.append(self.domains[idx])
-				seen.add(domain)
+		for domain in self.domains:
+			name = domain.get('domain-name')
+			if VALID_FQDN_REGEX.match(name) and name not in seen:
+				filtered.append(domain)
+				seen.add(name)
 		self.domains = filtered
 
 	def __bitsquatting(self):
@@ -417,7 +436,7 @@ class DomainFuzz():
 			self.domains.append({'fuzzer': 'various', 'domain-name': self.domain + self.tld + '.' + self.tld})
 		if self.tld != 'com' and '.' not in self.tld:
 			self.domains.append({'fuzzer': 'various', 'domain-name': self.domain + '-' + self.tld + '.com'})
-		self.__filter_domains()
+		self.__postprocess()
 
 
 class DomainThread(threading.Thread):
@@ -519,8 +538,6 @@ class DomainThread(threading.Thread):
 			except queue.Empty:
 				self.kill_received = True
 				return
-
-			domain['domain-name'] = domain['domain-name'].encode('idna').decode()
 
 			if self.option_extdns:
 				nxdomain = False
@@ -636,21 +653,17 @@ class DomainThread(threading.Thread):
 							ssdeep_curr = ssdeep.hash(''.join(req.text.split()).lower())
 							domain['ssdeep-score'] = ssdeep.compare(self.ssdeep_init, ssdeep_curr)
 
-			domain['domain-name'] = domain['domain-name'].encode().decode('idna')
 			self.jobs.task_done()
 
 
 def create_json(domains=[]):
-	domains = list(domains)
-	for domain in domains:
-		domain['domain-name'] = domain['domain-name'].encode('idna').decode()
 	return json.dumps(domains, indent=4, sort_keys=True)
 
 
 def create_csv(domains=[]):
 	csv = ['fuzzer,domain-name,dns-a,dns-aaaa,dns-mx,dns-ns,geoip-country,whois-registrar,whois-created,ssdeep-score']
 	for domain in domains:
-		csv.append(','.join([domain.get('fuzzer'), domain.get('domain-name').encode('idna').decode(),
+		csv.append(','.join([domain.get('fuzzer'), domain.get('domain-name'),
 			';'.join(domain.get('dns-a', [])),
 			';'.join(domain.get('dns-aaaa', [])),
 			';'.join(domain.get('dns-mx', [])),
@@ -661,11 +674,16 @@ def create_csv(domains=[]):
 
 
 def create_list(domains=[]):
-	return '\n'.join([x.get('domain-name').encode('idna').decode() for x in domains])
+	return '\n'.join([x.get('domain-name') for x in domains])
 
 
 def create_cli(domains=[]):
 	cli = []
+	domains = list(domains)
+	for domain in domains:
+		name = domain['domain-name']
+		if name.startswith('xn--'):
+			domain['domain-name'] = idna.decode(name)
 	width_fuzzer = max([len(x['fuzzer']) for x in domains]) + 1
 	width_domain = max([len(x['domain-name']) for x in domains]) + 1
 	for domain in domains:
@@ -927,7 +945,7 @@ def main():
 			if len(domain) > 2:
 				p_cli('·')
 				try:
-					whoisq = whois.query(domain['domain-name'].encode('idna').decode())
+					whoisq = whois.query(domain['domain-name'])
 				except Exception as e:
 					if args.debug:
 						p_err(e)

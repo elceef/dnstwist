@@ -63,7 +63,10 @@ class Session():
 			worker.join()
 
 	def domains(self):
-		return [x for x in self.permutations if len(x) > 2]
+		domains = list([x.copy() for x in self.permutations if len(x) > 2])
+		for domain in domains:
+			domain['domain-name'] = domain['domain-name'].encode().decode('idna')
+		return domains
 
 	def status(self):
 		total = len(self.permutations)
@@ -82,10 +85,10 @@ class Session():
 
 	def csv(self):
 		csv = ['fuzzer,domain-name,dns-a,dns-aaaa,dns-ns,dns-mx,geoip-country']
-		for domain in self.domains():
+		for domain in list([x for x in self.permutations if len(x) > 2]):
 			csv.append(','.join([
 				domain.get('fuzzer'),
-				domain.get('domain-name').encode('idna').decode(),
+				domain.get('domain-name'),
 				domain.get('dns-a', [''])[0],
 				domain.get('dns-aaaa', [''])[0],
 				domain.get('dns-ns', [''])[0],
