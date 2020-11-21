@@ -337,9 +337,6 @@ class DomainFuzz():
 		result = []
 		for i in range(0, len(self.domain)):
 			result.append(self.domain[:i] + self.domain[i+1:])
-		n = re.sub(r'(.)\1+', r'\1', self.domain)
-		if n not in result and n != self.domain:
-			result.append(n)
 		return list(set(result))
 
 	def __repetition(self):
