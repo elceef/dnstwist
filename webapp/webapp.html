@@ -30,6 +30,11 @@ table {
 tr {
 	border-bottom: 1px solid #ddd;
 }
+th {
+	padding: 5px 0;
+	text-align: left;
+	font-weight: 600;
+}
 td {
 	padding: 5px 0;
 	vertical-align: top;
@@ -40,12 +45,12 @@ header {
 }
 header h1 {
 	color: #ef006f;
-	font: italic bold 350% Verdana;
+	font: bold 375% Tahoma,Verdana;
 	margin: 0;
 }
 header p {
 	color: #804090;
-	font: bold 125% Verdana;
+	font: bold 125% Tahoma,Verdana;
 	margin: 0;
 	width: 75%;
 	float: right;
@@ -110,6 +115,10 @@ a {
 a:hover {
 	text-decoration: none;
 }
+a#link {
+	color: inherit;
+	text-decoration: none;
+}
 span#source {
 	position: fixed;
 	right: 1em;
@@ -150,10 +159,10 @@ function fetchDomains() {
 	$.getJSON('/api/scans/' + $('#sid').val() + '/domains', function(data) {
 		$('#data').empty();
 		$('<tr>').html(
-				'<td><b>PERMUTATION</b></td>' +
-				'<td><b>IP ADDRESS</b></td>' +
-				'<td><b>NAME SERVER</b></td>' +
-				'<td><b>MAIL SERVER</b></td>'
+				'<th>PERMUTATION</th>' +
+				'<th>IP ADDRESS</th>' +
+				'<th>NAME SERVER</th>' +
+				'<th>MAIL SERVER</th>'
 			).appendTo('#data');
 		$.each(data, function(i, item) {
 			fuzzer = item['fuzzer'] || ''
@@ -166,7 +175,7 @@ function fetchDomains() {
 			dns_mx = (item['dns-mx'] || [''])[0].replace('!ServFail', '✖');
 			geoip = item['geoip-country'] || '';
 			$('<tr>').html(
-				'<td><a href="http://' + permutation + '">' + permutation + '</a></br><sup>' + fuzzer + '</sup></td>' +
+				'<td>' + permutation + ' <a href="http://' + permutation + '" id="link">🔗</a></br><sup>' + fuzzer + '</sup></td>' +
 				'<td>' + ipaddr + '</br><sup>' + geoip + '</sup></td>' +
 				'<td>' + dns_ns + '</td>' +
 				'<td>' + dns_mx + '</td>'
