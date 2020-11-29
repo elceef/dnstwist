@@ -1,5 +1,5 @@
-dnstwist
-========
+![dnstwist](/docs/dnstwist.png)
+===============================
 
 See what sort of trouble users can get in trying to type your domain name.
 Find lookalike domains that adversaries can use to attack you. Can detect
@@ -227,7 +227,7 @@ globe, as well as independent information security analysts and researchers.
 On top of this, it's integrated into products and services of many security
 providers, in particular but not only:
 Splunk, RecordedFuture, SpiderFoot, DigitalShadows, SecurityRisk, SmartFense,
-ThreatPipes, Cortex XSOAR, Mimecast, Watcher.
+ThreatPipes, Cortex XSOAR, Mimecast, Watcher, Intel Owl.
 
 
 Contact
