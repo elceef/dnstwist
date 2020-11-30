@@ -15,12 +15,14 @@ you'd prefer a different name be used, please let me know.
 - Francisco Roldán
 - James Lane
 - Julien Rottenberg
+- Kevin Daudt
 - Kristov Atlas
 - Kyle Maxwell
 - Luke Snyder
 - Mario Uher
 - Mike Saunders
 - Patricia Lipp
+- Peter Wienemann
 - Phillip Martin
 - Piotr Chmyłkowski
 - Piotr Wojtyła
