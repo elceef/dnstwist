@@ -227,7 +227,7 @@ globe, as well as independent information security analysts and researchers.
 On top of this, it's integrated into products and services of many security
 providers, in particular but not only:
 Splunk, RecordedFuture, SpiderFoot, DigitalShadows, SecurityRisk, SmartFense,
-ThreatPipes, Cortex XSOAR, Mimecast, Watcher, Intel Owl.
+ThreatPipes, Cortex XSOAR, Mimecast, Watcher, Intel Owl, PatrOwl.
 
 
 Contact
