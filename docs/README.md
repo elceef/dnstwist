@@ -50,16 +50,23 @@ $ cd dnstwist
 $ pip install .
 ```
 
+**Kali Linux**
+
+Invoke the following command to install the tool with all extra packages:
+
+```
+# apt install dnstwist
+```
+
 **OSX**
 
-Installation is simplified thanks to [Homebrew](https://brew.sh/) package:
+Installation is simplified thanks to [Homebrew](https://brew.sh/) package.
+This will install `dnstwist` along with all dependencies, and the binary will
+be added to `$PATH`.
 
 ```
 $ brew install dnstwist
 ```
-
-This will install `dnstwist` along with all dependencies, and the binary will
-be added to `$PATH`.
 
 **Docker**
 
@@ -75,8 +82,6 @@ Requirements
 
 This tool is designed to run fine with just standard Python3 library. However,
 a couple of third-party packages are required to show its full potential.
-
-**Debian/Ubuntu/Kali Linux**
 
 If running Debian-based distribution, you can install all external libraries
 with just single command:
