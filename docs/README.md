@@ -226,8 +226,10 @@ The scanner is utilized by tens of SOC and incident response teams around the
 globe, as well as independent information security analysts and researchers.
 On top of this, it's integrated into products and services of many security
 providers, in particular but not only:
-Splunk, RecordedFuture, SpiderFoot, DigitalShadows, SecurityRisk, SmartFense,
-ThreatPipes, Cortex XSOAR, Mimecast, Watcher, Intel Owl, PatrOwl.
+
+Splunk ESCU, RecordedFuture, SpiderFoot, DigitalShadows, SecurityRisk,
+SmartFense, ThreatPipes, PaloAlto Cortex XSOAR, Rapid7 InsightConnect SOAR,
+Mimecast, Watcher, Intel Owl, PatrOwl, VDA Labs, Appsecco.
 
 
 Contact
