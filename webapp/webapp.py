@@ -20,10 +20,11 @@ SESSION_MAX = int(os.environ.get('SESSION_MAX', 20))
 WEBAPP_HTML = os.environ.get('WEBAPP_HTML', 'webapp.html')
 WEBAPP_DIR = os.environ.get('WEBAPP_DIR', os.path.dirname(__file__))
 
-DICTIONARY = ['auth', 'account', 'confirm', 'connect', 'enroll', 'http', 'https', 'login', 'mail', 'my', 'online',
-	'payment', 'portal', 'recovery', 'register', 'ssl', 'safe', 'secure', 'signin', 'signup', 'support', 'update',
-	'user', 'verify', 'verification', 'web', 'www']
-TLD_DICTIONARY = ['com', 'cn', 'net', 'eu', 'ga', 'tk', 'ml', 'cf', 'info', 'app', 'ooo', 'xyz', 'online', 'site']
+DICTIONARY = ('auth', 'account', 'confirm', 'connect', 'enroll', 'http', 'https', 'info', 'login', 'mail', 'my',
+	'online', 'payment', 'portal', 'recovery', 'register', 'ssl', 'safe', 'secure', 'signin', 'signup', 'support',
+	'update', 'user', 'verify', 'verification', 'web', 'www')
+TLD_DICTIONARY = ('com', 'net', 'org', 'info', 'cn', 'co', 'eu', 'de', 'uk', 'pw', 'ga', 'gq', 'tk', 'ml', 'cf',
+	'app', 'biz', 'top', 'xyz', 'online', 'site', 'live')
 
 
 sessions = []
