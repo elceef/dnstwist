@@ -206,6 +206,7 @@ function actionScan() {
 	}
 
 	if ($('#scan').text() == 'Scan') {
+		$('#scan').text('⏱');
 		$.post({
 			url: '/api/scans',
 			data: JSON.stringify({'url': $('#url').val()}),
@@ -216,8 +217,9 @@ function actionScan() {
 				pollScan();
 			},
 			error: function(xhr, status, error) {
+				$('#scan').text('Scan');
 				$('#status').html(xhr.responseJSON['message'] || 'Something went wrong');
-			}
+			},
 		});
 	} else {
 		stop();
