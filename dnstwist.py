@@ -186,8 +186,8 @@ class DomainFuzz():
 	def __init__(self, domain, dictionary=[], tld_dictionary=[]):
 		self.subdomain, self.domain, self.tld = self.__domain_tld(domain)
 		self.domain = idna.decode(self.domain)
-		self.dictionary = dictionary
-		self.tld_dictionary = tld_dictionary
+		self.dictionary = list(dictionary)
+		self.tld_dictionary = list(tld_dictionary)
 		self.domains = []
 		self.qwerty = {
 			'1': '2q', '2': '3wq1', '3': '4ew2', '4': '5re3', '5': '6tr4', '6': '7yt5', '7': '8uy6', '8': '9iu7', '9': '0oi8', '0': 'po9',
