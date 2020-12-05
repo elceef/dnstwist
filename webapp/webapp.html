@@ -192,7 +192,8 @@ function pollScan() {
 		if (data['remaining'] > 0) {
 			setTimeout(pollScan, 250);
 		} else {
-			$('#status').html('Found ' + data['registered'] + ' suspicious domains: <a href="/api/scans/' + $('#sid').val() + '/csv">download as CSV</a>');
+			sid = $('#sid').val()
+			$('#status').html('Found ' + data['registered'] + ' suspicious domains: download as <a href="/api/scans/' + sid + '/csv">CSV</a> or <a href="/api/scans/' + sid + '/json">JSON</a>');
 			$('#scan').text('Scan');
 		}
         fetchDomains();

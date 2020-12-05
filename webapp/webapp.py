@@ -98,6 +98,9 @@ class Session():
 				]))
 		return '\n'.join(csv)
 
+	def json(self):
+		return list([x for x in self.permutations if len(x) > 2])
+
 
 @app.route('/')
 def root():
@@ -148,6 +151,14 @@ def api_csv(sid):
 	for s in sessions:
 		if s.id == sid:
 			return s.csv(), 200, {'Content-Type': 'text/csv', 'Content-Disposition': 'attachment; filename=dnstwist.csv'}
+	return jsonify({'message': 'Scan session not found'}), 404
+
+
+@app.route('/api/scans/<sid>/json')
+def api_json(sid):
+	for s in sessions:
+		if s.id == sid:
+			return jsonify(s.json()), 200, {'Content-Disposition': 'attachment; filename=dnstwist.json'}
 	return jsonify({'message': 'Scan session not found'}), 404
 
 
