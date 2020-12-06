@@ -171,11 +171,11 @@ function fetchDomains() {
 			fuzzer = item['fuzzer'] || ''
 			permutation = item['domain-name'] || ''
 			ipaddr = [
-				(item['dns-a'] || [''])[0].replace('!ServFail', '✖'),
+				(item['dns-a'] || [''])[0].replace('!ServFail', '🚫'),
 				(item['dns-aaaa'] || [''])[0].replace('!ServFail', '')
 			].filter(Boolean).join('</br>');
-			dns_ns = (item['dns-ns'] || [''])[0].replace('!ServFail', '✖');
-			dns_mx = (item['dns-mx'] || [''])[0].replace('!ServFail', '✖');
+			dns_ns = (item['dns-ns'] || [''])[0].replace('!ServFail', '🚫');
+			dns_mx = (item['dns-mx'] || [''])[0].replace('!ServFail', '🚫');
 			geoip = item['geoip-country'] || '';
 			$('<tr>').html(
 				'<td>' + permutation + ' <a href="http://' + permutation + '" id="link">🔗</a></br><sup>' + fuzzer + '</sup></td>' +
