@@ -156,6 +156,8 @@ span#source {
 	<span id="source">[<a href="https://github.com/elceef/dnstwist">source code</a>]</span>
 </body>
 <script>
+last_registered = 0;
+
 function fetchDomains() {
 	$.getJSON('/api/scans/' + $('#sid').val() + '/domains', function(data) {
 		$('#data').empty();
@@ -196,7 +198,10 @@ function pollScan() {
 			$('#status').html('Found ' + data['registered'] + ' suspicious domains: download as <a href="/api/scans/' + sid + '/csv">CSV</a> or <a href="/api/scans/' + sid + '/json">JSON</a>');
 			$('#scan').text('Scan');
 		}
-        fetchDomains();
+		if (last_registered < data['registered']) {
+			last_registered = data['registered']
+			fetchDomains();
+		}
     });
 }
 
@@ -207,6 +212,7 @@ function actionScan() {
 	}
 
 	if ($('#scan').text() == 'Scan') {
+		last_registered = 0;
 		$('#scan').text('⏱');
 		$.post({
 			url: '/api/scans',
