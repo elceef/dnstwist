@@ -949,6 +949,8 @@ def main():
 						p_err(e)
 					pass
 				else:
+					if whoisq is None:
+						continue
 					if whoisq.creation_date:
 						domain['whois-created'] = str(whoisq.creation_date).split(' ')[0]
 					if whoisq.registrar:
