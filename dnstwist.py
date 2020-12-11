@@ -518,6 +518,8 @@ class DomainThread(threading.Thread):
 
 			resolv.lifetime = REQUEST_TIMEOUT_DNS * REQUEST_RETRIES_DNS
 			resolv.timeout = REQUEST_TIMEOUT_DNS
+			EDNS_PAYLOAD = 1232
+			resolv.use_edns(edns=True, ednsflags=0, payload=EDNS_PAYLOAD)
 
 			if hasattr(resolv, 'resolve'):
 				resolve = resolv.resolve
