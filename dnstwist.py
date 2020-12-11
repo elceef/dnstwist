@@ -47,27 +47,23 @@ try:
 	MODULE_DNSPYTHON = True
 except ImportError:
 	MODULE_DNSPYTHON = False
-	pass
 
 try:
 	import GeoIP
 	MODULE_GEOIP = True
 except ImportError:
 	MODULE_GEOIP = False
-	pass
 else:
 	try:
 		_ = GeoIP.new(-1)
 	except Exception:
 		MODULE_GEOIP = False
-		pass
 
 try:
 	import whois
 	MODULE_WHOIS = True
 except ImportError:
 	MODULE_WHOIS = False
-	pass
 
 try:
 	import ssdeep
@@ -78,7 +74,6 @@ except ImportError:
 		MODULE_SSDEEP = True
 	except ImportError:
 		MODULE_SSDEEP = False
-		pass
 
 try:
 	import requests
@@ -86,7 +81,6 @@ try:
 	MODULE_REQUESTS = True
 except ImportError:
 	MODULE_REQUESTS = False
-	pass
 
 try:
 	import idna
@@ -98,7 +92,7 @@ except ImportError:
 		@staticmethod
 		def encode(domain):
 			return domain.encode('idna')
-	pass
+
 
 VALID_FQDN_REGEX = re.compile(r'(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}$)', re.IGNORECASE)
 
@@ -549,13 +543,10 @@ class DomainThread(threading.Thread):
 					dns_ns = True
 				except NXDOMAIN:
 					nxdomain = True
-					pass
 				except NoNameservers:
 					domain['dns-ns'] = ['!ServFail']
-					pass
 				except DNSException as e:
 					self.__debug(e)
-					pass
 
 				if nxdomain is False:
 					try:
@@ -563,20 +554,16 @@ class DomainThread(threading.Thread):
 						dns_a = True
 					except NoNameservers:
 						domain['dns-a'] = ['!ServFail']
-						pass
 					except DNSException as e:
 						self.__debug(e)
-						pass
 
 					try:
 						domain['dns-aaaa'] = self.__answer_to_list(resolve(domain['domain-name'], rdtype=dns.rdatatype.AAAA))
 						dns_aaaa = True
 					except NoNameservers:
 						domain['dns-aaaa'] = ['!ServFail']
-						pass
 					except DNSException as e:
 						self.__debug(e)
-						pass
 
 				if nxdomain is False and dns_ns is True:
 					try:
@@ -584,20 +571,16 @@ class DomainThread(threading.Thread):
 						dns_mx = True
 					except NoNameservers:
 						domain['dns-mx'] = ['!ServFail']
-						pass
 					except DNSException as e:
 						self.__debug(e)
-						pass
 			else:
 				try:
 					ip = socket.getaddrinfo(domain['domain-name'], 80)
 				except socket.gaierror as e:
 					if e.errno == -3:
 						domain['dns-a'] = ['!ServFail']
-					pass
 				except Exception as e:
 					self.__debug(e)
-					pass
 				else:
 					domain['dns-a'] = list()
 					domain['dns-aaaa'] = list()
@@ -947,7 +930,6 @@ def main():
 				except Exception as e:
 					if args.debug:
 						p_err(e)
-					pass
 				else:
 					if whoisq is None:
 						continue
