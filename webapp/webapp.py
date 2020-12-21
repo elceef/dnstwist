@@ -62,6 +62,7 @@ class Session():
 		for worker in self.threads:
 			worker.stop()
 			worker.join()
+		self.threads.clear()
 
 	def domains(self):
 		domains = list([x.copy() for x in self.permutations if len(x) > 2])
@@ -70,10 +71,12 @@ class Session():
 		return domains
 
 	def status(self):
+		if self.jobs.empty():
+			self.stop()
 		total = len(self.permutations)
-		remaining = self.jobs.qsize()
+		remaining = max(self.jobs.qsize(), len(self.threads))
 		complete = total - remaining
-		registered = len(self.domains())
+		registered = len([x for x in self.permutations if len(x) > 2])
 		return {
 			'id': self.id,
 			'timestamp': self.timestamp,
