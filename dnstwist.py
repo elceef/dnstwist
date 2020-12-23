@@ -430,6 +430,19 @@ class DomainFuzz():
 			self.domains.append({'fuzzer': 'various', 'domain-name': self.domain + '-' + self.tld + '.com'})
 		self.__postprocess()
 
+	def permutations(self, registered=False, dns_all=False):
+		domains = []
+		if registered:
+			domains = [x.copy() for x in self.domains if len(x) > 2]
+		else:
+			domains = self.domains.copy()
+		if not dns_all:
+			for i in range(len(domains)):
+				for k in ('dns-ns', 'dns-a', 'dns-aaaa', 'dns-mx'):
+					if k in domains[i]:
+						domains[i][k] = domains[i][k][:1]
+		return domains
+
 
 class DomainThread(threading.Thread):
 	def __init__(self, queue):
@@ -919,8 +932,7 @@ def main():
 
 	p_cli(' %d hits\n' % sum([1 for x in domains if len(x) > 2]))
 
-	if args.registered:
-		domains[:] = [x for x in domains if len(x) > 2]
+	domains = fuzz.permutations(registered=args.registered, dns_all=args.all)
 
 	if MODULE_WHOIS and args.whois and not fuzz.subdomain:
 		p_cli('Querying WHOIS servers ')
@@ -942,12 +954,6 @@ def main():
 		p_cli(' Done\n')
 
 	p_cli('\n')
-
-	if not args.all:
-		for i in range(len(domains)):
-			for k in ['dns-ns', 'dns-a', 'dns-aaaa', 'dns-mx']:
-				if k in domains[i]:
-					domains[i][k] = domains[i][k][:1]
 
 	if domains:
 		if args.format == 'csv':
