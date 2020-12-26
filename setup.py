@@ -9,6 +9,7 @@ setup(
 	description='Domain name permutation engine for detecting homograph phishing attacks, typo squatting, and brand impersonation',
 	long_description='Project website: https://github.com/elceef/dnstwist',
 	url='https://github.com/elceef/dnstwist',
+	license='ASL 2.0',
 	py_modules=['dnstwist'],
 	entry_points={
 		'console_scripts': ['dnstwist=dnstwist:main']
