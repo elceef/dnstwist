@@ -178,7 +178,7 @@ class UrlParser():
 
 class DomainFuzz():
 	def __init__(self, domain, dictionary=[], tld_dictionary=[]):
-		self.subdomain, self.domain, self.tld = self.__domain_tld(domain)
+		self.subdomain, self.domain, self.tld = self.domain_tld(domain)
 		self.domain = idna.decode(self.domain)
 		self.dictionary = list(dictionary)
 		self.tld_dictionary = list(tld_dictionary)
@@ -203,7 +203,8 @@ class DomainFuzz():
 			}
 		self.keyboards = [self.qwerty, self.qwertz, self.azerty]
 
-	def __domain_tld(self, domain):
+	@staticmethod
+	def domain_tld(domain):
 		try:
 			from tld import parse_tld
 		except ImportError:
@@ -934,13 +935,14 @@ def main():
 
 	domains = fuzz.permutations(registered=args.registered, dns_all=args.all)
 
-	if MODULE_WHOIS and args.whois and not fuzz.subdomain:
+	if MODULE_WHOIS and args.whois:
 		p_cli('Querying WHOIS servers ')
 		for domain in domains:
 			if len(domain) > 2:
 				p_cli('·')
 				try:
-					whoisq = whois.query(domain['domain-name'])
+					_, dom, tld = fuzz.domain_tld(domain['domain-name'])
+					whoisq = whois.query('.'.join([dom, tld]))
 				except Exception as e:
 					if args.debug:
 						p_err(e)
