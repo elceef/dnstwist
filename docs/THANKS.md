@@ -8,10 +8,12 @@ you'd prefer a different name be used, please let me know.
 
 (in alphabetical order)
 
+- Alexander Bayandin
 - Andrew Bennett
 - Charles McCauley
 - Christopher Schmidt
 - Eugene Kogan
+- Fabian Affolter
 - Francisco Roldán
 - James Lane
 - Julien Rottenberg
@@ -29,6 +31,7 @@ you'd prefer a different name be used, please let me know.
 - Prashant Shahi
 - Reid Price
 - Robert Wallhead
+- Rui Chen
 - Sean Whalen
 - Steve Steiner
 - Wojtek Słowik
