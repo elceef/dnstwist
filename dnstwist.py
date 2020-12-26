@@ -679,7 +679,7 @@ def create_cli(domains=[]):
 	domains = list(domains)
 	for domain in domains:
 		name = domain['domain-name']
-		if name.startswith('xn--'):
+		if 'xn--' in name:
 			domain['domain-name'] = idna.decode(name)
 	width_fuzzer = max([len(x['fuzzer']) for x in domains]) + 1
 	width_domain = max([len(x['domain-name']) for x in domains]) + 1
