@@ -35,6 +35,6 @@ you'd prefer a different name be used, please let me know.
 - Sean Whalen
 - Steve Steiner
 - Wojtek Słowik
-- @suve
+- Artur Frenszek-Iwicki (@suve)
 
 Thank you!
