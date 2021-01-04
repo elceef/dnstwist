@@ -677,9 +677,9 @@ def create_list(domains=[]):
 def create_cli(domains=[]):
 	cli = []
 	domains = list(domains)
-	for domain in domains:
-		name = domain['domain-name']
-		if 'xn--' in name:
+	if sys.stdout.encoding.lower() == 'utf-8':
+		for domain in domains:
+			name = domain['domain-name']
 			domain['domain-name'] = idna.decode(name)
 	width_fuzzer = max([len(x['fuzzer']) for x in domains]) + 1
 	width_domain = max([len(x['domain-name']) for x in domains]) + 1
@@ -920,7 +920,7 @@ def main():
 
 	qperc = 0
 	while not jobs.empty():
-		p_cli('·')
+		p_cli('.')
 		qcurr = 100 * (len(domains) - jobs.qsize()) / len(domains)
 		if qcurr - 20 >= qperc:
 			qperc = qcurr
