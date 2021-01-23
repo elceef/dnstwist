@@ -48,16 +48,30 @@ try:
 except ImportError:
 	MODULE_DNSPYTHON = False
 
+GEOLITE2_MMDB = path.join(path.dirname(__file__), 'GeoLite2-Country.mmdb')
 try:
-	import GeoIP
-	MODULE_GEOIP = True
-except ImportError:
-	MODULE_GEOIP = False
-else:
+	import geoip2.database
+	_ = geoip2.database.Reader(GEOLITE2_MMDB)
+except Exception:
 	try:
+		import GeoIP
 		_ = GeoIP.new(-1)
 	except Exception:
 		MODULE_GEOIP = False
+	else:
+		MODULE_GEOIP = True
+		class geoip:
+			def __init__(self):
+				self.reader = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
+			def country_by_addr(self, ipaddr):
+				return self.reader.country_name_by_addr(ipaddr)
+else:
+	MODULE_GEOIP = True
+	class geoip:
+		def __init__(self):
+			self.reader = geoip2.database.Reader(GEOLITE2_MMDB)
+		def country_by_addr(self, ipaddr):
+			return self.reader.country(ipaddr).country.name
 
 try:
 	import whois
@@ -540,6 +554,9 @@ class DomainThread(threading.Thread):
 			else:
 				resolve = resolv.query
 
+		if self.option_geoip:
+			geo = geoip()
+
 		while not self.kill_received:
 			try:
 				domain = self.jobs.get(block=False)
@@ -619,7 +636,7 @@ class DomainThread(threading.Thread):
 			if self.option_geoip:
 				if dns_a is True:
 					try:
-						country = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE).country_name_by_addr(domain['dns-a'][0])
+						country = geo.country_by_addr(domain['dns-a'][0])
 					except Exception as e:
 						self.__debug(e)
 						pass
