@@ -108,7 +108,7 @@ except ImportError:
 			return domain.encode('idna')
 
 
-VALID_FQDN_REGEX = re.compile(r'(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}$)', re.IGNORECASE)
+VALID_FQDN_REGEX = re.compile(r'(?=^.{4,253}$)(^((?!-)[a-z0-9-]{1,63}(?<!-)\.)+[a-z0-9-]{2,63}$)', re.IGNORECASE)
 
 REQUEST_TIMEOUT_DNS = 2.5
 REQUEST_RETRIES_DNS = 2
@@ -839,8 +839,8 @@ def main():
 			parser.error('invalid domain name: ' + args.ssdeep_url)
 
 	try:
-		url = UrlParser(args.domain)
-	except ValueError:
+		url = UrlParser(args.domain) if args.domain.isascii() else UrlParser(idna.encode(args.domain).decode())
+	except Exception:
 		parser.error('invalid domain name: ' + args.domain)
 
 	fuzz = DomainFuzz(url.domain, dictionary=dictionary, tld_dictionary=tld)
