@@ -767,7 +767,8 @@ def main():
 	parser.add_argument('--debug', action='store_true', help='Display debug messages')
 
 	def _exit(code):
-		print(FG_RST + ST_RST, end='')
+		if sys.stdout.isatty():
+			print(FG_RST + ST_RST, end='')
 		sys.exit(code)
 
 	if len(sys.argv) < 2 or sys.argv[1] in ('-h', '--help'):
