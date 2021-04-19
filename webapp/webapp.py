@@ -104,6 +104,9 @@ class Session():
 	def json(self):
 		return list([x for x in self.permutations if len(x) > 2])
 
+	def list(self):
+		return '\n'.join([x.get('domain-name') for x in self.permutations])
+
 
 @app.route('/')
 def root():
@@ -162,6 +165,14 @@ def api_json(sid):
 	for s in sessions:
 		if s.id == sid:
 			return jsonify(s.json()), 200, {'Content-Disposition': 'attachment; filename=dnstwist.json'}
+	return jsonify({'message': 'Scan session not found'}), 404
+
+
+@app.route('/api/scans/<sid>/list')
+def api_list(sid):
+	for s in sessions:
+		if s.id == sid:
+			return s.list(), 200, {'Content-Type': 'text/plain', 'Content-Disposition': 'attachment; filename=dnstwist.txt'}
 	return jsonify({'message': 'Scan session not found'}), 404
 
 
