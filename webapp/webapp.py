@@ -20,10 +20,11 @@ SESSION_MAX = int(os.environ.get('SESSION_MAX', 20))
 WEBAPP_HTML = os.environ.get('WEBAPP_HTML', 'webapp.html')
 WEBAPP_DIR = os.environ.get('WEBAPP_DIR', os.path.dirname(__file__))
 
-DICTIONARY = ['auth', 'account', 'confirm', 'connect', 'enroll', 'http', 'https', 'login', 'mail', 'my', 'online',
-	'payment', 'portal', 'recovery', 'register', 'ssl', 'safe', 'secure', 'signin', 'signup', 'support', 'update',
-	'user', 'verify', 'verification', 'web', 'www']
-TLD_DICTIONARY = ['com', 'cn', 'net', 'eu', 'ga', 'tk', 'ml', 'cf', 'info', 'app', 'ooo', 'xyz', 'online', 'site']
+DICTIONARY = ('auth', 'account', 'confirm', 'connect', 'enroll', 'http', 'https', 'info', 'login', 'mail', 'my',
+	'online', 'payment', 'portal', 'recovery', 'register', 'ssl', 'safe', 'secure', 'signin', 'signup', 'support',
+	'update', 'user', 'verify', 'verification', 'web', 'www')
+TLD_DICTIONARY = ('com', 'net', 'org', 'info', 'cn', 'co', 'eu', 'de', 'uk', 'pw', 'ga', 'gq', 'tk', 'ml', 'cf',
+	'app', 'biz', 'top', 'xyz', 'online', 'site', 'live')
 
 
 sessions = []
@@ -61,6 +62,7 @@ class Session():
 		for worker in self.threads:
 			worker.stop()
 			worker.join()
+		self.threads.clear()
 
 	def domains(self):
 		domains = list([x.copy() for x in self.permutations if len(x) > 2])
@@ -69,10 +71,12 @@ class Session():
 		return domains
 
 	def status(self):
+		if self.jobs.empty():
+			self.stop()
 		total = len(self.permutations)
-		remaining = self.jobs.qsize()
+		remaining = max(self.jobs.qsize(), len(self.threads))
 		complete = total - remaining
-		registered = len(self.domains())
+		registered = len([x for x in self.permutations if len(x) > 2])
 		return {
 			'id': self.id,
 			'timestamp': self.timestamp,
@@ -96,6 +100,12 @@ class Session():
 				domain.get('geoip-country', '')
 				]))
 		return '\n'.join(csv)
+
+	def json(self):
+		return list([x for x in self.permutations if len(x) > 2])
+
+	def list(self):
+		return '\n'.join([x.get('domain-name') for x in self.permutations])
 
 
 @app.route('/')
@@ -147,6 +157,22 @@ def api_csv(sid):
 	for s in sessions:
 		if s.id == sid:
 			return s.csv(), 200, {'Content-Type': 'text/csv', 'Content-Disposition': 'attachment; filename=dnstwist.csv'}
+	return jsonify({'message': 'Scan session not found'}), 404
+
+
+@app.route('/api/scans/<sid>/json')
+def api_json(sid):
+	for s in sessions:
+		if s.id == sid:
+			return jsonify(s.json()), 200, {'Content-Disposition': 'attachment; filename=dnstwist.json'}
+	return jsonify({'message': 'Scan session not found'}), 404
+
+
+@app.route('/api/scans/<sid>/list')
+def api_list(sid):
+	for s in sessions:
+		if s.id == sid:
+			return s.list(), 200, {'Content-Type': 'text/plain', 'Content-Disposition': 'attachment; filename=dnstwist.txt'}
 	return jsonify({'message': 'Scan session not found'}), 404
 
 

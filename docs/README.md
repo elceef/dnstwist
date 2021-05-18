@@ -50,16 +50,23 @@ $ cd dnstwist
 $ pip install .
 ```
 
+**Kali Linux**
+
+Invoke the following command to install the tool with all extra packages:
+
+```
+# apt install dnstwist
+```
+
 **OSX**
 
-Installation is simplified thanks to [Homebrew](https://brew.sh/) package:
+Installation is simplified thanks to [Homebrew](https://brew.sh/) package.
+This will install `dnstwist` along with all dependencies, and the binary will
+be added to `$PATH`.
 
 ```
 $ brew install dnstwist
 ```
-
-This will install `dnstwist` along with all dependencies, and the binary will
-be added to `$PATH`.
 
 **Docker**
 
@@ -75,8 +82,6 @@ Requirements
 
 This tool is designed to run fine with just standard Python3 library. However,
 a couple of third-party packages are required to show its full potential.
-
-**Debian/Ubuntu/Kali Linux**
 
 If running Debian-based distribution, you can install all external libraries
 with just single command:
@@ -226,8 +231,10 @@ The scanner is utilized by tens of SOC and incident response teams around the
 globe, as well as independent information security analysts and researchers.
 On top of this, it's integrated into products and services of many security
 providers, in particular but not only:
-Splunk, RecordedFuture, SpiderFoot, DigitalShadows, SecurityRisk, SmartFense,
-ThreatPipes, Cortex XSOAR, Mimecast, Watcher, Intel Owl.
+
+Splunk ESCU, RecordedFuture, SpiderFoot, DigitalShadows, SecurityRisk,
+SmartFense, ThreatPipes, PaloAlto Cortex XSOAR, Rapid7 InsightConnect SOAR,
+Mimecast, Watcher, Intel Owl, PatrOwl, VDA Labs, Appsecco.
 
 
 Contact

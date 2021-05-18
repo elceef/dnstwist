@@ -145,7 +145,7 @@ span#source {
 			</header>
 			<div id="searchbox">
 				<input type="hidden" id="sid">
-				<input type="text" id="url" placeholder="Enter domain name">
+				<input type="text" id="url" placeholder="Enter domain name" autofocus>
 				<button id="scan">Scan</button>
 			</div>
 			<progress id="progress" value="0"></progress>
@@ -156,6 +156,8 @@ span#source {
 	<span id="source">[<a href="https://github.com/elceef/dnstwist">source code</a>]</span>
 </body>
 <script>
+last_registered = 0;
+
 function fetchDomains() {
 	$.getJSON('/api/scans/' + $('#sid').val() + '/domains', function(data) {
 		$('#data').empty();
@@ -169,11 +171,11 @@ function fetchDomains() {
 			fuzzer = item['fuzzer'] || ''
 			permutation = item['domain-name'] || ''
 			ipaddr = [
-				(item['dns-a'] || [''])[0].replace('!ServFail', '✖'),
+				(item['dns-a'] || [''])[0].replace('!ServFail', '🚫'),
 				(item['dns-aaaa'] || [''])[0].replace('!ServFail', '')
 			].filter(Boolean).join('</br>');
-			dns_ns = (item['dns-ns'] || [''])[0].replace('!ServFail', '✖');
-			dns_mx = (item['dns-mx'] || [''])[0].replace('!ServFail', '✖');
+			dns_ns = (item['dns-ns'] || [''])[0].replace('!ServFail', '🚫');
+			dns_mx = (item['dns-mx'] || [''])[0].replace('!ServFail', '🚫');
 			geoip = item['geoip-country'] || '';
 			$('<tr>').html(
 				'<td>' + permutation + ' <a href="http://' + permutation + '" id="link">🔗</a></br><sup>' + fuzzer + '</sup></td>' +
@@ -192,10 +194,14 @@ function pollScan() {
 		if (data['remaining'] > 0) {
 			setTimeout(pollScan, 250);
 		} else {
-			$('#status').html('Found ' + data['registered'] + ' suspicious domains: <a href="/api/scans/' + $('#sid').val() + '/csv">download as CSV</a>');
+			sid = $('#sid').val()
+			$('#status').html('Scanned <a href="/api/scans/' + sid + '/list">' + data['complete'] + '</a> suspicious domains. Identified ' + data['registered'] + ' registered: download as <a href="/api/scans/' + sid + '/csv">CSV</a> or <a href="/api/scans/' + sid + '/json">JSON</a>');
 			$('#scan').text('Scan');
 		}
-        fetchDomains();
+		if (last_registered < data['registered']) {
+			last_registered = data['registered']
+			fetchDomains();
+		}
     });
 }
 
@@ -206,6 +212,8 @@ function actionScan() {
 	}
 
 	if ($('#scan').text() == 'Scan') {
+		last_registered = 0;
+		$('#scan').text('⏱');
 		$.post({
 			url: '/api/scans',
 			data: JSON.stringify({'url': $('#url').val()}),
@@ -216,8 +224,9 @@ function actionScan() {
 				pollScan();
 			},
 			error: function(xhr, status, error) {
+				$('#scan').text('Scan');
 				$('#status').html(xhr.responseJSON['message'] || 'Something went wrong');
-			}
+			},
 		});
 	} else {
 		stop();
