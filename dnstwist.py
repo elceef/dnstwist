@@ -359,11 +359,7 @@ class DomainFuzz():
 		return result
 
 	def __transposition(self):
-		result = []
-		for i in range(0, len(self.domain)-1):
-			if self.domain[i+1] != self.domain[i]:
-				result.append(self.domain[:i] + self.domain[i+1] + self.domain[i] + self.domain[i+2:])
-		return result
+		return list({self.domain[:i] + self.domain[i+1] + self.domain[i] + self.domain[i+2:] for i in range(len(self.domain)-1)})
 
 	def __vowel_swap(self):
 		vowels = 'aeiou'
