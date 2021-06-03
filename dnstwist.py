@@ -374,14 +374,16 @@ class DomainFuzz():
 		return [self.domain + chr(i) for i in range(97, 123)]
 
 	def __dictionary(self):
-		result = []
+		result = set()
 		for word in self.dictionary:
 			if not (self.domain.startswith(word) and self.domain.endswith(word)):
-				result.append(self.domain + '-' + word)
-				result.append(self.domain + word)
-				result.append(word + '-' + self.domain)
-				result.append(word + self.domain)
-		return list(set(result))
+				result.update({
+					self.domain + '-' + word,
+					self.domain + word,
+					word + '-' + self.domain,
+					word + self.domain
+				})
+		return list(result)
 
 	def __tld(self):
 		if self.tld in self.tld_dictionary:
