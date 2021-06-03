@@ -288,12 +288,11 @@ class DomainFuzz():
 	def __bitsquatting(self):
 		result = []
 		masks = [1, 2, 4, 8, 16, 32, 64, 128]
-		for i in range(0, len(self.domain)):
-			c = self.domain[i]
-			for j in range(0, len(masks)):
-				b = chr(ord(c) ^ masks[j])
-				o = ord(b)
-				if (o >= 48 and o <= 57) or (o >= 97 and o <= 122) or o == 45:
+		chars = set('abcdefghijklmnopqrstuvwxyz0123456789-')
+		for i, c in enumerate(self.domain):
+			for mask in masks:
+				b = chr(ord(c) ^ mask)
+				if b in chars:
 					result.append(self.domain[:i] + b + self.domain[i+1:])
 		return result
 
