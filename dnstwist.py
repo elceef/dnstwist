@@ -371,10 +371,7 @@ class DomainFuzz():
 		return list(set(result))
 
 	def __addition(self):
-		result = []
-		for i in range(97, 123):
-			result.append(self.domain + chr(i))
-		return result
+		return [self.domain + chr(i) for i in range(97, 123)]
 
 	def __dictionary(self):
 		result = []
