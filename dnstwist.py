@@ -301,11 +301,13 @@ class DomainFuzz():
 			result = set()
 			glyphs = self.glyphs
 			for w in range(1, len(domain)):
-				for i in range(0, len(domain)-w+1):
+				for i in range(len(domain)-w+1):
+					pre = domain[:i]
 					win = domain[i:i+w]
+					suf = domain[i+w:]
 					for c in win:
 						for g in glyphs.get(c, []):
-							result.add(domain[:i] + win.replace(c, g) + domain[i+w:])
+							result.add(pre + win.replace(c, g) + suf)
 			return result
 		result1 = mix(self.domain)
 		result2 = set()
