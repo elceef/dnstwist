@@ -345,13 +345,14 @@ class DomainFuzz():
 		return list(set(result))
 
 	def __replacement(self):
-		result = []
-		for i in range(0, len(self.domain)):
-			for keys in self.keyboards:
-				if self.domain[i] in keys:
-					for c in keys[self.domain[i]]:
-						result.append(self.domain[:i] + c + self.domain[i+1:])
-		return list(set(result))
+		result = set()
+		for i, c in enumerate(self.domain):
+			pre = self.domain[:i]
+			suf = self.domain[i+1:]
+			for layout in self.keyboards:
+				for r in layout.get(c, ''):
+					result.add(pre + r + suf)
+		return list(result)
 
 	def __subdomain(self):
 		result = []
