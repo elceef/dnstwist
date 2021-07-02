@@ -316,33 +316,22 @@ class DomainFuzz():
 		return list(result1 | result2)
 
 	def __hyphenation(self):
-		result = []
-		for i in range(1, len(self.domain)):
-			result.append(self.domain[:i] + '-' + self.domain[i:])
-		return result
+		return [self.domain[:i] + '-' + self.domain[i:] for i in range(1, len(self.domain))]
 
 	def __insertion(self):
-		result = []
+		result = set()
 		for i in range(1, len(self.domain)-1):
-			for keys in self.keyboards:
-				if self.domain[i] in keys:
-					for c in keys[self.domain[i]]:
-						result.append(self.domain[:i] + c + self.domain[i] + self.domain[i+1:])
-						result.append(self.domain[:i] + self.domain[i] + c + self.domain[i+1:])
-		return list(set(result))
+			prefix, orig_c, suffix = self.domain[:i], self.domain[i], self.domain[i+1:]
+			for c in (c for keys in self.keyboards for c in keys.get(orig_c, [])):
+				result.add(prefix + c + orig_c + suffix)
+				result.add(prefix + orig_c + c + suffix)
+		return list(result)
 
 	def __omission(self):
-		result = []
-		for i in range(0, len(self.domain)):
-			result.append(self.domain[:i] + self.domain[i+1:])
-		return list(set(result))
+		return list({self.domain[:i] + self.domain[i+1:] for i in range(len(self.domain))})
 
 	def __repetition(self):
-		result = []
-		for i in range(0, len(self.domain)):
-			if self.domain[i].isalnum():
-				result.append(self.domain[:i] + self.domain[i] + self.domain[i] + self.domain[i+1:])
-		return list(set(result))
+		return list({self.domain[:i] + c + self.domain[i:] for i, c in enumerate(self.domain)})
 
 	def __replacement(self):
 		result = set()
@@ -395,30 +384,16 @@ class DomainFuzz():
 
 	def generate(self):
 		self.domains.append({'fuzzer': 'original*', 'domain-name': '.'.join(filter(None, [self.subdomain, self.domain, self.tld]))})
-		for domain in self.__addition():
-			self.domains.append({'fuzzer': 'addition', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld]))})
-		for domain in self.__bitsquatting():
-			self.domains.append({'fuzzer': 'bitsquatting', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld]))})
-		for domain in self.__homoglyph():
-			self.domains.append({'fuzzer': 'homoglyph', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld]))})
-		for domain in self.__hyphenation():
-			self.domains.append({'fuzzer': 'hyphenation', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld]))})
-		for domain in self.__insertion():
-			self.domains.append({'fuzzer': 'insertion', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld]))})
-		for domain in self.__omission():
-			self.domains.append({'fuzzer': 'omission', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld]))})
-		for domain in self.__repetition():
-			self.domains.append({'fuzzer': 'repetition', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld]))})
-		for domain in self.__replacement():
-			self.domains.append({'fuzzer': 'replacement', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld]))})
-		for domain in self.__subdomain():
-			self.domains.append({'fuzzer': 'subdomain', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld]))})
-		for domain in self.__transposition():
-			self.domains.append({'fuzzer': 'transposition', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld]))})
-		for domain in self.__vowel_swap():
-			self.domains.append({'fuzzer': 'vowel-swap', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld]))})
-		for domain in self.__dictionary():
-			self.domains.append({'fuzzer': 'dictionary', 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld]))})
+		class_name = self.__class__.__name__
+		for name in [
+			'addition', 'bitsquatting', 'homoglyph', 'hyphenation',
+			'insertion', 'omission', 'repetition', 'replacement',
+			'subdomain', 'transposition', 'vowel-swap', 'dictionary',
+		]:
+			f_name = name.replace('-', '_')
+			f = getattr(self, f'_{class_name}__{f_name}')
+			for domain in f():
+				self.domains.append({'fuzzer': name, 'domain-name': '.'.join(filter(None, [self.subdomain, domain, self.tld]))})
 		for tld in self.__tld():
 			self.domains.append({'fuzzer': 'tld-swap', 'domain-name': '.'.join(filter(None, [self.subdomain, self.domain, tld]))})
 		if '.' in self.tld:
