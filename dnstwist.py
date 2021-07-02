@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-'''
+r'''
      _           _            _     _
   __| |_ __  ___| |___      _(_)___| |_
  / _` | '_ \/ __| __\ \ /\ / / / __| __|
@@ -846,7 +846,7 @@ def main():
 		p_err('Notice: Missing module Requests (webpage downloads not possible)')
 
 	p_cli(FG_RND + ST_BRI +
-'''     _           _            _     _
+r'''     _           _            _     _
   __| |_ __  ___| |___      _(_)___| |_
  / _` | '_ \/ __| __\ \ /\ / / / __| __|
 | (_| | | | \__ \ |_ \ V  V /| \__ \ |_
