@@ -929,6 +929,10 @@ r'''     _           _            _     _
 						continue
 					if whoisq.creation_date:
 						domain['whois-created'] = str(whoisq.creation_date).split(' ')[0]
+					if whoisq.last_updated:
+						domain['whois-last-updated'] = str(whoisq.last_updated).split(' ')[0]
+					if whoisq.expiration_date:
+						domain['whois-expiry'] = str(whoisq.expiration_date).split(' ')[0]
 					if whoisq.registrar:
 						domain['whois-registrar'] = str(whoisq.registrar)
 		p_cli(' Done\n')
