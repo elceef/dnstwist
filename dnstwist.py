@@ -820,7 +820,7 @@ def main():
 			parser.error('dictionary file not found: %s' % args.tld)
 		with open(args.tld) as f:
 			tld = set(f.read().splitlines())
-			tld = [x for x in tld if x.isalpha()]
+			tld = [x for x in tld if not x.isspace()]
 
 	if args.output:
 		try:
