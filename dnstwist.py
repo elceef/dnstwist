@@ -915,26 +915,24 @@ r'''     _           _            _     _
 	domains = fuzz.permutations(registered=args.registered, dns_all=args.all)
 
 	if MODULE_WHOIS and args.whois:
-		p_cli('Querying WHOIS servers ')
-		for domain in domains:
-			if len(domain) > 2:
-				p_cli('·')
-				try:
-					_, dom, tld = fuzz.domain_tld(domain['domain-name'])
-					whoisq = whois.query('.'.join([dom, tld]))
-				except Exception as e:
-					if args.debug:
-						p_err(e)
-				else:
-					if whoisq is None:
-						continue
-					if whoisq.creation_date:
-						domain['whois-created'] = str(whoisq.creation_date).split(' ')[0]
-					if whoisq.registrar:
-						domain['whois-registrar'] = str(whoisq.registrar)
-		p_cli(' Done\n')
+		total = sum([1 for x in domains if len(x) > 2])
+		for i, domain in enumerate([x for x in domains if len(x) > 2]):
+			p_cli('\rWHOIS: {:.2f}% of {}'.format(100*(i+1)/total, total))
+			try:
+				_, dom, tld = fuzz.domain_tld(domain['domain-name'])
+				whoisq = whois.query('.'.join([dom, tld]))
+			except Exception as e:
+				if args.debug:
+					p_err(e)
+			else:
+				if whoisq is None:
+					continue
+				if whoisq.creation_date:
+					domain['whois-created'] = str(whoisq.creation_date).split(' ')[0]
+				if whoisq.registrar:
+					domain['whois-registrar'] = str(whoisq.registrar)
 
-	p_cli('\n')
+	p_cli('\n\n')
 
 	if domains:
 		if args.format == 'csv':
