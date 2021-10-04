@@ -724,8 +724,6 @@ def main():
 	parser.add_argument('--debug', action='store_true', help='Display debug messages')
 
 	def _exit(code):
-		if sys.stdout.isatty():
-			print(FG_RST + ST_RST, end='')
 		sys.exit(code)
 
 	if len(sys.argv) < 2 or sys.argv[1] in ('-h', '--help'):
@@ -738,7 +736,7 @@ def main():
 	args = parser.parse_args()
 
 	def p_cli(text):
-		if args.format == 'cli': print(text, end='', flush=True)
+		if args.format == 'cli' and sys.stdout.isatty(): print(text, end='', flush=True)
 	def p_err(text):
 		print(str(text), file=sys.stderr, flush=True)
 
