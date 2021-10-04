@@ -858,8 +858,6 @@ r'''     _           _            _     _
 			else:
 				args.ssdeep = False
 
-	p_cli('Processing %d permutations ' % len(domains))
-
 	jobs = queue.Queue()
 
 	for i in range(len(domains)):
@@ -896,20 +894,23 @@ r'''     _           _            _     _
 		worker.start()
 		threads.append(worker)
 
-	qperc = 0
+	ttime = 0
+	ival = 0.5
 	while not jobs.empty():
-		p_cli('.')
-		qcurr = 100 * (len(domains) - jobs.qsize()) / len(domains)
-		if qcurr - 20 >= qperc:
-			qperc = qcurr
-			p_cli('%u%%' % qperc)
-		time.sleep(1.0)
+		time.sleep(ival)
+		ttime += ival
+		comp = len(domains) - jobs.qsize()
+		perc = 100 * comp / len(domains)
+		rate = comp / ttime
+		eta = int(jobs.qsize() / rate)
+		found = sum([1 for x in domains if len(x) > 2])
+		p_cli('\rPermutations: {:.2f}% of {}, Found: {}, ETA: {} [{:3.0f} qps]'.format(perc, len(domains), found, time.strftime('%M:%S', time.gmtime(eta)), rate))
 
 	for worker in threads:
 		worker.stop()
 		worker.join()
 
-	p_cli(' %d hits\n' % sum([1 for x in domains if len(x) > 2]))
+	p_cli('\n')
 
 	domains = fuzz.permutations(registered=args.registered, dns_all=args.all)
 
