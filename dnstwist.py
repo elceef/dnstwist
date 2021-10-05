@@ -524,11 +524,11 @@ class DomainThread(threading.Thread):
 				self.kill_received = True
 				return
 
+			dns_a = False
+			dns_aaaa = False
 			if self.option_extdns:
 				nxdomain = False
 				dns_ns = False
-				dns_a = False
-				dns_aaaa = False
 				dns_mx = False
 
 				try:
