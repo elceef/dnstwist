@@ -903,12 +903,11 @@ r'''     _           _            _     _
 		eta = int(jobs.qsize() / rate)
 		found = sum([1 for x in domains if len(x) > 2])
 		p_cli('\rPermutations: {:.2f}% of {}, Found: {}, ETA: {} [{:3.0f} qps]'.format(perc, len(domains), found, time.strftime('%M:%S', time.gmtime(eta)), rate))
+	p_cli('\n')
 
 	for worker in threads:
 		worker.stop()
 		worker.join()
-
-	p_cli('\n')
 
 	domains = fuzz.permutations(registered=args.registered, dns_all=args.all)
 
@@ -929,8 +928,9 @@ r'''     _           _            _     _
 					domain['whois-created'] = str(whoisq.creation_date).split(' ')[0]
 				if whoisq.registrar:
 					domain['whois-registrar'] = str(whoisq.registrar)
+		p_cli('\n')
 
-	p_cli('\n\n')
+	p_cli('\n')
 
 	if domains:
 		if args.format == 'csv':
