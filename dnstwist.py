@@ -898,6 +898,8 @@ r'''     _           _            _     _
 		time.sleep(ival)
 		ttime += ival
 		comp = len(domains) - jobs.qsize()
+		if not comp:
+			continue
 		perc = 100 * comp / len(domains)
 		rate = comp / ttime
 		eta = int(jobs.qsize() / rate)
