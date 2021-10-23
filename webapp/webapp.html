@@ -169,14 +169,14 @@ function fetchDomains() {
 			).appendTo('#data');
 		$.each(data, function(i, item) {
 			fuzzer = item['fuzzer'] || ''
-			permutation = item['domain-name'] || ''
+			permutation = item['domain'] || ''
 			ipaddr = [
-				(item['dns-a'] || [''])[0].replace('!ServFail', '🚫'),
-				(item['dns-aaaa'] || [''])[0].replace('!ServFail', '')
+				(item['dns_a'] || [''])[0].replace('!ServFail', '🚫'),
+				(item['dns_aaaa'] || [''])[0].replace('!ServFail', '')
 			].filter(Boolean).join('</br>');
-			dns_ns = (item['dns-ns'] || [''])[0].replace('!ServFail', '🚫');
-			dns_mx = (item['dns-mx'] || [''])[0].replace('!ServFail', '🚫');
-			geoip = item['geoip-country'] || '';
+			dns_ns = (item['dns_ns'] || [''])[0].replace('!ServFail', '🚫');
+			dns_mx = (item['dns_mx'] || [''])[0].replace('!ServFail', '🚫');
+			geoip = item['geoip'] || '';
 			$('<tr>').html(
 				'<td>' + permutation + ' <a href="http://' + permutation + '" id="link">🔗</a></br><sup>' + fuzzer + '</sup></td>' +
 				'<td>' + ipaddr + '</br><sup>' + geoip + '</sup></td>' +

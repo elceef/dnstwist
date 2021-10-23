@@ -8,7 +8,12 @@ from time import time
 
 from flask import Flask, request, jsonify, send_from_directory
 
-from dnstwist import UrlParser, DomainFuzz, DomainThread, THREAD_COUNT_DEFAULT
+from dnstwist import UrlParser, Fuzzer, Scanner, THREAD_COUNT_DEFAULT
+
+try:
+	import idna.codec
+except ImportError:
+	pass
 
 
 PORT = int(os.environ.get('PORT', 8000))
@@ -40,15 +45,15 @@ class Session():
 		self.thread_count = thread_count
 		self.jobs = Queue()
 		self.threads = []
-		fuzz = DomainFuzz(self.url.domain, dictionary=DICTIONARY, tld_dictionary=TLD_DICTIONARY)
+		fuzz = Fuzzer(self.url.domain, dictionary=DICTIONARY, tld_dictionary=TLD_DICTIONARY)
 		fuzz.generate()
-		self.permutations = fuzz.domains
+		self.permutations = fuzz.permutations()
 
 	def scan(self):
-		for i in range(len(self.permutations)):
-			self.jobs.put(self.permutations[i])
+		for domain in self.permutations:
+			self.jobs.put(domain)
 		for _ in range(self.thread_count):
-			worker = DomainThread(self.jobs)
+			worker = Scanner(self.jobs)
 			worker.setDaemon(True)
 			worker.option_extdns = True
 			worker.option_geoip = True
@@ -65,10 +70,14 @@ class Session():
 		self.threads.clear()
 
 	def domains(self):
-		domains = list([x.copy() for x in self.permutations if len(x) > 2])
-		for domain in domains:
-			domain['domain-name'] = domain['domain-name'].encode().decode('idna')
-		return domains
+		domains = [x for x in self.permutations.copy() if x.is_registered()]
+		def _idna(item):
+			try:
+				item['domain'] = item['domain'].encode().decode('idna')
+			except Exception:
+				pass
+			return item
+		return list(map(_idna, domains))
 
 	def status(self):
 		if self.jobs.empty():
@@ -76,7 +85,7 @@ class Session():
 		total = len(self.permutations)
 		remaining = max(self.jobs.qsize(), len(self.threads))
 		complete = total - remaining
-		registered = len([x for x in self.permutations if len(x) > 2])
+		registered = sum([1 for x in self.permutations if x.is_registered()])
 		return {
 			'id': self.id,
 			'timestamp': self.timestamp,
@@ -88,24 +97,24 @@ class Session():
 			}
 
 	def csv(self):
-		csv = ['fuzzer,domain-name,dns-a,dns-aaaa,dns-ns,dns-mx,geoip-country']
-		for domain in list([x for x in self.permutations if len(x) > 2]):
+		csv = ['fuzzer,domain,dns_a,dns_aaaa,dns_ns,dns_mx,geoip']
+		for domain in list([x for x in self.permutations if x.is_registered()]):
 			csv.append(','.join([
 				domain.get('fuzzer'),
-				domain.get('domain-name'),
-				domain.get('dns-a', [''])[0],
-				domain.get('dns-aaaa', [''])[0],
-				domain.get('dns-ns', [''])[0],
-				domain.get('dns-mx', [''])[0],
-				domain.get('geoip-country', '')
+				domain.get('domain'),
+				domain.get('dns_a', [''])[0],
+				domain.get('dns_aaaa', [''])[0],
+				domain.get('dns_ns', [''])[0],
+				domain.get('dns_mx', [''])[0],
+				domain.get('geoip', '')
 				]))
 		return '\n'.join(csv)
 
 	def json(self):
-		return list([x for x in self.permutations if len(x) > 2])
+		return [x for x in self.permutations if x.is_registered()]
 
 	def list(self):
-		return '\n'.join([x.get('domain-name') for x in self.permutations])
+		return '\n'.join([x.get('domain') for x in self.permutations])
 
 
 @app.route('/')
