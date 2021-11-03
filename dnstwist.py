@@ -225,7 +225,11 @@ class Permutation(dict):
 
 
 class Fuzzer():
-	def __init__(self, domain, dictionary=[], tld_dictionary=[]):
+	def __init__(self, domain, dictionary=None, tld_dictionary=None):
+		if not dictionary:
+			dictionary = []
+		if not tld_dictionary:
+			tld_dictionary = []
 		self.subdomain, self.domain, self.tld = domain_tld(domain)
 		self.domain = idna.decode(self.domain)
 		self.dictionary = list(dictionary)
@@ -619,11 +623,15 @@ class Scanner(threading.Thread):
 			self.jobs.task_done()
 
 
-def create_json(domains=[]):
+def create_json(domains=None):
+	if not domains:
+		domains = []
 	return json.dumps(domains, indent=4, sort_keys=True)
 
 
-def create_csv(domains=[]):
+def create_csv(domains=None):
+	if not domains:
+		domains = []
 	csv = ['fuzzer,domain,dns_a,dns_aaaa,dns_mx,dns_ns,geoip,whois_registrar,whois_created,ssdeep']
 	for domain in domains:
 		csv.append(','.join([domain.get('fuzzer'), domain.get('domain'),
@@ -636,11 +644,15 @@ def create_csv(domains=[]):
 	return '\n'.join(csv)
 
 
-def create_list(domains=[]):
+def create_list(domains=None):
+	if not domains:
+		domains = []
 	return '\n'.join([x.get('domain') for x in sorted(domains)])
 
 
-def create_cli(domains=[]):
+def create_cli(domains=None):
+	if not domains:
+		domains = []
 	cli = []
 	domains = list(domains)
 	if sys.stdout.encoding.lower() == 'utf-8':
