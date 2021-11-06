@@ -50,7 +50,7 @@ $ cd dnstwist
 $ pip install .
 ```
 
-**Kali Linux**
+**Debian/Ubuntu/Kali Linux**
 
 Invoke the following command to install the tool with all extra packages:
 
@@ -83,7 +83,7 @@ Requirements
 This tool is designed to run fine with just standard Python3 library. However,
 a couple of third-party packages are required to show its full potential.
 
-If running Debian-based distribution, you can install all external libraries
+If running a Debian-based distribution, you can install all external libraries
 with just single command:
 
 ```
@@ -92,8 +92,7 @@ python3-requests python3-ssdeep
 ```
 
 Alternatively, you can use Python PIP. This can be done within a virtual
-environment to avoid conflicts with other installations. However, you will
-still need essential build tools and a couple of libraries installed.
+environment to avoid conflicts with other installations.
 
 ```
 $ pip3 install -r requirements.txt
