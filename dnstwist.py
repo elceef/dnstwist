@@ -762,7 +762,7 @@ def main():
 		if not path.exists(args.tld):
 			parser.error('dictionary file not found: %s' % args.tld)
 		with open(args.tld) as f:
-			tld = [x for x in set(f.read().splitlines()) if x.isalpha()]
+			tld = [x for x in set(f.read().splitlines()) if x.isascii()]
 
 	if args.output:
 		try:
