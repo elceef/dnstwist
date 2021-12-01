@@ -746,9 +746,12 @@ def main():
 	nameservers = []
 	if args.nameservers:
 		nameservers = args.nameservers.split(',')
-		for r in nameservers:
-			if len(r.split('.')) != 4:
-				parser.error('invalid DNS nameserver')
+		for addr in nameservers:
+			if re.match(r'^https://[a-z0-9.-]{4,253}/dns-query$', addr):
+				continue
+			if re.match(r'^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$', addr):
+				continue
+			parser.error('invalid nameserver {}'.format(addr))
 
 	dictionary = []
 	if args.dictionary:
