@@ -745,13 +745,21 @@ def main():
 
 	nameservers = []
 	if args.nameservers:
+		if not MODULE_DNSPYTHON:
+			parser.error('missing DNSPython library')
 		nameservers = args.nameservers.split(',')
 		for addr in nameservers:
 			if re.match(r'^https://[a-z0-9.-]{4,253}/dns-query$', addr):
+				try:
+					from dns.query import https
+				except ImportError:
+					parser.error('DNS-over-HTTPS requires DNSPython 2.x or newer')
+				else:
+					del https
 				continue
-			if re.match(r'^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$', addr):
+			if re.match(r'^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}$', addr):
 				continue
-			parser.error('invalid nameserver {}'.format(addr))
+			parser.error('invalid nameserver: {}'.format(addr))
 
 	dictionary = []
 	if args.dictionary:
@@ -773,16 +781,29 @@ def main():
 		except FileExistsError:
 			parser.error('file already exists: %s' % args.output)
 		except FileNotFoundError:
-			parser.error('not such file or directory: %s' % args.output)
+			parser.error('file not found: %s' % args.output)
 		except PermissionError:
 			parser.error('permission denied: %s' % args.output)
 
 	ssdeep_url = None
-	if args.ssdeep_url:
-		try:
-			ssdeep_url = UrlParser(args.ssdeep_url)
-		except ValueError:
-			parser.error('invalid domain name: ' + args.ssdeep_url)
+	if args.ssdeep:
+		if not MODULE_SSDEEP:
+			parser.error('missing ssdeep library')
+		if not MODULE_REQUESTS:
+			parser.error('missing Requests library')
+		if args.ssdeep_url:
+			try:
+				ssdeep_url = UrlParser(args.ssdeep_url)
+			except ValueError:
+				parser.error('invalid domain name: ' + args.ssdeep_url)
+
+	if args.whois:
+		if not MODULE_WHOIS:
+			parser.error('missing whois library')
+
+	if args.geoip:
+		if not MODULE_GEOIP:
+			parser.error('missing GeoIP library or database')
 
 	try:
 		url = UrlParser(args.domain) if args.domain.isascii() else UrlParser(idna.encode(args.domain).decode())
@@ -798,15 +819,7 @@ def main():
 		_exit(0)
 
 	if not MODULE_DNSPYTHON:
-		p_err('Notice: Missing module DNSPython (DNS features limited)')
-	if not MODULE_GEOIP and args.geoip:
-		p_err('Notice: Missing GeoIP module or database (geographical location not available)')
-	if not MODULE_WHOIS and args.whois:
-		p_err('Notice: Missing module whois (WHOIS database not accessible)')
-	if not MODULE_SSDEEP and args.ssdeep:
-		p_err('Notice: Missing module ssdeep (fuzzy hashes not available)')
-	if not MODULE_REQUESTS and args.ssdeep:
-		p_err('Notice: Missing module Requests (webpage downloads not possible)')
+		p_err('WARNING: DNS features are limited due to lack of DNSPython library')
 
 	p_cli(FG_RND + ST_BRI +
 r'''     _           _            _     _
@@ -819,7 +832,7 @@ r'''     _           _            _     _
 
 	ssdeep_init = str()
 	ssdeep_effective_url = str()
-	if args.ssdeep and MODULE_SSDEEP and MODULE_REQUESTS:
+	if args.ssdeep:
 		request_url = ssdeep_url.full_uri() if ssdeep_url else url.full_uri()
 		p_cli('Fetching content from: %s ' % request_url)
 		try:
@@ -861,13 +874,12 @@ r'''     _           _            _     _
 
 		worker.domain_init = url.domain
 
-		if MODULE_DNSPYTHON:
-			worker.option_extdns = True
-		if MODULE_GEOIP and args.geoip:
+		worker.option_extdns = MODULE_DNSPYTHON
+		if args.geoip:
 			worker.option_geoip = True
 		if args.banners:
 			worker.option_banners = True
-		if args.ssdeep and MODULE_REQUESTS and MODULE_SSDEEP and ssdeep_init:
+		if args.ssdeep and ssdeep_init:
 			worker.option_ssdeep = True
 			worker.ssdeep_init = ssdeep_init
 			worker.ssdeep_effective_url = ssdeep_effective_url
@@ -903,7 +915,7 @@ r'''     _           _            _     _
 
 	domains = fuzz.permutations(registered=args.registered, dns_all=args.all)
 
-	if MODULE_WHOIS and args.whois:
+	if args.whois:
 		total = sum([1 for x in domains if x.is_registered()])
 		for i, domain in enumerate([x for x in domains if x.is_registered()]):
 			p_cli('\rWHOIS: {:.2f}% of {}'.format(100*(i+1)/total, total))
