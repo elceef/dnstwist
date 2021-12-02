@@ -35,7 +35,7 @@ import signal
 import time
 import argparse
 import threading
-from os import path
+from os import path, environ
 import smtplib
 import json
 import queue
@@ -48,7 +48,7 @@ try:
 except ImportError:
 	MODULE_DNSPYTHON = False
 
-GEOLITE2_MMDB = path.join(path.dirname(__file__), 'GeoLite2-Country.mmdb')
+GEOLITE2_MMDB = environ.get('GEOLITE2_MMDB' , path.join(path.dirname(__file__), 'GeoLite2-Country.mmdb'))
 try:
 	import geoip2.database
 	_ = geoip2.database.Reader(GEOLITE2_MMDB)
