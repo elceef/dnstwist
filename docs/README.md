@@ -55,7 +55,7 @@ $ pip install .
 Invoke the following command to install the tool with all extra packages:
 
 ```
-# apt install dnstwist
+$ sudo apt install dnstwist
 ```
 
 **OSX**
@@ -114,8 +114,8 @@ $ dnstwist --registered domain.name
 ```
 
 Ensure your DNS server can handle thousands of requests within a short period
-of time. Otherwise, you can specify an external DNS server with `--nameservers`
-argument.
+of time. Otherwise, you can specify an external DNS or DNS-over-HTTPS server
+with `--nameservers` argument.
 
 Manually checking each domain name in terms of serving a phishing site might be
 time-consuming. To address this, `dnstwist` makes use of so-called fuzzy hashes
@@ -138,12 +138,13 @@ $ dnstwist --ssdeep domain.name
 
 In some cases, phishing sites are served from a specific URL. If you provide a
 full or partial URL address as an argument, `dnstwist` will parse it and apply
-for each generated domain name variant. This is obviously useful only with the
-fuzzy hashing feature.
+for each generated domain name variant. Additionally you can use `--ssdeep-url`
+to override URL to fetch the original web page from. This is obviously useful
+only with the fuzzy hashing feature.
 
 ```
 $ dnstwist --ssdeep https://domain.name/owa/
-$ dnstwist --ssdeep domain.name/login
+$ dnstwist --ssdeep --ssdeep-url https://different.domain/owa/ domain.name
 ```
 
 Sometimes attackers set up e-mail honey pots on phishing domains and wait for
@@ -194,6 +195,10 @@ The tool can perform real-time lookups to return geographical location
 $ dnstwist --geoip domain.name
 ```
 
+The GeoIP2 library is used by default. Country database location has to be
+specified with `$GEOLITE2_MMDB` environment variable. If the library or the
+database are not present, the tool will fall-back to GeoIP Legacy.
+
 To display all available options with brief descriptions simply execute the
 tool without any arguments.
 
@@ -241,7 +246,5 @@ Contact
 
 To send questions, thoughts or a bar of chocolate, just drop an e-mail at
 [marcin@ulikowski.pl](mailto:marcin@ulikowski.pl).
-You can [follow the author on Twitter](https://twitter.com/elceef) to stay in
-the loop on major improvements and related news.
 Any feedback is appreciated. If you have found some confirmed phishing domains
 or just like this tool, please don't hesitate and send a message. Thank you.
