@@ -351,7 +351,7 @@ class Fuzzer():
 					yield self.domain[:i] + vowel + self.domain[i+1:]
 
 	def _addition(self):
-		return {self.domain + chr(i) for i in range(97, 123)}
+		return {self.domain + chr(i) for i in (*range(48, 58), *range(97, 123))}
 
 	def _dictionary(self):
 		result = set()
