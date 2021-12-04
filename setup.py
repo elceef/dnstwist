@@ -1,6 +1,9 @@
 from setuptools import setup
 import dnstwist
 
+with open('requirements.txt') as f:
+	full = [line for line in f.read().splitlines() if not line.startswith('#')]
+
 setup(
 	name='dnstwist',
 	version=dnstwist.__version__,
@@ -13,6 +16,10 @@ setup(
 	py_modules=['dnstwist'],
 	entry_points={
 		'console_scripts': ['dnstwist=dnstwist:main']
+	},
+	install_requires=[],
+	extras_require={
+		'full': full
 	},
 	classifiers=[
 		'Programming Language :: Python :: 3',
