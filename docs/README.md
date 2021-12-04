@@ -37,7 +37,7 @@ Installation
 **Python PIP**
 
 ```
-$ pip install dnstwist
+$ pip install dnstwist[full]
 ```
 
 **Git**
@@ -74,28 +74,6 @@ If you prefer Docker, you can pull and run official image from the Docker Hub:
 
 ```
 $ docker run elceef/dnstwist
-```
-
-
-Requirements
-------------
-
-This tool is designed to run fine with just standard Python3 library. However,
-a couple of third-party packages are required to show its full potential.
-
-If running a Debian-based distribution, you can install all external libraries
-with just single command:
-
-```
-$ sudo apt install python3-dnspython python3-tld python3-geoip python3-whois \
-python3-requests python3-ssdeep
-```
-
-Alternatively, you can use Python PIP. This can be done within a virtual
-environment to avoid conflicts with other installations.
-
-```
-$ pip3 install -r requirements.txt
 ```
 
 
