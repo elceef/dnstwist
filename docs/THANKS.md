@@ -14,6 +14,7 @@ you'd prefer a different name be used, please let me know.
 - Christopher Schmidt
 - Eugene Kogan
 - Fabian Affolter
+- Faidon Liambotis
 - Francisco Roldán
 - James Lane
 - Julien Rottenberg
