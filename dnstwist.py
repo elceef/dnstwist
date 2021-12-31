@@ -128,6 +128,10 @@ else:
 	FG_RND = FG_YEL = FG_CYA = FG_BLU = FG_RST = ST_BRI = ST_RST = ''
 
 
+def is_ascii(s):
+	return all(ord(c) < 128 for c in s)
+	
+
 def domain_tld(domain):
 	try:
 		from tld import parse_tld
@@ -773,7 +777,7 @@ def main():
 		if not path.exists(args.tld):
 			parser.error('dictionary file not found: %s' % args.tld)
 		with open(args.tld) as f:
-			tld = [x for x in set(f.read().splitlines()) if x.isascii()]
+			tld = [x for x in set(f.read().splitlines()) if isascii(x)]
 
 	if args.output:
 		try:
@@ -806,7 +810,7 @@ def main():
 			parser.error('missing GeoIP library or database')
 
 	try:
-		url = UrlParser(args.domain) if args.domain.isascii() else UrlParser(idna.encode(args.domain).decode())
+		url = UrlParser(args.domain) if isascii(args.domain) else UrlParser(idna.encode(args.domain).decode())
 	except Exception:
 		parser.error('invalid domain name: ' + args.domain)
 
