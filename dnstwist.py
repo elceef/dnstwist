@@ -383,12 +383,12 @@ class Fuzzer():
 		for tld in self._tld():
 			self.domains.add(Permutation(fuzzer='tld-swap', domain='.'.join(filter(None, [self.subdomain, self.domain, tld]))))
 		if '.' in self.tld:
-			self.domains.add(Permutation(fuzzer='various', domain=self.domain + '.' + self.tld.split('.')[-1]))
-			self.domains.add(Permutation(fuzzer='various', domain=self.domain + self.tld))
+			self.domains.add(Permutation(fuzzer='various', domain='.'.join(filter(None, [self.subdomain, self.domain, self.tld.split('.')[-1]]))))
+			self.domains.add(Permutation(fuzzer='various', domain='.'.join(filter(None, [self.subdomain, self.domain + self.tld]))))
 		if '.' not in self.tld:
-			self.domains.add(Permutation(fuzzer='various', domain=self.domain + self.tld + '.' + self.tld))
+			self.domains.add(Permutation(fuzzer='various', domain='.'.join(filter(None, [self.subdomain, self.domain + self.tld, self.tld]))))
 		if self.tld != 'com' and '.' not in self.tld:
-			self.domains.add(Permutation(fuzzer='various', domain=self.domain + '-' + self.tld + '.com'))
+			self.domains.add(Permutation(fuzzer='various', domain='.'.join(filter(None, [self.subdomain, self.domain + '-' + self.tld, 'com']))))
 		def _punycode(domain):
 			try:
 				domain['domain'] = idna.encode(domain['domain']).decode()
