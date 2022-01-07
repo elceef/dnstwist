@@ -181,6 +181,7 @@ class UrlParser():
 			if m_uri.group('authority'):
 				self.authority = m_uri.group('authority')
 				self.domain = self.authority.split(':')[0].lower()
+				self.domain = idna.encode(self.domain).decode()
 				if not self._validate_domain(self.domain):
 					raise ValueError('Invalid domain name')
 			if m_uri.group('path'):
@@ -806,7 +807,7 @@ def main():
 			parser.error('missing GeoIP library or database')
 
 	try:
-		url = UrlParser(args.domain) if args.domain.isascii() else UrlParser(idna.encode(args.domain).decode())
+		url = UrlParser(args.domain)
 	except Exception:
 		parser.error('invalid domain name: ' + args.domain)
 
