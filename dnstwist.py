@@ -378,7 +378,7 @@ class Fuzzer():
 			'insertion', 'omission', 'repetition', 'replacement',
 			'subdomain', 'transposition', 'vowel-swap', 'dictionary',
 		]:
-			f = getattr(self, f'_{f_name}'.replace('-', '_'))
+			f = getattr(self, '_' + f_name.replace('-', '_'))
 			for domain in f():
 				self.domains.add(Permutation(fuzzer=f_name, domain='.'.join(filter(None, [self.subdomain, domain, self.tld]))))
 		for tld in self._tld():
