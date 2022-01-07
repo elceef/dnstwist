@@ -774,7 +774,7 @@ def main():
 		if not path.exists(args.tld):
 			parser.error('dictionary file not found: %s' % args.tld)
 		with open(args.tld) as f:
-			tld = [x for x in set(f.read().splitlines()) if x.isascii()]
+			tld = [x for x in set(f.read().splitlines()) if re.match(r'^[a-z0-9-]{2,63}(\.[a-z0-9-]{2,63}){0,1}$', x)]
 
 	if args.output:
 		try:
