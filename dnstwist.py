@@ -252,6 +252,8 @@ class Fuzzer():
 			}
 		self.keyboards = [self.qwerty, self.qwertz, self.azerty]
 		self.glyphs = {
+			'0': ['o'],
+			'1': ['l', 'i'],
 			'2': ['ƻ'],
 			'5': ['ƽ'],
 			'a': ['à', 'á', 'à', 'â', 'ã', 'ä', 'å', 'ɑ', 'ạ', 'ǎ', 'ă', 'ȧ', 'ą', 'ə'],
