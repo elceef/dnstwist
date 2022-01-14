@@ -109,6 +109,7 @@ except ImportError:
 
 
 VALID_FQDN_REGEX = re.compile(r'(?=^.{4,253}$)(^((?!-)[a-z0-9-]{1,63}(?<!-)\.)+[a-z0-9-]{2,63}$)', re.IGNORECASE)
+USER_AGENT_STRING = 'Mozilla/5.0 ({} {}-bit) dnstwist/{}'.format(sys.platform, sys.maxsize.bit_length() + 1, __version__)
 
 REQUEST_TIMEOUT_DNS = 2.5
 REQUEST_RETRIES_DNS = 2
@@ -711,8 +712,8 @@ def main():
 	parser.add_argument('-w', '--whois', action='store_true', help='Lookup WHOIS database for creation date')
 	parser.add_argument('--tld', type=str, metavar='FILE', help='Generate more domains by swapping TLD from FILE')
 	parser.add_argument('--nameservers', type=str, metavar='LIST', help='DNS or DoH servers to query (separated with commas)')
-	parser.add_argument('--useragent', type=str, metavar='STRING', default='Mozilla/5.0 dnstwist/%s' % __version__,
-		help='User-Agent STRING to send with HTTP requests (default: Mozilla/5.0 dnstwist/%s)' % __version__)
+	parser.add_argument('--useragent', type=str, metavar='STRING', default=USER_AGENT_STRING,
+		help='User-Agent STRING to send with HTTP requests (default: %s)' % USER_AGENT_STRING)
 	parser.add_argument('--debug', action='store_true', help='Display debug messages')
 
 	def _exit(code):
