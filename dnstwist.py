@@ -480,9 +480,6 @@ class Scanner(threading.Thread):
 		else:
 			return True
 
-	def _answer_to_list(self, answers):
-		return sorted([str(x).split(' ')[-1].rstrip('.') for x in answers])
-
 	def stop(self):
 		self.kill_received = True
 
@@ -508,6 +505,8 @@ class Scanner(threading.Thread):
 		if self.option_geoip:
 			geo = geoip()
 
+		_answer_to_list = lambda ans: sorted([str(x).split(' ')[-1].rstrip('.') for x in ans])
+
 		while not self.kill_received:
 			try:
 				task = self.jobs.get(block=False)
@@ -525,7 +524,7 @@ class Scanner(threading.Thread):
 				dns_mx = False
 
 				try:
-					task['dns_ns'] = self._answer_to_list(resolve(domain, rdtype=dns.rdatatype.NS))
+					task['dns_ns'] = _answer_to_list(resolve(domain, rdtype=dns.rdatatype.NS))
 					dns_ns = True
 				except NXDOMAIN:
 					nxdomain = True
@@ -536,7 +535,7 @@ class Scanner(threading.Thread):
 
 				if nxdomain is False:
 					try:
-						task['dns_a'] = self._answer_to_list(resolve(domain, rdtype=dns.rdatatype.A))
+						task['dns_a'] = _answer_to_list(resolve(domain, rdtype=dns.rdatatype.A))
 						dns_a = True
 					except NoNameservers:
 						task['dns_a'] = ['!ServFail']
@@ -544,7 +543,7 @@ class Scanner(threading.Thread):
 						self._debug(e)
 
 					try:
-						task['dns_aaaa'] = self._answer_to_list(resolve(domain, rdtype=dns.rdatatype.AAAA))
+						task['dns_aaaa'] = _answer_to_list(resolve(domain, rdtype=dns.rdatatype.AAAA))
 						dns_aaaa = True
 					except NoNameservers:
 						task['dns_aaaa'] = ['!ServFail']
@@ -553,7 +552,7 @@ class Scanner(threading.Thread):
 
 				if nxdomain is False and dns_ns is True:
 					try:
-						task['dns_mx'] = self._answer_to_list(resolve(domain, rdtype=dns.rdatatype.MX))
+						task['dns_mx'] = _answer_to_list(resolve(domain, rdtype=dns.rdatatype.MX))
 						dns_mx = True
 					except NoNameservers:
 						task['dns_mx'] = ['!ServFail']
