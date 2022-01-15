@@ -651,38 +651,30 @@ def create_cli(domains=[]):
 		for domain in domains:
 			name = domain['domain']
 			domain['domain'] = idna.decode(name)
-	width_fuzzer = max([len(x['fuzzer']) for x in domains]) + 1
-	width_domain = max([len(x['domain']) for x in domains]) + 1
+	wfuz = max([len(x.get('fuzzer', '')) for x in domains]) + 1
+	wdom = max([len(x.get('domain', '')) for x in domains]) + 1
+	kv = lambda k, v: FG_YEL + k + FG_CYA + v + FG_RST if k else FG_CYA + v + FG_RST
 	for domain in domains:
-		info = []
+		inf = []
 		if 'dns_a' in domain:
-			if 'geoip' in domain:
-				info.append(';'.join(domain['dns_a']) + FG_CYA + '/' + domain['geoip'].replace(' ', '') + FG_RST)
-			else:
-				info.append(';'.join(domain['dns_a']))
+			inf.append(';'.join(domain['dns_a']) + (kv('/', domain['geoip'].replace(' ', '')) if 'geoip' in domain else ''))
 		if 'dns_aaaa' in domain:
-			info.append(';'.join(domain['dns_aaaa']))
+			inf.append(';'.join(domain['dns_aaaa']))
 		if 'dns_ns' in domain:
-			info.append(FG_YEL + 'NS:' + FG_CYA + ';'.join(domain['dns_ns']) + FG_RST)
+			inf.append(kv('NS:', ';'.join(domain['dns_ns'])))
 		if 'dns_mx' in domain:
-			if 'mx_spy' in domain:
-				info.append(FG_YEL + 'SPYING-MX:' + FG_CYA + ';'.join(domain['dns_mx']) + FG_RST)
-			else:
-				info.append(FG_YEL + 'MX:' + FG_CYA + ';'.join(domain['dns_mx']) + FG_RST)
+			inf.append(kv('SPYING-MX:' if domain.get('mx_spy') else 'MX:', ';'.join(domain['dns_mx'])))
 		if 'banner_http' in domain:
-			info.append(FG_YEL + 'HTTP:' + FG_CYA + domain['banner_http'] + FG_RST)
+			inf.append(kv('HTTP:', domain['banner_http']))
 		if 'banner_smtp' in domain:
-			info.append(FG_YEL + 'SMTP:' + FG_CYA + domain['banner_smtp'] + FG_RST)
+			inf.append(kv('SMTP:', domain['banner_smtp']))
 		if 'whois_registrar' in domain:
-			info.append(FG_YEL + 'REGISTRAR:' + FG_CYA + domain['whois_registrar'] + FG_RST)
+			inf.append(kv('REGISTRAR:', domain['whois_registrar']))
 		if 'whois_created' in domain:
-			info.append(FG_YEL + 'CREATED:' + FG_CYA + domain['whois_created'] + FG_RST)
+			inf.append(kv('CREATED:', domain['whois_created']))
 		if domain.get('ssdeep', 0) > 0:
-			info.append(FG_YEL + 'SSDEEP:' + str(domain['ssdeep']) + FG_RST)
-		if not info:
-			info = ['-']
-		cli.append(' '.join([FG_BLU + domain['fuzzer'].ljust(width_fuzzer) + FG_RST,
-			domain['domain'].ljust(width_domain), ' '.join(info)]))
+			inf.append(kv('SSDEEP:', str(domain['ssdeep'])))
+		cli.append('{}{[fuzzer]:<{}}{} {[domain]:<{}} {}'.format(FG_BLU, domain, wfuz, FG_RST, domain, wdom, ' '.join(inf or ['-'])))
 	return '\n'.join(cli)
 
 
