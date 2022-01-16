@@ -40,6 +40,7 @@ import smtplib
 import json
 import queue
 import urllib.request
+import urllib.parse
 
 try:
 	from dns.resolver import Resolver, NXDOMAIN, NoNameservers
@@ -161,44 +162,20 @@ class UrlOpener():
 
 class UrlParser():
 	def __init__(self, url):
-		self.url = 'http://' + url if '://' not in url else url
-		self.scheme = ''
-		self.authority = ''
-		self.domain = ''
-		self.path = ''
-		self.query = ''
-		self._parse()
-
-	def _parse(self):
-		re_rfc3986_enhanced = re.compile(
-			r'''
-			^
-			(?:(?P<scheme>[^:/?#\s]+):)?
-			(?://(?P<authority>[^/?#\s]*))?
-			(?P<path>[^?#\s]*)
-			(?:\?(?P<query>[^#\s]*))?
-			(?:\#(?P<fragment>[^\s]*))?
-			$
-			''', re.MULTILINE | re.VERBOSE
-			)
-		m_uri = re_rfc3986_enhanced.match(self.url)
-		if m_uri:
-			if m_uri.group('scheme'):
-				if m_uri.group('scheme').startswith('http'):
-					self.scheme = m_uri.group('scheme')
-				else:
-					self.scheme = 'http'
-			if m_uri.group('authority'):
-				self.authority = m_uri.group('authority')
-				self.domain = self.authority.split(':')[0].lower()
-				self.domain = idna.encode(self.domain).decode()
-				if not self._validate_domain(self.domain):
-					raise ValueError('Invalid domain name')
-			if m_uri.group('path'):
-				self.path = m_uri.group('path')
-			if m_uri.group('query'):
-				if len(m_uri.group('query')):
-					self.query = '?' + m_uri.group('query')
+		u = urllib.parse.urlparse(url if '://' in url else 'http://{}'.format(url))
+		self.domain = u.hostname.lower()
+		self.domain = idna.encode(self.domain).decode()
+		if not self._validate_domain(self.domain):
+			raise ValueError('Invalid domain name') from None
+		self.scheme = u.scheme
+		if self.scheme not in ('http', 'https'):
+			raise ValueError('Invalid scheme') from None
+		self.username = u.username
+		self.password = u.password
+		self.port = u.port
+		self.path = u.path
+		self.query = u.query
+		self.fragment = u.fragment
 
 	def _validate_domain(self, domain):
 		if len(domain) > 253:
@@ -212,8 +189,23 @@ class UrlParser():
 				return True
 		return False
 
-	def full_uri(self):
-		return self.scheme + '://' + self.domain + self.path + self.query
+	def full_uri(self, domain=None):
+		uri = '{}://'.format(self.scheme)
+		if self.username:
+			uri += self.username
+			if self.password:
+				uri += ':{}'.format(self.password)
+			uri += '@'
+		uri += self.domain if not domain else domain
+		if self.port:
+			uri += ':{}'.format(self.port)
+		if self.path:
+			uri += self.path
+		if self.query:
+			uri += '?{}'.format(self.query)
+		if self.fragment:
+			uri += '#{}'.format(self.fragment)
+		return uri
 
 
 class Permutation(dict):
@@ -431,9 +423,7 @@ class Scanner(threading.Thread):
 		self.debug = False
 		self.ssdeep_init = ''
 		self.ssdeep_effective_url = ''
-		self.uri_scheme = 'http'
-		self.uri_path = ''
-		self.uri_query = ''
+		self.url = None
 		self.option_extdns = False
 		self.option_geoip = False
 		self.option_ssdeep = False
@@ -590,8 +580,8 @@ class Scanner(threading.Thread):
 
 			if self.option_mxcheck:
 				if dns_mx is True:
-					if domain != self.domain_init:
-						if self._mxcheck(task['dns_mx'][0], self.domain_init, domain):
+					if domain != self.url.domain:
+						if self._mxcheck(task['dns_mx'][0], self.url.domain, domain):
 							task['mx_spy'] = True
 
 			if self.option_geoip:
@@ -618,7 +608,7 @@ class Scanner(threading.Thread):
 			if self.option_ssdeep:
 				if dns_a is True or dns_aaaa is True:
 					try:
-						r = UrlOpener(self.uri_scheme + '://' + domain + self.uri_path + self.uri_query,
+						r = UrlOpener(self.url.full_uri(domain),
 							timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': self.useragent}, verify=False)
 					except Exception as e:
 						self._debug(e)
@@ -854,13 +844,7 @@ r'''     _           _            _     _
 	for _ in range(args.threads):
 		worker = Scanner(jobs)
 		worker.setDaemon(True)
-
-		worker.uri_scheme = url.scheme
-		worker.uri_path = url.path
-		worker.uri_query = url.query
-
-		worker.domain_init = url.domain
-
+		worker.url = url
 		worker.option_extdns = MODULE_DNSPYTHON
 		if args.geoip:
 			worker.option_geoip = True
@@ -875,9 +859,7 @@ r'''     _           _            _     _
 		if args.nameservers:
 			worker.nameservers = nameservers
 		worker.useragent = args.useragent
-
 		worker.debug = args.debug
-
 		worker.start()
 		threads.append(worker)
 
