@@ -39,6 +39,7 @@ from os import path, environ
 import smtplib
 import json
 import queue
+import urllib.request
 
 try:
 	from dns.resolver import Resolver, NXDOMAIN, NoNameservers
@@ -88,13 +89,6 @@ except ImportError:
 		MODULE_SSDEEP = True
 	except ImportError:
 		MODULE_SSDEEP = False
-
-try:
-	import requests
-	requests.packages.urllib3.disable_warnings()
-	MODULE_REQUESTS = True
-except ImportError:
-	MODULE_REQUESTS = False
 
 try:
 	import idna
@@ -148,6 +142,21 @@ def domain_tld(domain):
 			d = tuple(domain.rsplit('.', 2))
 			d = ('',) * (3-len(d)) + d
 		return d
+
+
+class UrlOpener():
+	def __init__(self, url, timeout=REQUEST_TIMEOUT_HTTP, headers={}, verify=True):
+		ctx = urllib.request.ssl.create_default_context()
+		ctx.check_hostname = verify
+		if verify == False:
+			ctx.verify_mode = urllib.request.ssl.CERT_NONE
+		request = urllib.request.Request(url, headers=headers)
+		with urllib.request.urlopen(request, timeout=timeout, context=ctx) as r:
+			self.code = r.code
+			self.reason = r.reason
+			self.url = r.url
+			self.content = r.read()
+		self.normalized_content = b''.join(self.content.split()).lower()
 
 
 class UrlParser():
@@ -609,14 +618,13 @@ class Scanner(threading.Thread):
 			if self.option_ssdeep:
 				if dns_a is True or dns_aaaa is True:
 					try:
-						req = requests.get(self.uri_scheme + '://' + domain + self.uri_path + self.uri_query,
+						r = UrlOpener(self.uri_scheme + '://' + domain + self.uri_path + self.uri_query,
 							timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': self.useragent}, verify=False)
 					except Exception as e:
 						self._debug(e)
-						pass
 					else:
-						if req.status_code // 100 == 2 and req.url.split('?')[0] != self.ssdeep_effective_url:
-							ssdeep_curr = ssdeep.hash(''.join(req.text.split()).lower())
+						if r.url.split('?')[0] != self.ssdeep_effective_url:
+							ssdeep_curr = ssdeep.hash(r.normalized_content)
 							task['ssdeep'] = ssdeep.compare(self.ssdeep_init, ssdeep_curr)
 
 			self.jobs.task_done()
@@ -784,8 +792,6 @@ def main():
 	if args.ssdeep:
 		if not MODULE_SSDEEP:
 			parser.error('missing ssdeep library')
-		if not MODULE_REQUESTS:
-			parser.error('missing Requests library')
 		if args.ssdeep_url:
 			try:
 				ssdeep_url = UrlParser(args.ssdeep_url)
@@ -831,28 +837,14 @@ r'''     _           _            _     _
 		request_url = ssdeep_url.full_uri() if ssdeep_url else url.full_uri()
 		p_cli('Fetching content from: %s ' % request_url)
 		try:
-			req = requests.get(request_url, timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': args.useragent})
-		except requests.exceptions.ConnectionError:
-			p_cli('Connection error\n')
-			_exit(1)
-		except requests.exceptions.HTTPError:
-			p_cli('Invalid HTTP response\n')
-			_exit(1)
-		except requests.exceptions.Timeout:
-			p_cli('Timeout (%d seconds)\n' % REQUEST_TIMEOUT_HTTP)
-			_exit(1)
-		except Exception:
-			p_cli('Failed!\n')
+			r = UrlOpener(request_url, timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': args.useragent})
+		except Exception as e:
+			p_cli('{}\n'.format(str(e)))
 			_exit(1)
 		else:
-			if len(req.history) > 1:
-				p_cli('➔ %s ' % req.url.split('?')[0])
-			p_cli('%d %s (%.1f Kbytes)\n' % (req.status_code, req.reason, float(len(req.text))/1000))
-			if req.status_code // 100 == 2:
-				ssdeep_init = ssdeep.hash(''.join(req.text.split()).lower())
-				ssdeep_effective_url = req.url.split('?')[0]
-			else:
-				args.ssdeep = False
+			p_cli('> {} [{:.1f} KB]\n'.format(r.url.split('?')[0], len(r.content)/1024))
+			ssdeep_init = ssdeep.hash(r.normalized_content)
+			ssdeep_effective_url = r.url.split('?')[0]
 
 	jobs = queue.Queue()
 
