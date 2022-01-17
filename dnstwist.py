@@ -675,7 +675,7 @@ def create_cli(domains=[]):
 	return '\n'.join(cli)
 
 
-def main():
+def run(**kwargs):
 	parser = argparse.ArgumentParser(
 		usage='%s [OPTION]... DOMAIN' % sys.argv[0],
 		add_help=False,
@@ -689,7 +689,7 @@ def main():
 	parser.add_argument('-a', '--all', action='store_true', help='Show all DNS records')
 	parser.add_argument('-b', '--banners', action='store_true', help='Determine HTTP and SMTP service banners')
 	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='Generate more domains using dictionary FILE')
-	parser.add_argument('-f', '--format', type=str, choices=['cli', 'csv', 'json', 'list'], default='cli', help='Output format (default: cli)')
+	parser.add_argument('-f', '--format', type=str, default='cli', help='Output format: cli, csv, json, list (default: cli)')
 	parser.add_argument('-g', '--geoip', action='store_true', help='Lookup for GeoIP location')
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='Check if MX can be used to intercept emails')
 	parser.add_argument('-o', '--output', type=str, metavar='FILE', help='Save output to FILE')
@@ -705,17 +705,33 @@ def main():
 		help='User-Agent STRING to send with HTTP requests (default: %s)' % USER_AGENT_STRING)
 	parser.add_argument('--debug', action='store_true', help='Display debug messages')
 
-	def _exit(code):
-		sys.exit(code)
+	if kwargs:
+		sys.argv = ['']
+		for k, v in kwargs.items():
+			if k in ('domain',):
+				sys.argv.append(v)
+			else:
+				if v is not False:
+					sys.argv.append('--' + k.replace('_', '-'))
+				if not isinstance(v, bool):
+					sys.argv.append(str(v))
+		def _parser_error(msg):
+			raise Exception(msg) from None
+		parser.error = _parser_error
+
+	def _exit(c):
+		if not kwargs:
+			sys.exit(c)
 
 	if len(sys.argv) < 2 or sys.argv[1] in ('-h', '--help'):
 		print('{}dnstwist {} by <{}>{}\n'.format(ST_BRI, __version__, __email__, ST_RST))
 		parser.print_help()
 		_exit(0)
 
-	threads = []
-
 	args = parser.parse_args()
+
+	threads = []
+	jobs = queue.Queue()
 
 	def p_cli(text):
 		if args.format == 'cli' and sys.stdout.isatty(): print(text, end='', flush=True)
@@ -724,14 +740,15 @@ def main():
 
 	def signal_handler(signal, frame):
 		print('\nStopping threads... ', file=sys.stderr, end='', flush=True)
+		jobs.queue.clear()
 		for worker in threads:
 			worker.stop()
 			worker.join()
+		threads.clear()
 		print('Done', file=sys.stderr)
-		_exit(0)
 
-	signal.signal(signal.SIGINT, signal_handler)
-	signal.signal(signal.SIGTERM, signal_handler)
+	if not kwargs and args.format not in ('cli', 'csv', 'json', 'list'):
+		parser.error('invalid output format (choose from cli, csv, json, list)')
 
 	if args.threads < 1:
 		parser.error('number of threads must be greater than zero')
@@ -801,12 +818,17 @@ def main():
 	except Exception:
 		parser.error('invalid domain name: ' + args.domain)
 
+	for sig in (signal.SIGINT, signal.SIGTERM):
+		signal.signal(sig, signal_handler)
+
 	fuzz = Fuzzer(url.domain, dictionary=dictionary, tld_dictionary=tld)
 	fuzz.generate()
 	domains = fuzz.domains
 
 	if args.format == 'list':
 		print(create_list(domains))
+		if kwargs:
+			return domains
 		_exit(0)
 
 	if not MODULE_DNSPYTHON:
@@ -835,8 +857,6 @@ r'''     _           _            _     _
 			p_cli('> {} [{:.1f} KB]\n'.format(r.url.split('?')[0], len(r.content)/1024))
 			ssdeep_init = ssdeep.hash(r.normalized_content)
 			ssdeep_effective_url = r.url.split('?')[0]
-
-	jobs = queue.Queue()
 
 	for task in domains:
 		jobs.put(task)
@@ -910,11 +930,15 @@ r'''     _           _            _     _
 			print(create_csv(domains))
 		elif args.format == 'json':
 			print(create_json(domains))
-		else:
+		elif args.format == 'cli':
 			print(create_cli(domains))
 
-	_exit(0)
+	for sig in (signal.SIGINT, signal.SIGTERM):
+		signal.signal(sig, signal.default_int_handler)
+
+	if kwargs:
+		return domains
 
 
 if __name__ == '__main__':
-	main()
+	run()
