@@ -735,13 +735,15 @@ def run(**kwargs):
 		print(str(text), file=sys.stderr, flush=True)
 
 	def signal_handler(signal, frame):
-		print('\nStopping threads... ', file=sys.stderr, end='', flush=True)
-		jobs.queue.clear()
-		for worker in threads:
-			worker.stop()
-			worker.join()
-		threads.clear()
-		print('Done', file=sys.stderr)
+		if threads:
+			print('\nStopping threads... ', file=sys.stderr, flush=True)
+			jobs.queue.clear()
+			for worker in threads:
+				worker.stop()
+				worker.join()
+			threads.clear()
+		sys.tracebacklimit = 0
+		raise KeyboardInterrupt
 
 	if not kwargs and args.format not in ('cli', 'csv', 'json', 'list'):
 		parser.error('invalid output format (choose from cli, csv, json, list)')
