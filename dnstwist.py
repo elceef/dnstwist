@@ -723,7 +723,7 @@ def run(**kwargs):
 		if not kwargs:
 			sys.exit(c)
 
-	if len(sys.argv) < 2 or sys.argv[1] in ('-h', '--help'):
+	if not sys.argv[1:] or '-h' in sys.argv or '--help' in sys.argv:
 		print('{}dnstwist {} by <{}>{}\n'.format(ST_BRI, __version__, __email__, ST_RST))
 		parser.print_help()
 		_exit(0)
