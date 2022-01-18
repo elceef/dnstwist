@@ -719,14 +719,10 @@ def run(**kwargs):
 			raise Exception(msg) from None
 		parser.error = _parser_error
 
-	def _exit(c):
-		if not kwargs:
-			sys.exit(c)
-
 	if not sys.argv[1:] or '-h' in sys.argv or '--help' in sys.argv:
 		print('{}dnstwist {} by <{}>{}\n'.format(ST_BRI, __version__, __email__, ST_RST))
 		parser.print_help()
-		_exit(0)
+		return
 
 	args = parser.parse_args()
 
@@ -827,9 +823,7 @@ def run(**kwargs):
 
 	if args.format == 'list':
 		print(create_list(domains))
-		if kwargs:
-			return domains
-		_exit(0)
+		return domains
 
 	if not MODULE_DNSPYTHON:
 		p_err('WARNING: DNS features are limited due to lack of DNSPython library')
@@ -851,8 +845,10 @@ r'''     _           _            _     _
 		try:
 			r = UrlOpener(request_url, timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': args.useragent})
 		except Exception as e:
+			if kwargs:
+				raise
 			p_cli('{}\n'.format(str(e)))
-			_exit(1)
+			sys.exit(1)
 		else:
 			p_cli('> {} [{:.1f} KB]\n'.format(r.url.split('?')[0], len(r.content)/1024))
 			ssdeep_init = ssdeep.hash(r.normalized_content)
