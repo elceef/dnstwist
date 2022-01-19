@@ -670,7 +670,7 @@ def create_cli(domains=[]):
 		if 'whois_created' in domain:
 			inf.append(kv('CREATED:', domain['whois_created']))
 		if domain.get('ssdeep', 0) > 0:
-			inf.append(kv('SSDEEP:', str(domain['ssdeep'])))
+			inf.append(kv('SSDEEP:', '{}%'.format(domain['ssdeep'])))
 		cli.append('{}{[fuzzer]:<{}}{} {[domain]:<{}} {}'.format(FG_BLU, domain, wfuz, FG_RST, domain, wdom, ' '.join(inf or ['-'])))
 	return '\n'.join(cli)
 
