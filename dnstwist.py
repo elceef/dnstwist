@@ -675,6 +675,17 @@ def create_cli(domains=[]):
 	return '\n'.join(cli)
 
 
+def cleaner(func):
+	def wrapper(*args, **kwargs):
+		result = func(*args, **kwargs)
+		for sig in (signal.SIGINT, signal.SIGTERM):
+			signal.signal(sig, signal.default_int_handler)
+		sys.argv = sys.argv[0:1]
+		return result
+	return wrapper
+
+
+@cleaner
 def run(**kwargs):
 	parser = argparse.ArgumentParser(
 		usage='%s [OPTION]... DOMAIN' % sys.argv[0],
@@ -930,9 +941,6 @@ r'''     _           _            _     _
 			print(create_json(domains))
 		elif args.format == 'cli':
 			print(create_cli(domains))
-
-	for sig in (signal.SIGINT, signal.SIGTERM):
-		signal.signal(sig, signal.default_int_handler)
 
 	if kwargs:
 		return domains
