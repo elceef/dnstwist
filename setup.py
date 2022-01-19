@@ -15,7 +15,7 @@ setup(
 	license='ASL 2.0',
 	py_modules=['dnstwist'],
 	entry_points={
-		'console_scripts': ['dnstwist=dnstwist:main']
+		'console_scripts': ['dnstwist=dnstwist:run']
 	},
 	install_requires=[],
 	extras_require={
