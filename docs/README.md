@@ -58,9 +58,14 @@ Invoke the following command to install the tool with all extra packages:
 $ sudo apt install dnstwist
 ```
 
-**OSX**
+**Fedora Linux**
 
-Installation is simplified thanks to [Homebrew](https://brew.sh/) package.
+```
+$ sudo dnf install dnstwist
+```
+
+**macOS**
+
 This will install `dnstwist` along with all dependencies, and the binary will
 be added to `$PATH`.
 
@@ -70,10 +75,10 @@ $ brew install dnstwist
 
 **Docker**
 
-If you prefer Docker, you can pull and run official image from the Docker Hub:
+Pull and run official image from the Docker Hub:
 
 ```
-$ docker run elceef/dnstwist
+$ docker run -it elceef/dnstwist
 ```
 
 
@@ -175,12 +180,27 @@ $ dnstwist --geoip domain.name
 
 The GeoIP2 library is used by default. Country database location has to be
 specified with `$GEOLITE2_MMDB` environment variable. If the library or the
-database are not present, the tool will fall-back to GeoIP Legacy.
+database are not present, the tool will fall-back to the older GeoIP Legacy.
 
 To display all available options with brief descriptions simply execute the
 tool without any arguments.
 
 Happy hunting!
+
+
+API
+---
+
+In case you need to consume the data produced by the tool within your code,
+probably the most convenient and fast way is to pass the input as follows.
+
+```
+>>> import dnstwist
+>>> data = dnstwist.run(domain='domain.name', registered=True, format='null')
+```
+
+The arguments for `dnstwist.run()` are translated internally, so the usage is
+very similar to the command line.
 
 
 Notes on coverage
