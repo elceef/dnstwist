@@ -947,4 +947,7 @@ r'''     _           _            _     _
 
 
 if __name__ == '__main__':
-	run()
+	try:
+		run()
+	except BrokenPipeError:
+		pass
