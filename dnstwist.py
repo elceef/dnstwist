@@ -147,10 +147,10 @@ def domain_tld(domain):
 
 class UrlOpener():
 	def __init__(self, url, timeout=REQUEST_TIMEOUT_HTTP, headers={}, verify=True):
-		ctx = urllib.request.ssl.create_default_context()
-		ctx.check_hostname = verify
-		if verify == False:
-			ctx.verify_mode = urllib.request.ssl.CERT_NONE
+		if verify:
+			ctx = urllib.request.ssl.create_default_context()
+		else:
+			ctx = urllib.request.ssl._create_unverified_context()
 		request = urllib.request.Request(url, headers=headers)
 		with urllib.request.urlopen(request, timeout=timeout, context=ctx) as r:
 			self.code = r.code
