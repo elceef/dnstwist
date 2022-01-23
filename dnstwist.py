@@ -41,6 +41,7 @@ import json
 import queue
 import urllib.request
 import urllib.parse
+import gzip
 
 try:
 	from dns.resolver import Resolver, NXDOMAIN, NoNameservers
@@ -153,10 +154,13 @@ class UrlOpener():
 			ctx = urllib.request.ssl._create_unverified_context()
 		request = urllib.request.Request(url, headers=headers)
 		with urllib.request.urlopen(request, timeout=timeout, context=ctx) as r:
+			self.headers = r.headers
 			self.code = r.code
 			self.reason = r.reason
 			self.url = r.url
 			self.content = r.read()
+		if self.content[:3] == b'\x1f\x8b\x08':
+			self.content = gzip.decompress(self.content)
 		self.normalized_content = b''.join(self.content.split()).lower()
 
 
@@ -612,7 +616,7 @@ class Scanner(threading.Thread):
 							timeout=REQUEST_TIMEOUT_HTTP,
 							headers={'User-Agent': self.useragent,
 								'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
-								'Accept-Encoding': 'identity',
+								'Accept-Encoding': 'gzip,identity',
 								'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8'},
 							verify=False)
 					except Exception as e:
@@ -865,7 +869,7 @@ r'''     _           _            _     _
 				timeout=REQUEST_TIMEOUT_HTTP,
 				headers={'User-Agent': args.useragent,
 					'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
-					'Accept-Encoding': 'identity',
+					'Accept-Encoding': 'gzip,identity',
 					'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8'},
 				verify=True)
 		except Exception as e:
