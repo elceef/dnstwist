@@ -609,7 +609,12 @@ class Scanner(threading.Thread):
 				if dns_a is True or dns_aaaa is True:
 					try:
 						r = UrlOpener(self.url.full_uri(domain),
-							timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': self.useragent}, verify=False)
+							timeout=REQUEST_TIMEOUT_HTTP,
+							headers={'User-Agent': self.useragent,
+								'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
+								'Accept-Encoding': 'identity',
+								'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8'},
+							verify=False)
 					except Exception as e:
 						self._debug(e)
 					else:
@@ -856,7 +861,13 @@ r'''     _           _            _     _
 		request_url = ssdeep_url.full_uri() if ssdeep_url else url.full_uri()
 		p_cli('Fetching content from: %s ' % request_url)
 		try:
-			r = UrlOpener(request_url, timeout=REQUEST_TIMEOUT_HTTP, headers={'User-Agent': args.useragent})
+			r = UrlOpener(request_url,
+				timeout=REQUEST_TIMEOUT_HTTP,
+				headers={'User-Agent': args.useragent,
+					'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
+					'Accept-Encoding': 'identity',
+					'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8'},
+				verify=True)
 		except Exception as e:
 			if kwargs:
 				raise
