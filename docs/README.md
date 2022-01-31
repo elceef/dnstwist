@@ -37,7 +37,7 @@ Installation
 **Python PIP**
 
 ```
-$ pip install dnstwist
+$ pip install dnstwist[full]
 ```
 
 **Git**
@@ -50,17 +50,22 @@ $ cd dnstwist
 $ pip install .
 ```
 
-**Kali Linux**
+**Debian/Ubuntu/Kali Linux**
 
 Invoke the following command to install the tool with all extra packages:
 
 ```
-# apt install dnstwist
+$ sudo apt install dnstwist
 ```
 
-**OSX**
+**Fedora Linux**
 
-Installation is simplified thanks to [Homebrew](https://brew.sh/) package.
+```
+$ sudo dnf install dnstwist
+```
+
+**macOS**
+
 This will install `dnstwist` along with all dependencies, and the binary will
 be added to `$PATH`.
 
@@ -70,33 +75,10 @@ $ brew install dnstwist
 
 **Docker**
 
-If you prefer Docker, you can pull and run official image from the Docker Hub:
+Pull and run official image from the Docker Hub:
 
 ```
-$ docker run elceef/dnstwist
-```
-
-
-Requirements
-------------
-
-This tool is designed to run fine with just standard Python3 library. However,
-a couple of third-party packages are required to show its full potential.
-
-If running Debian-based distribution, you can install all external libraries
-with just single command:
-
-```
-$ sudo apt install python3-dnspython python3-tld python3-geoip python3-whois \
-python3-requests python3-ssdeep
-```
-
-Alternatively, you can use Python PIP. This can be done within a virtual
-environment to avoid conflicts with other installations. However, you will
-still need essential build tools and a couple of libraries installed.
-
-```
-$ pip3 install -r requirements.txt
+$ docker run -it elceef/dnstwist
 ```
 
 
@@ -115,8 +97,8 @@ $ dnstwist --registered domain.name
 ```
 
 Ensure your DNS server can handle thousands of requests within a short period
-of time. Otherwise, you can specify an external DNS server with `--nameservers`
-argument.
+of time. Otherwise, you can specify an external DNS or DNS-over-HTTPS server
+with `--nameservers` argument.
 
 Manually checking each domain name in terms of serving a phishing site might be
 time-consuming. To address this, `dnstwist` makes use of so-called fuzzy hashes
@@ -139,12 +121,13 @@ $ dnstwist --ssdeep domain.name
 
 In some cases, phishing sites are served from a specific URL. If you provide a
 full or partial URL address as an argument, `dnstwist` will parse it and apply
-for each generated domain name variant. This is obviously useful only with the
-fuzzy hashing feature.
+for each generated domain name variant. Additionally you can use `--ssdeep-url`
+to override URL to fetch the original web page from. This is obviously useful
+only with the fuzzy hashing feature.
 
 ```
 $ dnstwist --ssdeep https://domain.name/owa/
-$ dnstwist --ssdeep domain.name/login
+$ dnstwist --ssdeep --ssdeep-url https://different.domain/owa/ domain.name
 ```
 
 Sometimes attackers set up e-mail honey pots on phishing domains and wait for
@@ -195,10 +178,29 @@ The tool can perform real-time lookups to return geographical location
 $ dnstwist --geoip domain.name
 ```
 
+The GeoIP2 library is used by default. Country database location has to be
+specified with `$GEOLITE2_MMDB` environment variable. If the library or the
+database are not present, the tool will fall-back to the older GeoIP Legacy.
+
 To display all available options with brief descriptions simply execute the
 tool without any arguments.
 
 Happy hunting!
+
+
+API
+---
+
+In case you need to consume the data produced by the tool within your code,
+probably the most convenient and fast way is to pass the input as follows.
+
+```
+>>> import dnstwist
+>>> data = dnstwist.run(domain='domain.name', registered=True, format='null')
+```
+
+The arguments for `dnstwist.run()` are translated internally, so the usage is
+very similar to the command line.
 
 
 Notes on coverage
@@ -242,7 +244,5 @@ Contact
 
 To send questions, thoughts or a bar of chocolate, just drop an e-mail at
 [marcin@ulikowski.pl](mailto:marcin@ulikowski.pl).
-You can [follow the author on Twitter](https://twitter.com/elceef) to stay in
-the loop on major improvements and related news.
 Any feedback is appreciated. If you have found some confirmed phishing domains
 or just like this tool, please don't hesitate and send a message. Thank you.

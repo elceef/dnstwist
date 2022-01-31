@@ -5,7 +5,7 @@
 <meta name="description" content="Find lookalike phishing domains that adversaries can use to attack you">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>dnstwist | phishing domain scanner</title>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 <style>
 html {
 	overflow-y: scroll;
@@ -169,14 +169,14 @@ function fetchDomains() {
 			).appendTo('#data');
 		$.each(data, function(i, item) {
 			fuzzer = item['fuzzer'] || ''
-			permutation = item['domain-name'] || ''
+			permutation = item['domain'] || ''
 			ipaddr = [
-				(item['dns-a'] || [''])[0].replace('!ServFail', '🚫'),
-				(item['dns-aaaa'] || [''])[0].replace('!ServFail', '')
+				(item['dns_a'] || [''])[0].replace('!ServFail', '🚫'),
+				(item['dns_aaaa'] || [''])[0].replace('!ServFail', '')
 			].filter(Boolean).join('</br>');
-			dns_ns = (item['dns-ns'] || [''])[0].replace('!ServFail', '🚫');
-			dns_mx = (item['dns-mx'] || [''])[0].replace('!ServFail', '🚫');
-			geoip = item['geoip-country'] || '';
+			dns_ns = (item['dns_ns'] || [''])[0].replace('!ServFail', '🚫');
+			dns_mx = (item['dns_mx'] || [''])[0].replace('!ServFail', '🚫');
+			geoip = item['geoip'] || '';
 			$('<tr>').html(
 				'<td>' + permutation + ' <a href="http://' + permutation + '" id="link">🔗</a></br><sup>' + fuzzer + '</sup></td>' +
 				'<td>' + ipaddr + '</br><sup>' + geoip + '</sup></td>' +
