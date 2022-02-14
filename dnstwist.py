@@ -641,7 +641,9 @@ def create_csv(domains=[]):
 			';'.join(domain.get('dns_aaaa', [])),
 			';'.join(domain.get('dns_mx', [])),
 			';'.join(domain.get('dns_ns', [])),
-			domain.get('geoip', ''), domain.get('whois_registrar', ''), domain.get('whois_created', ''),
+			domain.get('geoip', ''),
+			domain.get('whois_registrar', '').replace(',', ''),
+			domain.get('whois_created', ''),
 			str(domain.get('ssdeep', ''))]))
 	return '\n'.join(csv)
 
