@@ -31,18 +31,31 @@ __email__ = 'marcin@ulikowski.pl'
 import re
 import sys
 import socket
+socket.setdefaulttimeout(10.0)
 import signal
 import time
 import argparse
 import threading
-from os import path, environ
+import os
 import smtplib
 import json
 import queue
 import urllib.request
 import urllib.parse
 import gzip
+from io import BytesIO
 
+try:
+	from PIL import Image
+	MODULE_PIL = True
+except ImportError:
+	MODULE_PIL = False
+
+try:
+	from selenium import webdriver
+	MODULE_SELENIUM = True
+except ImportError:
+	MODULE_SELENIUM = False
 try:
 	from dns.resolver import Resolver, NXDOMAIN, NoNameservers
 	import dns.rdatatype
@@ -51,7 +64,7 @@ try:
 except ImportError:
 	MODULE_DNSPYTHON = False
 
-GEOLITE2_MMDB = environ.get('GEOLITE2_MMDB' , path.join(path.dirname(__file__), 'GeoLite2-Country.mmdb'))
+GEOLITE2_MMDB = os.environ.get('GEOLITE2_MMDB' , os.path.join(os.path.dirname(__file__), 'GeoLite2-Country.mmdb'))
 try:
 	import geoip2.database
 	_ = geoip2.database.Reader(GEOLITE2_MMDB)
@@ -229,6 +242,99 @@ class Permutation(dict):
 
 	def is_registered(self):
 		return len(self) > 2
+
+
+class pHash():
+	def __init__(self, image, hsize=8):
+		img = Image.open(image).convert('L').resize((hsize, hsize), Image.ANTIALIAS)
+		pixels = list(img.getdata())
+		avg = sum(pixels) / len(pixels)
+		self.hash = ''.join('1' if p > avg else '0' for p in pixels)
+
+	def __sub__(self, other):
+		bc = len(self.hash)
+		ham = sum(x != y for x, y in list(zip(self.hash, other.hash)))
+		e = 2.718281828459045
+		sub = int((1 + e**((bc - ham) / bc) - e) * 100)
+		return sub if sub > 0 else 0
+
+	def __repr__(self):
+		return '{:x}'.format(int(self.hash, base=2))
+
+	def __int__(self):
+		return int(self.hash, base=2)
+
+
+class HeadlessBrowser():
+	WEBDRIVER_TIMEOUT = 10
+	WEBDRIVER_ARGUMENTS = (
+		'--disable-dev-shm-usage',
+		'--ignore-certificate-errors',
+		'--headless',
+		'--incognito',
+		'--no-sandbox',
+		'--disable-gpu',
+		'--disable-extensions',
+		'--disk-cache-size=0',
+		'--aggressive-cache-discard',
+		'--disable-notifications',
+		'--disable-remote-fonts',
+		'--disable-sync',
+		'--window-size=1366,768',
+		'--hide-scrollbars',
+		'--disable-audio-output',
+		'--dns-prefetch-disable',
+		'--no-default-browser-check',
+		'--disable-background-networking',
+		'--enable-features=NetworkService,NetworkServiceInProcess',
+		'--disable-background-timer-throttling',
+		'--disable-backgrounding-occluded-windows',
+		'--disable-breakpad',
+		'--disable-client-side-phishing-detection',
+		'--disable-component-extensions-with-background-pages',
+		'--disable-default-apps',
+		'--disable-features=TranslateUI',
+		'--disable-hang-monitor',
+		'--disable-ipc-flooding-protection',
+		'--disable-prompt-on-repost',
+		'--disable-renderer-backgrounding',
+		'--force-color-profile=srgb',
+		'--metrics-recording-only',
+		'--no-first-run',
+		'--password-store=basic',
+		'--use-mock-keychain',
+		'--disable-blink-features=AutomationControlled',
+		)
+
+	def __init__(self, useragent=None):
+		chrome_options = webdriver.ChromeOptions()
+		for opt in self.WEBDRIVER_ARGUMENTS:
+			chrome_options.add_argument(opt)
+		chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
+		chrome_options.add_experimental_option('useAutomationExtension', False)
+		self.driver = webdriver.Chrome(options=chrome_options)
+		self.driver.set_page_load_timeout(self.WEBDRIVER_TIMEOUT)
+		self.driver.execute_cdp_cmd('Network.setUserAgentOverride', {'userAgent':
+			useragent or self.driver.execute_script('return navigator.userAgent').replace('Headless', '')
+			})
+		self.get = self.driver.get
+		self.screenshot = self.driver.get_screenshot_as_png
+
+	def stop(self):
+		try:
+			self.driver.close()
+			self.driver.quit()
+		except Exception:
+			pass
+		try:
+			pid = True
+			while pid:
+				pid, status = os.waitpid(-1, os.WNOHANG)
+		except ChildProcessError:
+			pass
+
+	def __del__(self):
+		self.stop()
 
 
 class Fuzzer():
@@ -422,15 +528,19 @@ class Fuzzer():
 class Scanner(threading.Thread):
 	def __init__(self, queue):
 		threading.Thread.__init__(self)
+		self.id = 0
 		self.jobs = queue
 		self.kill_received = False
 		self.debug = False
 		self.ssdeep_init = ''
 		self.ssdeep_effective_url = ''
+		self.phash_init = None
+		self.screenshot_dir = None
 		self.url = None
 		self.option_extdns = False
 		self.option_geoip = False
 		self.option_ssdeep = False
+		self.option_phash = False
 		self.option_banners = False
 		self.option_mxcheck = False
 		self.nameservers = []
@@ -507,6 +617,9 @@ class Scanner(threading.Thread):
 
 		if self.option_geoip:
 			geo = geoip()
+
+		if self.option_phash:
+			browser = HeadlessBrowser(useragent=self.useragent)
 
 		_answer_to_list = lambda ans: sorted([str(x).split(' ')[-1].rstrip('.') for x in ans])
 
@@ -609,6 +722,25 @@ class Scanner(threading.Thread):
 					if banner:
 						task['banner_smtp'] = banner
 
+			if self.option_phash or self.screenshot_dir:
+				if dns_a or dns_aaaa:
+					try:
+						browser.get(self.url.full_uri(domain))
+						screenshot = browser.screenshot()
+					except Exception as e:
+						self._debug(e)
+					else:
+						if self.option_phash:
+							phash = pHash(BytesIO(screenshot))
+							task['phash'] = self.phash_init - phash
+						if self.screenshot_dir:
+							filename = os.path.join(self.screenshot_dir, '{:08x}_{}.png'.format(self.id, domain))
+							try:
+								with open(filename, 'wb') as f:
+									f.write(screenshot)
+							except Exception as e:
+								self._debug(e)
+
 			if self.option_ssdeep:
 				if dns_a is True or dns_aaaa is True:
 					try:
@@ -682,6 +814,8 @@ def create_cli(domains=[]):
 			inf.append(kv('CREATED:', domain['whois_created']))
 		if domain.get('ssdeep', 0) > 0:
 			inf.append(kv('SSDEEP:', '{}%'.format(domain['ssdeep'])))
+		if domain.get('phash', 0) > 0:
+			inf.append(kv('PHASH:', '{}%'.format(domain['phash'])))
 		cli.append('{}{[fuzzer]:<{}}{} {[domain]:<{}} {}'.format(FG_BLU, domain, wfuz, FG_RST, domain, wdom, ' '.join(inf or ['-'])))
 	return '\n'.join(cli)
 
@@ -716,6 +850,8 @@ def run(**kwargs):
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='Check if MX can be used to intercept emails')
 	parser.add_argument('-o', '--output', type=str, metavar='FILE', help='Save output to FILE')
 	parser.add_argument('-r', '--registered', action='store_true', help='Show only registered domain names')
+	parser.add_argument('-p', '--phash', action='store_true', help='Render web pages and evaluate visual similarity')
+	parser.add_argument('--screenshots', metavar='DIR', help='Save web page screenshots into DIR')
 	parser.add_argument('-s', '--ssdeep', action='store_true', help='Fetch web pages and compare their fuzzy hashes to evaluate similarity')
 	parser.add_argument('--ssdeep-url', metavar='URL', help='Override URL to fetch the original web page from')
 	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT,
@@ -825,6 +961,19 @@ def run(**kwargs):
 			except ValueError:
 				parser.error('invalid domain name: ' + args.ssdeep_url)
 
+	if args.phash or args.screenshots:
+		if not MODULE_PIL:
+			parser.error('missing Python Imaging Library (PIL)')
+		if not MODULE_SELENIUM:
+			parser.error('missing Selenium Webdriver')
+		try:
+			_ = HeadlessBrowser()
+		except Exception as e:
+			parser.error(str(e))
+		if args.screenshots:
+			if not os.access(args.screenshots, os.W_OK | os.X_OK):
+				parser.error('insufficient access permissions: %s' % args.screenshots)
+
 	if args.whois:
 		if not MODULE_WHOIS:
 			parser.error('missing whois library')
@@ -884,12 +1033,22 @@ r'''     _           _            _     _
 			ssdeep_init = ssdeep.hash(r.normalized_content)
 			ssdeep_effective_url = r.url.split('?')[0]
 
+	if args.phash:
+		browser = HeadlessBrowser(useragent=args.useragent)
+		p_cli('Rendering web page: {}\n'.format(url.full_uri()))
+		browser.get(url.full_uri())
+		screenshot = browser.screenshot()
+		phash = pHash(BytesIO(screenshot))
+		browser.stop()
+
 	for task in domains:
 		jobs.put(task)
 
+	sid = int.from_bytes(os.urandom(4), sys.byteorder)
 	for _ in range(args.threads):
 		worker = Scanner(jobs)
 		worker.setDaemon(True)
+		worker.id = sid
 		worker.url = url
 		worker.option_extdns = MODULE_DNSPYTHON
 		if args.geoip:
@@ -900,6 +1059,10 @@ r'''     _           _            _     _
 			worker.option_ssdeep = True
 			worker.ssdeep_init = ssdeep_init
 			worker.ssdeep_effective_url = ssdeep_effective_url
+		if args.phash:
+			worker.option_phash = True
+			worker.phash_init = phash
+			worker.screenshot_dir = args.screenshots
 		if args.mxcheck:
 			worker.option_mxcheck = True
 		if args.nameservers:
