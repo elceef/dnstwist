@@ -504,6 +504,9 @@ class Fuzzer():
 			self.domains.add(Permutation(fuzzer='various', domain='.'.join(filter(None, [self.subdomain, self.domain + self.tld, self.tld]))))
 		if self.tld != 'com' and '.' not in self.tld:
 			self.domains.add(Permutation(fuzzer='various', domain='.'.join(filter(None, [self.subdomain, self.domain + '-' + self.tld, 'com']))))
+		if self.subdomain:
+			self.domains.add(Permutation(fuzzer='various', domain='.'.join([self.subdomain + self.domain, self.tld])))
+			self.domains.add(Permutation(fuzzer='various', domain='.'.join([self.subdomain + '-' + self.domain, self.tld])))
 		def _punycode(domain):
 			try:
 				domain['domain'] = idna.encode(domain['domain']).decode()
