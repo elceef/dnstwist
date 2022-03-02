@@ -174,7 +174,17 @@ class UrlOpener():
 			self.content = r.read()
 		if self.content[:3] == b'\x1f\x8b\x08':
 			self.content = gzip.decompress(self.content)
-		self.normalized_content = b''.join(self.content.split()).lower()
+		self.normalized_content = self._normalize()
+
+	def _normalize(self):
+		content = b' '.join(self.content.split())
+		mapping = dict({
+			b'(action|src|href)="[^"]+"': lambda m: m.group(0).split(b'=')[0] + b'=""',
+			b'url\([^)]+\)': b'url()',
+			})
+		for pattern, repl in mapping.items():
+			content = re.sub(pattern, repl, content)
+		return content
 
 
 class UrlParser():
