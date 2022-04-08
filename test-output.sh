@@ -34,6 +34,7 @@ fi
 type=$(echo $examplePermutation | jq -r '[.dns_a, .dns_mx, .dns_ns] | .[] | type' | uniq)
 if [[ $type != "array" ]]
 then
+  echo $examplePermutation | jq
   echo "test failed: dns_a, dns_mx, dns_ns fields must be arrays, got $type"
   exit 1
 fi
@@ -42,6 +43,7 @@ fi
 type=$(echo $examplePermutation | jq -r '[.dns_a[0], .dns_mx[0], .dns_ns[0]] | .[] | type' | uniq)
 if [[ $type != "string" ]]
 then
+  echo $examplePermutation | jq
   echo "test failed: dns_a, dns_mx, dns_ns array values must be strings, got $type"
   exit 1
 fi
@@ -50,6 +52,7 @@ fi
 type=$(echo $examplePermutation | jq -r '[.domain, .fuzzer, .geoip] | .[] | type' | uniq)
 if [[ $type != "string" ]]
 then
+  echo $examplePermutation | jq
   echo "test failed: domain, fuzzer, geoip fields must be strings, got $type"
   exit 1
 fi
