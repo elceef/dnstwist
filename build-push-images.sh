@@ -9,6 +9,8 @@ docker build -t "us.gcr.io/vendor-risk-development/dnstwist:$SHORT_SHA" .
 
 docker tag "us.gcr.io/vendor-risk-development/dnstwist:$SHORT_SHA" "us.gcr.io/vendor-risk-production/dnstwist:$SHORT_SHA"
 
+./test-output.sh "us.gcr.io/vendor-risk-development/dnstwist:$SHORT_SHA"
+
 echo "Pushing development image..."
 
 docker push "us.gcr.io/vendor-risk-development/dnstwist:$SHORT_SHA"
