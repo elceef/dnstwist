@@ -946,14 +946,14 @@ def run(**kwargs):
 
 	dictionary = []
 	if args.dictionary:
-		if not path.exists(args.dictionary):
+		if not os.path.exists(args.dictionary):
 			parser.error('dictionary file not found: %s' % args.dictionary)
 		with open(args.dictionary) as f:
 			dictionary = [x for x in set(f.read().splitlines()) if x.isalnum()]
 
 	tld = []
 	if args.tld:
-		if not path.exists(args.tld):
+		if not os.path.exists(args.tld):
 			parser.error('dictionary file not found: %s' % args.tld)
 		with open(args.tld) as f:
 			tld = [x for x in set(f.read().splitlines()) if re.match(r'^[a-z0-9-]{2,63}(\.[a-z0-9-]{2,63}){0,1}$', x)]
