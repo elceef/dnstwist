@@ -843,8 +843,9 @@ def create_cli(domains=[]):
 def cleaner(func):
 	def wrapper(*args, **kwargs):
 		result = func(*args, **kwargs)
-		for sig in (signal.SIGINT, signal.SIGTERM):
-			signal.signal(sig, signal.default_int_handler)
+		if threading.current_thread() is threading.main_thread():
+			for sig in (signal.SIGINT, signal.SIGTERM):
+				signal.signal(sig, signal.default_int_handler)
 		sys.argv = sys.argv[0:1]
 		return result
 	return wrapper
@@ -1006,8 +1007,9 @@ def run(**kwargs):
 	except Exception:
 		parser.error('invalid domain name: ' + args.domain)
 
-	for sig in (signal.SIGINT, signal.SIGTERM):
-		signal.signal(sig, signal_handler)
+	if threading.current_thread() is threading.main_thread():
+		for sig in (signal.SIGINT, signal.SIGTERM):
+			signal.signal(sig, signal_handler)
 
 	fuzz = Fuzzer(url.domain, dictionary=dictionary, tld_dictionary=tld)
 	fuzz.generate()
