@@ -222,11 +222,8 @@ probably the most convenient and fast way is to pass the input as follows.
 ```
 
 The arguments for `dnstwist.run()` are translated internally, so the usage is
-very similar to the command line.
-
-Keep in mind that `dnstwist.run()` spawns a number of daemon threads and sets
-custom signal handlers, which means it can be only executed in main thread of
-the main interpreter!
+very similar to the command line. Keep in mind that `dnstwist.run()` spawns
+a number of daemon threads.
 
 
 Notes on coverage
