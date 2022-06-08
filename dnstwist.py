@@ -545,9 +545,9 @@ class Fuzzer():
 class Scanner(threading.Thread):
 	def __init__(self, queue):
 		threading.Thread.__init__(self)
+		self._stop_event = threading.Event()
 		self.id = 0
 		self.jobs = queue
-		self.kill_received = False
 		self.debug = False
 		self.ssdeep_init = ''
 		self.ssdeep_effective_url = ''
@@ -611,7 +611,10 @@ class Scanner(threading.Thread):
 			return True
 
 	def stop(self):
-		self.kill_received = True
+		self._stop_event.set()
+
+	def is_stopped(self):
+		return self._stop_event.is_set()
 
 	def run(self):
 		if self.option_extdns:
@@ -640,11 +643,11 @@ class Scanner(threading.Thread):
 
 		_answer_to_list = lambda ans: sorted([str(x).split(' ')[-1].rstrip('.') for x in ans])
 
-		while not self.kill_received:
+		while not self.is_stopped():
 			try:
 				task = self.jobs.get(block=False)
 			except queue.Empty:
-				self.kill_received = True
+				self.stop()
 				return
 
 			domain = task.get('domain')
@@ -915,7 +918,6 @@ def run(**kwargs):
 			jobs.queue.clear()
 			for worker in threads:
 				worker.stop()
-				worker.join()
 			threads.clear()
 		sys.tracebacklimit = 0
 		raise KeyboardInterrupt
@@ -1106,7 +1108,6 @@ r'''     _           _            _     _
 
 	for worker in threads:
 		worker.stop()
-		worker.join()
 
 	domains = fuzz.permutations(registered=args.registered, dns_all=args.all)
 
