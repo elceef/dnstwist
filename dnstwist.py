@@ -872,6 +872,7 @@ def run(**kwargs):
 	parser.add_argument('-o', '--output', type=str, metavar='FILE', help='Save output to FILE')
 	parser.add_argument('-r', '--registered', action='store_true', help='Show only registered domain names')
 	parser.add_argument('-p', '--phash', action='store_true', help='Render web pages and evaluate visual similarity')
+	parser.add_argument('--phash-url', metavar='URL', help='Override URL to render the original web page from')
 	parser.add_argument('--screenshots', metavar='DIR', help='Save web page screenshots into DIR')
 	parser.add_argument('-s', '--ssdeep', action='store_true', help='Fetch web pages and compare their fuzzy hashes to evaluate similarity')
 	parser.add_argument('--ssdeep-url', metavar='URL', help='Override URL to fetch the original web page from')
@@ -981,6 +982,7 @@ def run(**kwargs):
 			except ValueError:
 				parser.error('invalid domain name: ' + args.ssdeep_url)
 
+	phash_url = None
 	if args.phash or args.screenshots:
 		if not MODULE_PIL:
 			parser.error('missing Python Imaging Library (PIL)')
@@ -993,6 +995,11 @@ def run(**kwargs):
 		if args.screenshots:
 			if not os.access(args.screenshots, os.W_OK | os.X_OK):
 				parser.error('insufficient access permissions: %s' % args.screenshots)
+		if args.phash_url:
+			try:
+				phash_url = UrlParser(args.phash_url)
+			except ValueError:
+				parser.error('invalid domain name: ' + args.phash_url)
 
 	if args.whois:
 		if not MODULE_WHOIS:
@@ -1055,9 +1062,10 @@ r'''     _           _            _     _
 			ssdeep_effective_url = r.url.split('?')[0]
 
 	if args.phash:
+		request_url = phash_url.full_uri() if phash_url else url.full_uri()
 		browser = HeadlessBrowser(useragent=args.useragent)
-		p_cli('Rendering web page: {}\n'.format(url.full_uri()))
-		browser.get(url.full_uri())
+		p_cli('Rendering web page: {}\n'.format(request_url))
+		browser.get(request_url)
 		screenshot = browser.screenshot()
 		phash = pHash(BytesIO(screenshot))
 		browser.stop()
