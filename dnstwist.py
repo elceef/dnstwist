@@ -492,6 +492,13 @@ class Fuzzer():
 					word + '-' + self.domain,
 					word + self.domain
 				})
+		if '-' in self.domain:
+			parts = self.domain.split('-')
+			for word in self.dictionary:
+				result.update({
+					'-'.join(parts[:-1]) + '-' + word,
+					word + '-' + '-'.join(parts[1:])
+				})
 		return result
 
 	def _tld(self):
