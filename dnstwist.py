@@ -793,17 +793,25 @@ def create_json(domains=[]):
 
 
 def create_csv(domains=[]):
-	csv = ['fuzzer,domain,dns_a,dns_aaaa,dns_mx,dns_ns,geoip,whois_registrar,whois_created,ssdeep']
+	cols = ['fuzzer', 'domain']
 	for domain in domains:
-		csv.append(','.join([domain.get('fuzzer'), domain.get('domain'),
-			';'.join(domain.get('dns_a', [])),
-			';'.join(domain.get('dns_aaaa', [])),
-			';'.join(domain.get('dns_mx', [])),
-			';'.join(domain.get('dns_ns', [])),
-			domain.get('geoip', ''),
-			domain.get('whois_registrar', '').replace(',', ''),
-			domain.get('whois_created', ''),
-			str(domain.get('ssdeep', ''))]))
+		for k in domain.keys() - cols:
+			cols.append(k)
+	cols = cols[:2] + sorted(cols[2:])
+	csv = [','.join(cols)]
+	for domain in domains:
+		row = []
+		for val in [domain.get(c, '') for c in cols]:
+			if isinstance(val, str):
+				if ',' in val:
+					row.append('"{}"'.format(val))
+				else:
+					row.append(val)
+			elif isinstance(val, list):
+				row.append(';'.join(val))
+			elif isinstance(val, int):
+				row.append(str(val))
+		csv.append(','.join(row))
 	return '\n'.join(csv)
 
 
