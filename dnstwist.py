@@ -492,6 +492,13 @@ class Fuzzer():
 					word + '-' + self.domain,
 					word + self.domain
 				})
+		if '-' in self.domain:
+			parts = self.domain.split('-')
+			for word in self.dictionary:
+				result.update({
+					'-'.join(parts[:-1]) + '-' + word,
+					word + '-' + '-'.join(parts[1:])
+				})
 		return result
 
 	def _tld(self):
@@ -545,9 +552,9 @@ class Fuzzer():
 class Scanner(threading.Thread):
 	def __init__(self, queue):
 		threading.Thread.__init__(self)
+		self._stop_event = threading.Event()
 		self.id = 0
 		self.jobs = queue
-		self.kill_received = False
 		self.debug = False
 		self.ssdeep_init = ''
 		self.ssdeep_effective_url = ''
@@ -611,7 +618,10 @@ class Scanner(threading.Thread):
 			return True
 
 	def stop(self):
-		self.kill_received = True
+		self._stop_event.set()
+
+	def is_stopped(self):
+		return self._stop_event.is_set()
 
 	def run(self):
 		if self.option_extdns:
@@ -640,11 +650,11 @@ class Scanner(threading.Thread):
 
 		_answer_to_list = lambda ans: sorted([str(x).split(' ')[-1].rstrip('.') for x in ans])
 
-		while not self.kill_received:
+		while not self.is_stopped():
 			try:
 				task = self.jobs.get(block=False)
 			except queue.Empty:
-				self.kill_received = True
+				self.stop()
 				return
 
 			domain = task.get('domain')
@@ -783,17 +793,25 @@ def create_json(domains=[]):
 
 
 def create_csv(domains=[]):
-	csv = ['fuzzer,domain,dns_a,dns_aaaa,dns_mx,dns_ns,geoip,whois_registrar,whois_created,ssdeep']
+	cols = ['fuzzer', 'domain']
 	for domain in domains:
-		csv.append(','.join([domain.get('fuzzer'), domain.get('domain'),
-			';'.join(domain.get('dns_a', [])),
-			';'.join(domain.get('dns_aaaa', [])),
-			';'.join(domain.get('dns_mx', [])),
-			';'.join(domain.get('dns_ns', [])),
-			domain.get('geoip', ''),
-			domain.get('whois_registrar', '').replace(',', ''),
-			domain.get('whois_created', ''),
-			str(domain.get('ssdeep', ''))]))
+		for k in domain.keys() - cols:
+			cols.append(k)
+	cols = cols[:2] + sorted(cols[2:])
+	csv = [','.join(cols)]
+	for domain in domains:
+		row = []
+		for val in [domain.get(c, '') for c in cols]:
+			if isinstance(val, str):
+				if ',' in val:
+					row.append('"{}"'.format(val))
+				else:
+					row.append(val)
+			elif isinstance(val, list):
+				row.append(';'.join(val))
+			elif isinstance(val, int):
+				row.append(str(val))
+		csv.append(','.join(row))
 	return '\n'.join(csv)
 
 
@@ -840,8 +858,9 @@ def create_cli(domains=[]):
 def cleaner(func):
 	def wrapper(*args, **kwargs):
 		result = func(*args, **kwargs)
-		for sig in (signal.SIGINT, signal.SIGTERM):
-			signal.signal(sig, signal.default_int_handler)
+		if threading.current_thread() is threading.main_thread():
+			for sig in (signal.SIGINT, signal.SIGTERM):
+				signal.signal(sig, signal.default_int_handler)
 		sys.argv = sys.argv[0:1]
 		return result
 	return wrapper
@@ -868,6 +887,7 @@ def run(**kwargs):
 	parser.add_argument('-o', '--output', type=str, metavar='FILE', help='Save output to FILE')
 	parser.add_argument('-r', '--registered', action='store_true', help='Show only registered domain names')
 	parser.add_argument('-p', '--phash', action='store_true', help='Render web pages and evaluate visual similarity')
+	parser.add_argument('--phash-url', metavar='URL', help='Override URL to render the original web page from')
 	parser.add_argument('--screenshots', metavar='DIR', help='Save web page screenshots into DIR')
 	parser.add_argument('-s', '--ssdeep', action='store_true', help='Fetch web pages and compare their fuzzy hashes to evaluate similarity')
 	parser.add_argument('--ssdeep-url', metavar='URL', help='Override URL to fetch the original web page from')
@@ -915,7 +935,6 @@ def run(**kwargs):
 			jobs.queue.clear()
 			for worker in threads:
 				worker.stop()
-				worker.join()
 			threads.clear()
 		sys.tracebacklimit = 0
 		raise KeyboardInterrupt
@@ -978,6 +997,7 @@ def run(**kwargs):
 			except ValueError:
 				parser.error('invalid domain name: ' + args.ssdeep_url)
 
+	phash_url = None
 	if args.phash or args.screenshots:
 		if not MODULE_PIL:
 			parser.error('missing Python Imaging Library (PIL)')
@@ -990,6 +1010,11 @@ def run(**kwargs):
 		if args.screenshots:
 			if not os.access(args.screenshots, os.W_OK | os.X_OK):
 				parser.error('insufficient access permissions: %s' % args.screenshots)
+		if args.phash_url:
+			try:
+				phash_url = UrlParser(args.phash_url)
+			except ValueError:
+				parser.error('invalid domain name: ' + args.phash_url)
 
 	if args.whois:
 		if not MODULE_WHOIS:
@@ -1004,8 +1029,9 @@ def run(**kwargs):
 	except Exception:
 		parser.error('invalid domain name: ' + args.domain)
 
-	for sig in (signal.SIGINT, signal.SIGTERM):
-		signal.signal(sig, signal_handler)
+	if threading.current_thread() is threading.main_thread():
+		for sig in (signal.SIGINT, signal.SIGTERM):
+			signal.signal(sig, signal_handler)
 
 	fuzz = Fuzzer(url.domain, dictionary=dictionary, tld_dictionary=tld)
 	fuzz.generate()
@@ -1051,9 +1077,10 @@ r'''     _           _            _     _
 			ssdeep_effective_url = r.url.split('?')[0]
 
 	if args.phash:
+		request_url = phash_url.full_uri() if phash_url else url.full_uri()
 		browser = HeadlessBrowser(useragent=args.useragent)
-		p_cli('Rendering web page: {}\n'.format(url.full_uri()))
-		browser.get(url.full_uri())
+		p_cli('Rendering web page: {}\n'.format(request_url))
+		browser.get(request_url)
 		screenshot = browser.screenshot()
 		phash = pHash(BytesIO(screenshot))
 		browser.stop()
@@ -1106,7 +1133,6 @@ r'''     _           _            _     _
 
 	for worker in threads:
 		worker.stop()
-		worker.join()
 
 	domains = fuzz.permutations(registered=args.registered, dns_all=args.all)
 

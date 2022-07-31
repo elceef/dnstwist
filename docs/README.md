@@ -23,12 +23,14 @@ Key features
 
 - Variety of highly effective domain fuzzing algorithms
 - Unicode domain names (IDN)
-- Additional domain permutations using dictionary files
+- Additional domain permutations from dictionary files
 - Efficient multithreaded task distribution
-- Live phishing webpage detection
+- Live phishing webpage detection:
+  - HTML similarity with fuzzy hashes (ssdeep)
+  - Screenshot visual similarity with perceptual hashes (pHash)
 - Rogue MX host detection (intercepting misdirected e-mails)
 - GeoIP location
-- Export to CSV and JSON format
+- Export to CSV and JSON
 
 
 Installation
@@ -100,36 +102,6 @@ Ensure your DNS server can handle thousands of requests within a short period
 of time. Otherwise, you can specify an external DNS or DNS-over-HTTPS server
 with `--nameservers` argument.
 
-Manually checking each domain name in terms of serving a phishing site might be
-time-consuming. To address this, `dnstwist` makes use of so-called fuzzy hashes
-(context triggered piecewise hashes). Fuzzy hashing is a concept that involves
-the ability to compare two inputs (in this case HTML code) and determine a
-fundamental level of similarity. This unique feature of `dnstwist` can be
-enabled with `--ssdeep` argument. For each generated domain, `dnstwist` will
-fetch content from responding HTTP server (following possible redirects) and
-compare its fuzzy hash with the one for the original (initial) domain. The
-level of similarity will be expressed as a percentage.
-
-Note: Keep in mind it's rather unlikely to get 100% match for a dynamically
-generated web page, and that a phishing site can have completely different HTML
-source code. However, each notification is a strong indicator and should be
-inspected carefully regardless of the score.
-
-```
-$ dnstwist --ssdeep domain.name
-```
-
-In some cases, phishing sites are served from a specific URL. If you provide a
-full or partial URL address as an argument, `dnstwist` will parse it and apply
-for each generated domain name variant. Additionally you can use `--ssdeep-url`
-to override URL to fetch the original web page from. This is obviously useful
-only with the fuzzy hashing feature.
-
-```
-$ dnstwist --ssdeep https://domain.name/owa/
-$ dnstwist --ssdeep --ssdeep-url https://different.domain/owa/ domain.name
-```
-
 Sometimes attackers set up e-mail honey pots on phishing domains and wait for
 mistyped e-mails to arrive. In this scenario, attackers would configure their
 server to vacuum up all e-mail addressed to that domain, regardless of the user
@@ -139,8 +111,7 @@ be used for such hostile intent. Suspicious servers will be flagged with
 `SPYING-MX` string.
 
 Note: Be aware of possible false positives. Some mail servers only pretend to
-accept incorrectly addressed e-mails but then discard those messages. This
-technique is used to prevent "directory harvesting attack".
+accept incorrectly addressed e-mails but then discard those messages.
 
 ```
 $ dnstwist --mxcheck domain.name
@@ -185,7 +156,60 @@ database are not present, the tool will fall-back to the older GeoIP Legacy.
 To display all available options with brief descriptions simply execute the
 tool without any arguments.
 
-Happy hunting!
+
+Phishing detection
+------------------
+
+Manually checking each domain name in terms of serving a phishing site might be
+time-consuming. To address this, `dnstwist` makes use of so-called fuzzy hashes
+(context triggered piecewise hashes, often called ssdeep) and perceptual hashes
+(pHash). Fuzzy hashing is a concept that involves the ability to compare two
+inputs (HTML code) and determine a fundamental level of similarity, while
+perceptual hash is a fingerprint dervied from visual features of an image
+(web browser screenshot).
+
+The unique feature of detecting similar HTML source code can be enabled with
+`--ssdeep` argument. For each generated domain, `dnstwist` will fetch content
+from responding HTTP server (following possible redirects), normalize HTML code
+and compare its fuzzy hash with the one for the original (initial) domain. The
+level of similarity will be expressed as a percentage.
+
+Important: In cases when the effective URL is the same as for the original
+domain, the fuzzy hash is not calculated at all in order to reject false
+positive indications.
+
+Note: Keep in mind it's rather unlikely to get 100% match, even for MITM attack
+frameworks, and that a phishing site can have completely different HTML
+source code. However, each notification is a strong indicator and should be
+inspected carefully regardless of the score.
+
+```
+$ dnstwist --ssdeep domain.name
+```
+
+In some cases, phishing sites are served from a specific URL. If you provide a
+full or partial URL address as an argument, `dnstwist` will parse it and apply
+for each generated domain name variant. Use `--ssdeep-url` to override URL to
+fetch the original web page from.
+
+```
+$ dnstwist --ssdeep https://domain.name/owa/
+$ dnstwist --ssdeep --ssdeep-url https://different.domain/owa/ domain.name
+```
+
+Additionally, if Chromium browser is installed, `dnstwist` can run it in
+headless mode to render web pages, take screenshots and calculate pHash to
+evaluate visual similarity expressed as percentage.
+
+```
+$ dnstwist --phash domain.name
+```
+
+Web page screenshots in PNG format can be saved to specified location:
+
+```
+$ dnstwist --phash --screenshots /tmp/domain domain.name
+```
 
 
 API
@@ -200,7 +224,8 @@ probably the most convenient and fast way is to pass the input as follows.
 ```
 
 The arguments for `dnstwist.run()` are translated internally, so the usage is
-very similar to the command line.
+very similar to the command line. Keep in mind that `dnstwist.run()` spawns
+a number of daemon threads.
 
 
 Notes on coverage
