@@ -6,7 +6,7 @@ image=$1
 echo "running dnstwist to test output"
 
 # run dnstwist and grab the putput
-output=$(docker run $image -f json -a -g 1.com)
+output=$(docker run $image -f json -a -g 2.com)
 
 if ! command -v jq &> /dev/null
 then
