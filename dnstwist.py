@@ -539,8 +539,13 @@ class Fuzzer():
 			if not VALID_FQDN_REGEX.match(domain.get('domain')):
 				self.domains.discard(domain)
 
-	def permutations(self, registered=False, dns_all=False):
-		domains = set({x for x in self.domains.copy() if x.is_registered()}) if registered else self.domains.copy()
+	def permutations(self, registered=False, unregistered=False, dns_all=False):
+		if (registered == False and unregistered == False) or (registered == True and unregistered == True):
+			domains = self.domains.copy()
+		elif registered == True:
+			domains = set({x for x in self.domains.copy() if x.is_registered()})
+		elif unregistered == True:
+			domains = set({x for x in self.domains.copy() if not x.is_registered()})
 		if not dns_all:
 			for domain in domains:
 				for k in ('dns_ns', 'dns_a', 'dns_aaaa', 'dns_mx'):
@@ -886,6 +891,7 @@ def run(**kwargs):
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='Check if MX can be used to intercept emails')
 	parser.add_argument('-o', '--output', type=str, metavar='FILE', help='Save output to FILE')
 	parser.add_argument('-r', '--registered', action='store_true', help='Show only registered domain names')
+	parser.add_argument('-u', '--unregistered', action='store_true', help='Show only unregistered domain names')
 	parser.add_argument('-p', '--phash', action='store_true', help='Render web pages and evaluate visual similarity')
 	parser.add_argument('--phash-url', metavar='URL', help='Override URL to render the original web page from')
 	parser.add_argument('--screenshots', metavar='DIR', help='Save web page screenshots into DIR')
@@ -938,6 +944,9 @@ def run(**kwargs):
 			threads.clear()
 		sys.tracebacklimit = 0
 		raise KeyboardInterrupt
+
+	if args.registered and args.unregistered:
+		parser.error('arguments --registered and --unregistered are mutually exclusive')
 
 	if not kwargs and args.format not in ('cli', 'csv', 'json', 'list'):
 		parser.error('invalid output format (choose from cli, csv, json, list)')
@@ -1134,7 +1143,7 @@ r'''     _           _            _     _
 	for worker in threads:
 		worker.stop()
 
-	domains = fuzz.permutations(registered=args.registered, dns_all=args.all)
+	domains = fuzz.permutations(registered=args.registered, unregistered=args.unregistered, dns_all=args.all)
 
 	if args.whois:
 		total = sum([1 for x in domains if x.is_registered()])
