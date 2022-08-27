@@ -84,7 +84,7 @@ Usually thousands of domain permutations are generated - especially for longer i
 Ensure your local DNS server can handle thousands of requests within a short period of time. Otherwise, you can specify an external DNS or DNS-over-HTTPS server with \fB\-\-nameservers\fR argument.
 
 .SS Fuzzy hashing
-Manually checking each domain name in terms of serving a phishing site might be time-consuming. To address this, \fBdnstwist\fR makes use of so-called fuzzy hashes (context triggered piecewise hashes, often called ssdeep) and perceptual hashes (pHash). Fuzzy hashing is a concept that involves the ability to compare two inputs (HTML code) and determine a fundamental level of similarity, while perceptual hash is a fingerprint dervied from visual features of an image (web browser screenshot). The level of similarity is be expressed as a percentage.
+Manually checking each domain name in terms of serving a phishing site might be time-consuming. To address this, \fBdnstwist\fR makes use of so-called fuzzy hashes (context triggered piecewise hashes, often called ssdeep) and perceptual hashes (pHash). Fuzzy hashing is a concept that involves the ability to compare two inputs (HTML code) and determine a fundamental level of similarity, while perceptual hash is a fingerprint derived from visual features of an image (web browser screenshot). The level of similarity is be expressed as a percentage.
 
 Keep in mind it's rather unlikely to get 100% match for a dynamically generated web page. However, each notification is a strong indicator and should be inspected carefully regardless of the score.
 
