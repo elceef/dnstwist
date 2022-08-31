@@ -901,7 +901,7 @@ def run(**kwargs):
 	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT,
 		help='Start specified NUMBER of threads (default: %s)' % THREAD_COUNT_DEFAULT)
 	parser.add_argument('-w', '--whois', action='store_true', help='Lookup WHOIS database for creation date')
-	parser.add_argument('--tld', type=str, metavar='FILE', help='Generate more domains by swapping TLD from FILE')
+	parser.add_argument('--tld', type=str, metavar='FILE', help='Swap TLD for the original domain from FILE')
 	parser.add_argument('--nameservers', type=str, metavar='LIST', help='DNS or DoH servers to query (separated with commas)')
 	parser.add_argument('--useragent', type=str, metavar='STRING', default=USER_AGENT_STRING,
 		help='User-Agent STRING to send with HTTP requests (default: %s)' % USER_AGENT_STRING)
