@@ -1101,7 +1101,7 @@ r'''     _           _            _     _
 	sid = int.from_bytes(os.urandom(4), sys.byteorder)
 	for _ in range(args.threads):
 		worker = Scanner(jobs)
-		worker.setDaemon(True)
+		worker.daemon = True
 		worker.id = sid
 		worker.url = url
 		worker.option_extdns = MODULE_DNSPYTHON
