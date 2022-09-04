@@ -125,7 +125,7 @@ REQUEST_TIMEOUT_DNS = 2.5
 REQUEST_RETRIES_DNS = 2
 REQUEST_TIMEOUT_HTTP = 5
 REQUEST_TIMEOUT_SMTP = 5
-THREAD_COUNT_DEFAULT = 10
+THREAD_COUNT_DEFAULT = min(32, os.cpu_count() + 4)
 
 if sys.platform != 'win32' and sys.stdout.isatty():
 	FG_RND = '\x1b[3{}m'.format(int(time.time())%8+1)
