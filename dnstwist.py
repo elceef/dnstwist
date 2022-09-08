@@ -175,6 +175,14 @@ class UrlOpener():
 			self.content = r.read()
 		if self.content[:3] == b'\x1f\x8b\x08':
 			self.content = gzip.decompress(self.content)
+		if 64 < len(self.content) < 1024:
+			try:
+				meta_url = re.search(r'<meta[^>]*?url=(https?://[\w.,?!:;/*#@$&+=[\]()%~-]*?)"', self.content.decode(), re.IGNORECASE)
+			except Exception:
+				pass
+			else:
+				if meta_url:
+					self.__init__(meta_url.group(1), timeout=timeout, headers=headers, verify=verify)
 		self.normalized_content = self._normalize()
 
 	def _normalize(self):
