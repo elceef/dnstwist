@@ -192,7 +192,7 @@ class UrlOpener():
 			b'url\([^)]+\)': b'url()',
 			})
 		for pattern, repl in mapping.items():
-			content = re.sub(pattern, repl, content)
+			content = re.sub(pattern, repl, content, flags=re.IGNORECASE)
 		return content
 
 
