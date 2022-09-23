@@ -717,24 +717,29 @@ class Scanner(threading.Thread):
 						self._debug(e)
 			else:
 				try:
-					ip = socket.getaddrinfo(domain, 80)
+					addrinfo = socket.getaddrinfo(domain, None)
 				except socket.gaierror as e:
 					if e.errno == -3:
 						task['dns_a'] = ['!ServFail']
 				except Exception as e:
 					self._debug(e)
 				else:
-					task['dns_a'] = list()
-					task['dns_aaaa'] = list()
-					for j in ip:
-						if '.' in j[4][0]:
-							task['dns_a'].append(j[4][0])
-						if ':' in j[4][0]:
-							task['dns_aaaa'].append(j[4][0])
-					task['dns_a'] = sorted(task['dns_a'])
-					task['dns_aaaa'] = sorted(task['dns_aaaa'])
-					dns_a = True
-					dns_aaaa = True
+					for _, _, _, _, sa in addrinfo:
+						ip = sa[0]
+						if '.' in ip:
+							if 'dns_a' not in task:
+								task['dns_a'] = set()
+								dns_a = True
+							task['dns_a'].add(ip)
+						if ':' in ip:
+							if 'dns_aaaa' not in task:
+								task['dns_aaaa'] = set()
+								dns_aaaa = True
+							task['dns_aaaa'].add(ip)
+					if 'dns_a' in task:
+						task['dns_a'] = list(task['dns_a'])
+					if 'dns_aaaa' in task:
+						task['dns_aaaa'] = list(task['dns_aaaa'])
 
 			if self.option_mxcheck:
 				if dns_mx is True:
