@@ -717,7 +717,7 @@ class Scanner(threading.Thread):
 						self._debug(e)
 			else:
 				try:
-					addrinfo = socket.getaddrinfo(domain, None)
+					addrinfo = socket.getaddrinfo(domain, None, proto=socket.IPPROTO_TCP)
 				except socket.gaierror as e:
 					if e.errno == -3:
 						task['dns_a'] = ['!ServFail']
