@@ -245,6 +245,13 @@ class UrlParser():
 
 
 class Permutation(dict):
+	def __getattr__(self, item):
+		if item in self:
+			return self[item]
+		raise AttributeError("object has no attribute '{}'".format(item)) from None
+
+	__setattr__ = dict.__setitem__
+
 	def __init__(self, fuzzer='', domain=''):
 		super(dict, self).__init__()
 		self['fuzzer'] = fuzzer
