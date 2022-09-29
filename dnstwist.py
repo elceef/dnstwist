@@ -1108,12 +1108,19 @@ r'''     _           _            _     _
 
 	if args.phash:
 		request_url = phash_url.full_uri() if phash_url else url.full_uri()
-		browser = HeadlessBrowser(useragent=args.useragent)
 		p_cli('Rendering web page: {}\n'.format(request_url))
-		browser.get(request_url)
-		screenshot = browser.screenshot()
-		phash = pHash(BytesIO(screenshot))
-		browser.stop()
+		browser = HeadlessBrowser(useragent=args.useragent)
+		try:
+			browser.get(request_url)
+			screenshot = browser.screenshot()
+		except Exception as e:
+			if kwargs:
+				raise
+			p_cli('{}\n'.format(str(e)))
+			sys.exit(1)
+		else:
+			phash = pHash(BytesIO(screenshot))
+			browser.stop()
 
 	for task in domains:
 		jobs.put(task)
