@@ -25,7 +25,7 @@ limitations under the License.
 '''
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20220131'
+__version__ = '20220815'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
@@ -56,6 +56,7 @@ try:
 	MODULE_SELENIUM = True
 except ImportError:
 	MODULE_SELENIUM = False
+
 try:
 	from dns.resolver import Resolver, NXDOMAIN, NoNameservers
 	import dns.rdatatype
@@ -124,7 +125,7 @@ REQUEST_TIMEOUT_DNS = 2.5
 REQUEST_RETRIES_DNS = 2
 REQUEST_TIMEOUT_HTTP = 5
 REQUEST_TIMEOUT_SMTP = 5
-THREAD_COUNT_DEFAULT = 10
+THREAD_COUNT_DEFAULT = min(32, os.cpu_count() + 4)
 
 if sys.platform != 'win32' and sys.stdout.isatty():
 	FG_RND = '\x1b[3{}m'.format(int(time.time())%8+1)
@@ -174,6 +175,14 @@ class UrlOpener():
 			self.content = r.read()
 		if self.content[:3] == b'\x1f\x8b\x08':
 			self.content = gzip.decompress(self.content)
+		if 64 < len(self.content) < 1024:
+			try:
+				meta_url = re.search(r'<meta[^>]*?url=(https?://[\w.,?!:;/*#@$&+=[\]()%~-]*?)"', self.content.decode(), re.IGNORECASE)
+			except Exception:
+				pass
+			else:
+				if meta_url:
+					self.__init__(meta_url.group(1), timeout=timeout, headers=headers, verify=verify)
 		self.normalized_content = self._normalize()
 
 	def _normalize(self):
@@ -183,7 +192,7 @@ class UrlOpener():
 			b'url\([^)]+\)': b'url()',
 			})
 		for pattern, repl in mapping.items():
-			content = re.sub(pattern, repl, content)
+			content = re.sub(pattern, repl, content, flags=re.IGNORECASE)
 		return content
 
 
@@ -236,6 +245,13 @@ class UrlParser():
 
 
 class Permutation(dict):
+	def __getattr__(self, item):
+		if item in self:
+			return self[item]
+		raise AttributeError("object has no attribute '{}'".format(item)) from None
+
+	__setattr__ = dict.__setitem__
+
 	def __init__(self, fuzzer='', domain=''):
 		super(dict, self).__init__()
 		self['fuzzer'] = fuzzer
@@ -539,8 +555,13 @@ class Fuzzer():
 			if not VALID_FQDN_REGEX.match(domain.get('domain')):
 				self.domains.discard(domain)
 
-	def permutations(self, registered=False, dns_all=False):
-		domains = set({x for x in self.domains.copy() if x.is_registered()}) if registered else self.domains.copy()
+	def permutations(self, registered=False, unregistered=False, dns_all=False):
+		if (registered == False and unregistered == False) or (registered == True and unregistered == True):
+			domains = self.domains.copy()
+		elif registered == True:
+			domains = set({x for x in self.domains.copy() if x.is_registered()})
+		elif unregistered == True:
+			domains = set({x for x in self.domains.copy() if not x.is_registered()})
 		if not dns_all:
 			for domain in domains:
 				for k in ('dns_ns', 'dns_a', 'dns_aaaa', 'dns_mx'):
@@ -703,24 +724,29 @@ class Scanner(threading.Thread):
 						self._debug(e)
 			else:
 				try:
-					ip = socket.getaddrinfo(domain, 80)
+					addrinfo = socket.getaddrinfo(domain, None, proto=socket.IPPROTO_TCP)
 				except socket.gaierror as e:
 					if e.errno == -3:
 						task['dns_a'] = ['!ServFail']
 				except Exception as e:
 					self._debug(e)
 				else:
-					task['dns_a'] = list()
-					task['dns_aaaa'] = list()
-					for j in ip:
-						if '.' in j[4][0]:
-							task['dns_a'].append(j[4][0])
-						if ':' in j[4][0]:
-							task['dns_aaaa'].append(j[4][0])
-					task['dns_a'] = sorted(task['dns_a'])
-					task['dns_aaaa'] = sorted(task['dns_aaaa'])
-					dns_a = True
-					dns_aaaa = True
+					for _, _, _, _, sa in addrinfo:
+						ip = sa[0]
+						if '.' in ip:
+							if 'dns_a' not in task:
+								task['dns_a'] = set()
+								dns_a = True
+							task['dns_a'].add(ip)
+						if ':' in ip:
+							if 'dns_aaaa' not in task:
+								task['dns_aaaa'] = set()
+								dns_aaaa = True
+							task['dns_aaaa'].add(ip)
+					if 'dns_a' in task:
+						task['dns_a'] = list(task['dns_a'])
+					if 'dns_aaaa' in task:
+						task['dns_aaaa'] = list(task['dns_aaaa'])
 
 			if self.option_mxcheck:
 				if dns_mx is True:
@@ -788,71 +814,71 @@ class Scanner(threading.Thread):
 			self.jobs.task_done()
 
 
-def create_json(domains=[]):
-	return json.dumps(domains, indent=4, sort_keys=True)
+class Format():
+	def __init__(self, domains=[]):
+		self.domains = domains
 
+	def json(self, indent=4, sort_keys=True):
+		return json.dumps(self.domains, indent=indent, sort_keys=sort_keys)
 
-def create_csv(domains=[]):
-	cols = ['fuzzer', 'domain']
-	for domain in domains:
-		for k in domain.keys() - cols:
-			cols.append(k)
-	cols = cols[:2] + sorted(cols[2:])
-	csv = [','.join(cols)]
-	for domain in domains:
-		row = []
-		for val in [domain.get(c, '') for c in cols]:
-			if isinstance(val, str):
-				if ',' in val:
-					row.append('"{}"'.format(val))
-				else:
-					row.append(val)
-			elif isinstance(val, list):
-				row.append(';'.join(val))
-			elif isinstance(val, int):
-				row.append(str(val))
-		csv.append(','.join(row))
-	return '\n'.join(csv)
+	def csv(self):
+		cols = ['fuzzer', 'domain']
+		for domain in self.domains:
+			for k in domain.keys() - cols:
+				cols.append(k)
+		cols = cols[:2] + sorted(cols[2:])
+		csv = [','.join(cols)]
+		for domain in self.domains:
+			row = []
+			for val in [domain.get(c, '') for c in cols]:
+				if isinstance(val, str):
+					if ',' in val:
+						row.append('"{}"'.format(val))
+					else:
+						row.append(val)
+				elif isinstance(val, list):
+					row.append(';'.join(val))
+				elif isinstance(val, int):
+					row.append(str(val))
+			csv.append(','.join(row))
+		return '\n'.join(csv)
 
+	def list(self):
+		return '\n'.join([x.get('domain') for x in sorted(self.domains)])
 
-def create_list(domains=[]):
-	return '\n'.join([x.get('domain') for x in sorted(domains)])
-
-
-def create_cli(domains=[]):
-	cli = []
-	domains = list(domains)
-	if sys.stdout.encoding.lower() == 'utf-8':
+	def cli(self):
+		cli = []
+		domains = list(self.domains)
+		if sys.stdout.encoding.lower() == 'utf-8':
+			for domain in domains:
+				domain.update(domain=idna.decode(domain.get('domain')))
+		wfuz = max([len(x.get('fuzzer', '')) for x in domains]) + 1
+		wdom = max([len(x.get('domain', '')) for x in domains]) + 1
+		kv = lambda k, v: FG_YEL + k + FG_CYA + v + FG_RST if k else FG_CYA + v + FG_RST
 		for domain in domains:
-			name = domain['domain']
-			domain['domain'] = idna.decode(name)
-	wfuz = max([len(x.get('fuzzer', '')) for x in domains]) + 1
-	wdom = max([len(x.get('domain', '')) for x in domains]) + 1
-	kv = lambda k, v: FG_YEL + k + FG_CYA + v + FG_RST if k else FG_CYA + v + FG_RST
-	for domain in domains:
-		inf = []
-		if 'dns_a' in domain:
-			inf.append(';'.join(domain['dns_a']) + (kv('/', domain['geoip'].replace(' ', '')) if 'geoip' in domain else ''))
-		if 'dns_aaaa' in domain:
-			inf.append(';'.join(domain['dns_aaaa']))
-		if 'dns_ns' in domain:
-			inf.append(kv('NS:', ';'.join(domain['dns_ns'])))
-		if 'dns_mx' in domain:
-			inf.append(kv('SPYING-MX:' if domain.get('mx_spy') else 'MX:', ';'.join(domain['dns_mx'])))
-		if 'banner_http' in domain:
-			inf.append(kv('HTTP:', domain['banner_http']))
-		if 'banner_smtp' in domain:
-			inf.append(kv('SMTP:', domain['banner_smtp']))
-		if 'whois_registrar' in domain:
-			inf.append(kv('REGISTRAR:', domain['whois_registrar']))
-		if 'whois_created' in domain:
-			inf.append(kv('CREATED:', domain['whois_created']))
-		if domain.get('ssdeep', 0) > 0:
-			inf.append(kv('SSDEEP:', '{}%'.format(domain['ssdeep'])))
-		if domain.get('phash', 0) > 0:
-			inf.append(kv('PHASH:', '{}%'.format(domain['phash'])))
-		cli.append('{}{[fuzzer]:<{}}{} {[domain]:<{}} {}'.format(FG_BLU, domain, wfuz, FG_RST, domain, wdom, ' '.join(inf or ['-'])))
-	return '\n'.join(cli)
+			inf = []
+			if 'dns_a' in domain:
+				inf.append(';'.join(domain['dns_a']) + (kv('/', domain['geoip'].replace(' ', '')) if 'geoip' in domain else ''))
+			if 'dns_aaaa' in domain:
+				inf.append(';'.join(domain['dns_aaaa']))
+			if 'dns_ns' in domain:
+				inf.append(kv('NS:', ';'.join(domain['dns_ns'])))
+			if 'dns_mx' in domain:
+				inf.append(kv('SPYING-MX:' if domain.get('mx_spy') else 'MX:', ';'.join(domain['dns_mx'])))
+			if 'banner_http' in domain:
+				inf.append(kv('HTTP:', domain['banner_http']))
+			if 'banner_smtp' in domain:
+				inf.append(kv('SMTP:', domain['banner_smtp']))
+			if 'whois_registrar' in domain:
+				inf.append(kv('REGISTRAR:', domain['whois_registrar']))
+			if 'whois_created' in domain:
+				inf.append(kv('CREATED:', domain['whois_created']))
+			if domain.get('ssdeep', 0) > 0:
+				inf.append(kv('SSDEEP:', '{}%'.format(domain['ssdeep'])))
+			if domain.get('phash', 0) > 0:
+				inf.append(kv('PHASH:', '{}%'.format(domain['phash'])))
+			cli.append('{}{[fuzzer]:<{}}{} {[domain]:<{}} {}'.format(FG_BLU, domain, wfuz, FG_RST, domain, wdom, ' '.join(inf or ['-'])))
+		return '\n'.join(cli)
 
 
 def cleaner(func):
@@ -886,6 +912,7 @@ def run(**kwargs):
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='Check if MX can be used to intercept emails')
 	parser.add_argument('-o', '--output', type=str, metavar='FILE', help='Save output to FILE')
 	parser.add_argument('-r', '--registered', action='store_true', help='Show only registered domain names')
+	parser.add_argument('-u', '--unregistered', action='store_true', help='Show only unregistered domain names')
 	parser.add_argument('-p', '--phash', action='store_true', help='Render web pages and evaluate visual similarity')
 	parser.add_argument('--phash-url', metavar='URL', help='Override URL to render the original web page from')
 	parser.add_argument('--screenshots', metavar='DIR', help='Save web page screenshots into DIR')
@@ -894,7 +921,7 @@ def run(**kwargs):
 	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT,
 		help='Start specified NUMBER of threads (default: %s)' % THREAD_COUNT_DEFAULT)
 	parser.add_argument('-w', '--whois', action='store_true', help='Lookup WHOIS database for creation date')
-	parser.add_argument('--tld', type=str, metavar='FILE', help='Generate more domains by swapping TLD from FILE')
+	parser.add_argument('--tld', type=str, metavar='FILE', help='Swap TLD for the original domain from FILE')
 	parser.add_argument('--nameservers', type=str, metavar='LIST', help='DNS or DoH servers to query (separated with commas)')
 	parser.add_argument('--useragent', type=str, metavar='STRING', default=USER_AGENT_STRING,
 		help='User-Agent STRING to send with HTTP requests (default: %s)' % USER_AGENT_STRING)
@@ -938,6 +965,9 @@ def run(**kwargs):
 			threads.clear()
 		sys.tracebacklimit = 0
 		raise KeyboardInterrupt
+
+	if args.registered and args.unregistered:
+		parser.error('arguments --registered and --unregistered are mutually exclusive')
 
 	if not kwargs and args.format not in ('cli', 'csv', 'json', 'list'):
 		parser.error('invalid output format (choose from cli, csv, json, list)')
@@ -1038,7 +1068,7 @@ def run(**kwargs):
 	domains = fuzz.domains
 
 	if args.format == 'list':
-		print(create_list(domains))
+		print(Format(domains).list())
 		return domains
 
 	if not MODULE_DNSPYTHON:
@@ -1078,12 +1108,19 @@ r'''     _           _            _     _
 
 	if args.phash:
 		request_url = phash_url.full_uri() if phash_url else url.full_uri()
-		browser = HeadlessBrowser(useragent=args.useragent)
 		p_cli('Rendering web page: {}\n'.format(request_url))
-		browser.get(request_url)
-		screenshot = browser.screenshot()
-		phash = pHash(BytesIO(screenshot))
-		browser.stop()
+		browser = HeadlessBrowser(useragent=args.useragent)
+		try:
+			browser.get(request_url)
+			screenshot = browser.screenshot()
+		except Exception as e:
+			if kwargs:
+				raise
+			p_cli('{}\n'.format(str(e)))
+			sys.exit(1)
+		else:
+			phash = pHash(BytesIO(screenshot))
+			browser.stop()
 
 	for task in domains:
 		jobs.put(task)
@@ -1091,7 +1128,7 @@ r'''     _           _            _     _
 	sid = int.from_bytes(os.urandom(4), sys.byteorder)
 	for _ in range(args.threads):
 		worker = Scanner(jobs)
-		worker.setDaemon(True)
+		worker.daemon = True
 		worker.id = sid
 		worker.url = url
 		worker.option_extdns = MODULE_DNSPYTHON
@@ -1134,7 +1171,7 @@ r'''     _           _            _     _
 	for worker in threads:
 		worker.stop()
 
-	domains = fuzz.permutations(registered=args.registered, dns_all=args.all)
+	domains = fuzz.permutations(registered=args.registered, unregistered=args.unregistered, dns_all=args.all)
 
 	if args.whois:
 		total = sum([1 for x in domains if x.is_registered()])
@@ -1159,11 +1196,11 @@ r'''     _           _            _     _
 
 	if domains:
 		if args.format == 'csv':
-			print(create_csv(domains))
+			print(Format(domains).csv())
 		elif args.format == 'json':
-			print(create_json(domains))
+			print(Format(domains).json())
 		elif args.format == 'cli':
-			print(create_cli(domains))
+			print(Format(domains).cli())
 
 	if kwargs:
 		return domains

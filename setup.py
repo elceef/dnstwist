@@ -1,12 +1,21 @@
 from setuptools import setup
-import dnstwist
 
-with open('requirements.txt') as f:
-	full = [line for line in f.read().splitlines() if not line.startswith('#')]
+def get_extras(rel_path):
+	with open(rel_path) as f:
+		extras = [line for line in f.read().splitlines() if not line.startswith('#')]
+	return extras
+
+def get_version(rel_path):
+	with open(rel_path) as f:
+		for line in f.read().splitlines():
+			if line.startswith('__version__'):
+				delim = '"' if '"' in line else "'"
+				return line.split(delim)[1]
+	raise RuntimeError('Unable to find version string')
 
 setup(
 	name='dnstwist',
-	version=dnstwist.__version__,
+	version=get_version('dnstwist.py'),
 	author='Marcin Ulikowski',
 	author_email='marcin@ulikowski.pl',
 	description='Domain name permutation engine for detecting homograph phishing attacks, typo squatting, and brand impersonation',
@@ -19,7 +28,7 @@ setup(
 	},
 	install_requires=[],
 	extras_require={
-		'full': full
+		'full': get_extras('requirements.txt'),
 	},
 	classifiers=[
 		'Programming Language :: Python :: 3',

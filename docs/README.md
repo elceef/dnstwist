@@ -165,7 +165,7 @@ time-consuming. To address this, `dnstwist` makes use of so-called fuzzy hashes
 (context triggered piecewise hashes, often called ssdeep) and perceptual hashes
 (pHash). Fuzzy hashing is a concept that involves the ability to compare two
 inputs (HTML code) and determine a fundamental level of similarity, while
-perceptual hash is a fingerprint dervied from visual features of an image
+perceptual hash is a fingerprint derived from visual features of an image
 (web browser screenshot).
 
 The unique feature of detecting similar HTML source code can be enabled with

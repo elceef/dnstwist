@@ -8,7 +8,7 @@ from time import time
 
 from flask import Flask, request, jsonify, send_from_directory
 
-from dnstwist import UrlParser, Fuzzer, Scanner, THREAD_COUNT_DEFAULT
+from dnstwist import UrlParser, Fuzzer, Scanner, Format, THREAD_COUNT_DEFAULT
 
 try:
 	import idna.codec
@@ -97,24 +97,13 @@ class Session():
 			}
 
 	def csv(self):
-		csv = ['fuzzer,domain,dns_a,dns_aaaa,dns_ns,dns_mx,geoip']
-		for domain in list([x for x in self.permutations if x.is_registered()]):
-			csv.append(','.join([
-				domain.get('fuzzer'),
-				domain.get('domain'),
-				domain.get('dns_a', [''])[0],
-				domain.get('dns_aaaa', [''])[0],
-				domain.get('dns_ns', [''])[0],
-				domain.get('dns_mx', [''])[0],
-				domain.get('geoip', '')
-				]))
-		return '\n'.join(csv)
+		return Format([x for x in self.permutations if x.is_registered()]).csv()
 
 	def json(self):
-		return [x for x in self.permutations if x.is_registered()]
+		return Format([x for x in self.permutations if x.is_registered()]).json()
 
 	def list(self):
-		return '\n'.join([x.get('domain') for x in self.permutations])
+		return Format(self.permutations).list()
 
 
 @app.route('/')
@@ -173,7 +162,7 @@ def api_csv(sid):
 def api_json(sid):
 	for s in sessions:
 		if s.id == sid:
-			return jsonify(s.json()), 200, {'Content-Disposition': 'attachment; filename=dnstwist.json'}
+			return s.json(), 200, {'Content-Type': 'application/json', 'Content-Disposition': 'attachment; filename=dnstwist.json'}
 	return jsonify({'message': 'Scan session not found'}), 404
 
 
