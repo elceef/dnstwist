@@ -969,6 +969,18 @@ def run(**kwargs):
 	if args.registered and args.unregistered:
 		parser.error('arguments --registered and --unregistered are mutually exclusive')
 
+	if not args.ssdeep and args.ssdeep_url:
+		parser.error('argument --ssdeep-url requires --ssdeep')
+
+	if not args.phash:
+		if args.phash_url:
+			parser.error('argument --phash-url requires --phash')
+		if args.screenshots:
+			parser.error('argument --screenshots requires --phash')
+
+	if not (args.ssdeep or args.phash) and args.useragent:
+		parser.error('argument --useragent requires --ssdeep or --phash')
+
 	if not kwargs and args.format not in ('cli', 'csv', 'json', 'list'):
 		parser.error('invalid output format (choose from cli, csv, json, list)')
 
