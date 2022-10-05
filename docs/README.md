@@ -42,6 +42,13 @@ Installation
 $ pip install dnstwist[full]
 ```
 
+Alternatively install the bare minimum and add other requirements manually
+depending on your needs:
+
+```
+$ pip install dnstwist
+```
+
 **Git**
 
 If you want to run the latest version of the code, you can install it from Git:
@@ -261,7 +268,8 @@ providers, in particular but not only:
 
 Splunk ESCU, RecordedFuture, SpiderFoot, DigitalShadows, SecurityRisk,
 SmartFense, ThreatPipes, PaloAlto Cortex XSOAR, Rapid7 InsightConnect SOAR,
-Mimecast, Watcher, Intel Owl, PatrOwl, VDA Labs, Appsecco.
+Mimecast, Watcher, Intel Owl, PatrOwl, VDA Labs, Appsecco,
+Conscia ThreatInsights.
 
 
 Contact
