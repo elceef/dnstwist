@@ -978,9 +978,6 @@ def run(**kwargs):
 		if args.screenshots:
 			parser.error('argument --screenshots requires --phash')
 
-	if not (args.ssdeep or args.phash) and args.useragent:
-		parser.error('argument --useragent requires --ssdeep or --phash')
-
 	if not kwargs and args.format not in ('cli', 'csv', 'json', 'list'):
 		parser.error('invalid output format (choose from cli, csv, json, list)')
 
