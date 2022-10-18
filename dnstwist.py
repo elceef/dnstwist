@@ -522,28 +522,35 @@ class Fuzzer():
 			self.tld_dictionary.remove(self.tld)
 		return set(self.tld_dictionary)
 
-	def generate(self):
-		self.domains.add(Permutation(fuzzer='*original', domain='.'.join(filter(None, [self.subdomain, self.domain, self.tld]))))
-		for f_name in [
+	def generate(self, fuzzers=[]):
+		if not fuzzers or '*original' in fuzzers:
+			self.domains.add(Permutation(fuzzer='*original', domain='.'.join(filter(None, [self.subdomain, self.domain, self.tld]))))
+		for f_name in fuzzers or [
 			'addition', 'bitsquatting', 'homoglyph', 'hyphenation',
 			'insertion', 'omission', 'repetition', 'replacement',
 			'subdomain', 'transposition', 'vowel-swap', 'dictionary',
 		]:
-			f = getattr(self, '_' + f_name.replace('-', '_'))
-			for domain in f():
-				self.domains.add(Permutation(fuzzer=f_name, domain='.'.join(filter(None, [self.subdomain, domain, self.tld]))))
-		for tld in self._tld():
-			self.domains.add(Permutation(fuzzer='tld-swap', domain='.'.join(filter(None, [self.subdomain, self.domain, tld]))))
-		if '.' in self.tld:
-			self.domains.add(Permutation(fuzzer='various', domain='.'.join(filter(None, [self.subdomain, self.domain, self.tld.split('.')[-1]]))))
-			self.domains.add(Permutation(fuzzer='various', domain='.'.join(filter(None, [self.subdomain, self.domain + self.tld]))))
-		if '.' not in self.tld:
-			self.domains.add(Permutation(fuzzer='various', domain='.'.join(filter(None, [self.subdomain, self.domain + self.tld, self.tld]))))
-		if self.tld != 'com' and '.' not in self.tld:
-			self.domains.add(Permutation(fuzzer='various', domain='.'.join(filter(None, [self.subdomain, self.domain + '-' + self.tld, 'com']))))
-		if self.subdomain:
-			self.domains.add(Permutation(fuzzer='various', domain='.'.join([self.subdomain + self.domain, self.tld])))
-			self.domains.add(Permutation(fuzzer='various', domain='.'.join([self.subdomain + '-' + self.domain, self.tld])))
+			try:
+				f = getattr(self, '_' + f_name.replace('-', '_'))
+			except AttributeError:
+				pass
+			else:
+				for domain in f():
+					self.domains.add(Permutation(fuzzer=f_name, domain='.'.join(filter(None, [self.subdomain, domain, self.tld]))))
+		if not fuzzers or 'tld-swap' in fuzzers:
+			for tld in self._tld():
+				self.domains.add(Permutation(fuzzer='tld-swap', domain='.'.join(filter(None, [self.subdomain, self.domain, tld]))))
+		if not fuzzers or 'various' in fuzzers:
+			if '.' in self.tld:
+				self.domains.add(Permutation(fuzzer='various', domain='.'.join(filter(None, [self.subdomain, self.domain, self.tld.split('.')[-1]]))))
+				self.domains.add(Permutation(fuzzer='various', domain='.'.join(filter(None, [self.subdomain, self.domain + self.tld]))))
+			if '.' not in self.tld:
+				self.domains.add(Permutation(fuzzer='various', domain='.'.join(filter(None, [self.subdomain, self.domain + self.tld, self.tld]))))
+			if self.tld != 'com' and '.' not in self.tld:
+				self.domains.add(Permutation(fuzzer='various', domain='.'.join(filter(None, [self.subdomain, self.domain + '-' + self.tld, 'com']))))
+			if self.subdomain:
+				self.domains.add(Permutation(fuzzer='various', domain='.'.join([self.subdomain + self.domain, self.tld])))
+				self.domains.add(Permutation(fuzzer='various', domain='.'.join([self.subdomain + '-' + self.domain, self.tld])))
 		def _punycode(domain):
 			try:
 				domain['domain'] = idna.encode(domain['domain']).decode()
@@ -908,6 +915,7 @@ def run(**kwargs):
 	parser.add_argument('-b', '--banners', action='store_true', help='Determine HTTP and SMTP service banners')
 	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='Generate more domains using dictionary FILE')
 	parser.add_argument('-f', '--format', type=str, default='cli', help='Output format: cli, csv, json, list (default: cli)')
+	parser.add_argument('--fuzzers', type=str, metavar='LIST', help='Use only selected fuzzing algorithms (separated with commas)')
 	parser.add_argument('-g', '--geoip', action='store_true', help='Lookup for GeoIP location')
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='Check if MX can be used to intercept emails')
 	parser.add_argument('-o', '--output', type=str, metavar='FILE', help='Save output to FILE')
@@ -983,6 +991,10 @@ def run(**kwargs):
 
 	if args.threads < 1:
 		parser.error('number of threads must be greater than zero')
+
+	fuzzers = []
+	if args.fuzzers:
+		fuzzers = [x.strip().lower() for x in set(args.fuzzers.split(','))]
 
 	nameservers = []
 	if args.nameservers:
@@ -1073,8 +1085,11 @@ def run(**kwargs):
 			signal.signal(sig, signal_handler)
 
 	fuzz = Fuzzer(url.domain, dictionary=dictionary, tld_dictionary=tld)
-	fuzz.generate()
+	fuzz.generate(fuzzers=fuzzers)
 	domains = fuzz.domains
+
+	if not domains:
+		parser.error('selected fuzzing algorithms do not generate any permutations for provided input domain')
 
 	if args.format == 'list':
 		print(Format(domains).list())
