@@ -264,7 +264,7 @@ class Permutation(dict):
 		return self['domain'] == other['domain']
 
 	def __lt__(self, other):
-		return self['fuzzer'] + self['domain'] < other['fuzzer'] + other['domain']
+		return self['fuzzer'] + ''.join(self.get('dns_a', [])[:1]) + self['domain'] < other['fuzzer'] + ''.join(other.get('dns_a', [])[:1]) + other['domain']
 
 	def is_registered(self):
 		return len(self) > 2
