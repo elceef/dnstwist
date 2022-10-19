@@ -77,7 +77,7 @@ class Session():
 			except Exception:
 				pass
 			return item
-		return list(map(_idna, domains))
+		return sorted(map(_idna, domains))
 
 	def status(self):
 		if self.jobs.empty():
