@@ -1196,6 +1196,8 @@ r'''     _           _            _     _
 
 	for worker in threads:
 		worker.stop()
+	for worker in threads:
+		worker.join()
 
 	domains = fuzz.permutations(registered=args.registered, unregistered=args.unregistered, dns_all=args.all)
 
