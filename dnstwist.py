@@ -1181,7 +1181,7 @@ r'''     _           _            _     _
 
 	ttime = 0
 	ival = 0.5
-	while not jobs.empty():
+	while True:
 		time.sleep(ival)
 		ttime += ival
 		comp = len(domains) - jobs.qsize()
@@ -1192,6 +1192,8 @@ r'''     _           _            _     _
 		eta = int(jobs.qsize() / rate)
 		found = sum([1 for x in domains if x.is_registered()])
 		p_cli('\rPermutations: {:.2f}% of {}, Found: {}, ETA: {} [{:3.0f} qps]'.format(perc, len(domains), found, time.strftime('%M:%S', time.gmtime(eta)), rate))
+		if jobs.empty():
+			break
 	p_cli('\n')
 
 	for worker in threads:
