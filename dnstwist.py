@@ -145,6 +145,8 @@ def domain_tld(domain):
 	except ImportError:
 		ctld = ['org', 'com', 'net', 'gov', 'edu', 'co', 'mil', 'nom', 'ac', 'info', 'biz']
 		d = domain.rsplit('.', 3)
+		if len(d) < 2:
+			return '', d[0], ''
 		if len(d) == 2:
 			return '', d[0], d[1]
 		if len(d) > 2:
