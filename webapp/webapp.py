@@ -122,9 +122,9 @@ def api_scan():
 		return jsonify({'message': 'Too many scan sessions - please retry in a minute'}), 500
 	if 'url' not in request.json:
 		return jsonify({'message': 'Invalid request'}), 400
-	for suburl in request.json['url'].split('.'):
-		if len(suburl) > 15:
-			return jsonify({'message': 'Domain name is too long'}), 400
+	_, domain, _ = dnstwist.domain_tld(request.json['url'])
+	if len(domain) > 15:
+		return jsonify({'message': 'Domain name is too long'}), 400
 	try:
 		session = Session(request.json.get('url'), nameserver=NAMESERVER)
 	except Exception as err:
