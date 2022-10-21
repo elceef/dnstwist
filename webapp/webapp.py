@@ -8,7 +8,7 @@ from time import time
 
 from flask import Flask, request, jsonify, send_from_directory
 
-from dnstwist import UrlParser, Fuzzer, Scanner, Format, THREAD_COUNT_DEFAULT
+import dnstwist
 
 try:
 	import idna.codec
@@ -18,7 +18,7 @@ except ImportError:
 
 PORT = int(os.environ.get('PORT', 8000))
 HOST= os.environ.get('HOST', '127.0.0.1')
-THREADS = int(os.environ.get('THREADS', THREAD_COUNT_DEFAULT))
+THREADS = int(os.environ.get('THREADS', dnstwist.THREAD_COUNT_DEFAULT))
 NAMESERVER = os.environ.get('NAMESERVER')
 SESSION_TTL = int(os.environ.get('SESSION_TTL', 300))
 SESSION_MAX = int(os.environ.get('SESSION_MAX', 20))
@@ -40,12 +40,12 @@ class Session():
 	def __init__(self, url, nameserver=None, thread_count=THREADS):
 		self.id = str(uuid4())
 		self.timestamp = int(time())
-		self.url = UrlParser(url)
+		self.url = dnstwist.UrlParser(url)
 		self.nameserver = nameserver
 		self.thread_count = thread_count
 		self.jobs = Queue()
 		self.threads = []
-		fuzz = Fuzzer(self.url.domain, dictionary=DICTIONARY, tld_dictionary=TLD_DICTIONARY)
+		fuzz = dnstwist.Fuzzer(self.url.domain, dictionary=DICTIONARY, tld_dictionary=TLD_DICTIONARY)
 		fuzz.generate()
 		self.permutations = fuzz.permutations()
 
@@ -53,7 +53,7 @@ class Session():
 		for domain in self.permutations:
 			self.jobs.put(domain)
 		for _ in range(self.thread_count):
-			worker = Scanner(self.jobs)
+			worker = dnstwist.Scanner(self.jobs)
 			worker.daemon = True
 			worker.option_extdns = True
 			worker.option_geoip = True
@@ -97,13 +97,13 @@ class Session():
 			}
 
 	def csv(self):
-		return Format([x for x in self.permutations if x.is_registered()]).csv()
+		return dnstwist.Format([x for x in self.permutations if x.is_registered()]).csv()
 
 	def json(self):
-		return Format([x for x in self.permutations if x.is_registered()]).json()
+		return dnstwist.Format([x for x in self.permutations if x.is_registered()]).json()
 
 	def list(self):
-		return Format(self.permutations).list()
+		return dnstwist.Format(self.permutations).list()
 
 
 @app.route('/')
