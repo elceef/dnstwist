@@ -1233,7 +1233,7 @@ r'''     _           _            _     _
 			print(Format(domains).cli())
 
 	if kwargs:
-		return domains
+		return list(map(dict, domains))
 
 
 if __name__ == '__main__':
