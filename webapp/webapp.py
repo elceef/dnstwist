@@ -66,6 +66,7 @@ class Session():
 		self.jobs.queue.clear()
 		for worker in self.threads:
 			worker.stop()
+		for worker in self.threads:
 			worker.join()
 		self.threads.clear()
 
