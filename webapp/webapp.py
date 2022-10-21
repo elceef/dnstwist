@@ -54,7 +54,7 @@ class Session():
 			self.jobs.put(domain)
 		for _ in range(self.thread_count):
 			worker = Scanner(self.jobs)
-			worker.setDaemon(True)
+			worker.daemon = True
 			worker.option_extdns = True
 			worker.option_geoip = True
 			if self.nameserver:
