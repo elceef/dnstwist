@@ -1,5 +1,5 @@
 .\" Manpage for dnstwist
-.TH DNSTWIST 1 "June 2022" "" "User Commands"
+.TH DNSTWIST 1 "October 2022" "" "User Commands"
 
 .SH NAME
 dnstwist - domain name permutation engine
@@ -27,6 +27,9 @@ Generate additional domains using a dictionary read from \fIFILE\fR.
 \fB\-f\fR, \fB\-\-format\fR \fIFORMAT\fR
 Select the output format. Supported values are: \fBcli\fR (default), \fBcsv\fR, \fBlist\fR, \fBjson\fR.
 .TP
+\fB\-\-fuzzers\fR \fILIST\fR
+Use only selected fuzzing algorithms (separated with commas).
+.TP
 \fB\-g\fR, \fB\-\-geoip\fR
 Perform lookup for GeoIP location.
 .TP
@@ -42,7 +45,7 @@ Save output to \fIFILE\fR.
 \fB\-r\fR, \fB\-\-registered\fR
 Show only registered domain names.
 .TP
-\fB\-r\fR, \fB\-\-unregistered\fR
+\fB\-u\fR, \fB\-\-unregistered\fR
 Show only unregistered domain names.
 .TP
 \fB\-p\fR, \fB\-\-phash\fR
@@ -61,7 +64,7 @@ Fetch web pages and compare their fuzzy hashes to evaluate similarity.
 Override \fIURL\fR to fetch the original web page from.
 .TP
 \fB\-t\fR, \fB\-\-threads\fR \fINUMBER\fR
-Start specified \fINUMBER\fR of threads (default: \fB10\fR).
+Start specified \fINUMBER\fR of threads.
 .TP
 \fB\-w\fR, \fB\-\-whois\fR
 Perform lookup for WHOIS creation date.
