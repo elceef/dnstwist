@@ -23,7 +23,7 @@ NAMESERVER = os.environ.get('NAMESERVER')
 SESSION_TTL = int(os.environ.get('SESSION_TTL', 300))
 SESSION_MAX = int(os.environ.get('SESSION_MAX', 20))
 WEBAPP_HTML = os.environ.get('WEBAPP_HTML', 'webapp.html')
-WEBAPP_DIR = os.environ.get('WEBAPP_DIR', os.path.dirname(__file__))
+WEBAPP_DIR = os.environ.get('WEBAPP_DIR', os.path.dirname(os.path.abspath(__file__)))
 
 DICTIONARY = ('auth', 'account', 'confirm', 'connect', 'enroll', 'http', 'https', 'info', 'login', 'mail', 'my',
 	'online', 'payment', 'portal', 'recovery', 'register', 'ssl', 'safe', 'secure', 'signin', 'signup', 'support',
