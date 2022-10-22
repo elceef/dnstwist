@@ -1101,7 +1101,7 @@ def run(**kwargs):
 
 	if args.format == 'list':
 		print(Format(domains).list())
-		return domains
+		return list(map(dict, domains)) if kwargs else None
 
 	if not MODULE_DNSPYTHON:
 		p_err('WARNING: DNS features are limited due to lack of DNSPython library')
