@@ -1131,7 +1131,7 @@ r'''     _           _            _     _
 		except Exception as e:
 			if kwargs:
 				raise
-			p_cli('{}\n'.format(str(e)))
+			p_err(e)
 			sys.exit(1)
 		else:
 			p_cli('> {} [{:.1f} KB]\n'.format(r.url.split('?')[0], len(r.content)/1024))
@@ -1148,7 +1148,7 @@ r'''     _           _            _     _
 		except Exception as e:
 			if kwargs:
 				raise
-			p_cli('{}\n'.format(str(e)))
+			p_err(e)
 			sys.exit(1)
 		else:
 			phash = pHash(BytesIO(screenshot))
