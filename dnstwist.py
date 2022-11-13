@@ -96,6 +96,7 @@ try:
 except ImportError:
 	MODULE_WHOIS = False
 
+# ssdeep > ppdeep > tlsh
 try:
 	import ssdeep
 	MODULE_SSDEEP = True
@@ -104,7 +105,19 @@ except ImportError:
 		import ppdeep as ssdeep
 		MODULE_SSDEEP = True
 	except ImportError:
-		MODULE_SSDEEP = False
+		try:
+			import tlsh
+		except ImportError:
+			MODULE_SSDEEP = False
+		else:
+			MODULE_SSDEEP = True
+			class ssdeep:
+				@staticmethod
+				def compare(h1, h2):
+					return int(100 - (tlsh.diff(h1, h2)/300) * 100)
+				@staticmethod
+				def hash(data):
+					return tlsh.hash(data)
 
 try:
 	import idna
@@ -820,7 +833,10 @@ class Scanner(threading.Thread):
 					else:
 						if r.url.split('?')[0] != self.ssdeep_effective_url:
 							ssdeep_curr = ssdeep.hash(r.normalized_content)
-							task['ssdeep'] = ssdeep.compare(self.ssdeep_init, ssdeep_curr)
+							if ssdeep_curr:
+								task['ssdeep'] = ssdeep.compare(self.ssdeep_init, ssdeep_curr)
+							else:
+								task['ssdeep'] = 0
 
 			self.jobs.task_done()
 
@@ -1137,6 +1153,9 @@ r'''     _           _            _     _
 			p_cli('> {} [{:.1f} KB]\n'.format(r.url.split('?')[0], len(r.content)/1024))
 			ssdeep_init = ssdeep.hash(r.normalized_content)
 			ssdeep_effective_url = r.url.split('?')[0]
+			# hash blank if content too short or insufficient entropy
+			if not ssdeep_init:
+				args.ssdeep = False
 
 	if args.phash:
 		request_url = phash_url.full_uri() if phash_url else url.full_uri()
