@@ -932,13 +932,13 @@ def run(**kwargs):
 		)
 
 	parser.add_argument('domain', help='Domain name or URL to scan')
-	parser.add_argument('-a', '--all', action='store_true', help='Show all DNS records')
+	parser.add_argument('-a', '--all', action='store_true', help='Print all DNS records instead of the first ones')
 	parser.add_argument('-b', '--banners', action='store_true', help='Determine HTTP and SMTP service banners')
 	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='Generate more domains using dictionary FILE')
 	parser.add_argument('-f', '--format', type=str, default='cli', help='Output format: cli, csv, json, list (default: cli)')
 	parser.add_argument('--fuzzers', type=str, metavar='LIST', help='Use only selected fuzzing algorithms (separated with commas)')
 	parser.add_argument('-g', '--geoip', action='store_true', help='Lookup for GeoIP location')
-	parser.add_argument('-m', '--mxcheck', action='store_true', help='Check if MX can be used to intercept emails')
+	parser.add_argument('-m', '--mxcheck', action='store_true', help='Check if MX host can be used to intercept emails')
 	parser.add_argument('-o', '--output', type=str, metavar='FILE', help='Save output to FILE')
 	parser.add_argument('-r', '--registered', action='store_true', help='Show only registered domain names')
 	parser.add_argument('-u', '--unregistered', action='store_true', help='Show only unregistered domain names')
@@ -947,13 +947,13 @@ def run(**kwargs):
 	parser.add_argument('--screenshots', metavar='DIR', help='Save web page screenshots into DIR')
 	parser.add_argument('-s', '--ssdeep', action='store_true', help='Fetch web pages and compare their fuzzy hashes to evaluate similarity')
 	parser.add_argument('--ssdeep-url', metavar='URL', help='Override URL to fetch the original web page from')
-	parser.add_argument('-t', '--threads', type=int, metavar='NUMBER', default=THREAD_COUNT_DEFAULT,
-		help='Start specified NUMBER of threads (default: %s)' % THREAD_COUNT_DEFAULT)
-	parser.add_argument('-w', '--whois', action='store_true', help='Lookup WHOIS database for creation date')
+	parser.add_argument('-t', '--threads', type=int, metavar='NUM', default=THREAD_COUNT_DEFAULT,
+		help='Start specified NUM of threads (default: %s)' % THREAD_COUNT_DEFAULT)
+	parser.add_argument('-w', '--whois', action='store_true', help='Lookup WHOIS database for creation date and registrar')
 	parser.add_argument('--tld', type=str, metavar='FILE', help='Swap TLD for the original domain from FILE')
 	parser.add_argument('--nameservers', type=str, metavar='LIST', help='DNS or DoH servers to query (separated with commas)')
 	parser.add_argument('--useragent', type=str, metavar='STRING', default=USER_AGENT_STRING,
-		help='User-Agent STRING to send with HTTP requests (default: %s)' % USER_AGENT_STRING)
+		help='Set User-Agent STRING (default: %s)' % USER_AGENT_STRING)
 	parser.add_argument('--debug', action='store_true', help='Display debug messages')
 
 	if kwargs:
