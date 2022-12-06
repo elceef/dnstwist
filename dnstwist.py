@@ -147,9 +147,10 @@ if sys.platform != 'win32' and sys.stdout.isatty():
 	FG_BLU = '\x1b[34m'
 	FG_RST = '\x1b[39m'
 	ST_BRI = '\x1b[1m'
+	ST_CLR = '\x1b[1K'
 	ST_RST = '\x1b[0m'
 else:
-	FG_RND = FG_YEL = FG_CYA = FG_BLU = FG_RST = ST_BRI = ST_RST = ''
+	FG_RND = FG_YEL = FG_CYA = FG_BLU = FG_RST = ST_BRI = ST_CLR = ST_RST = ''
 
 
 def domain_tld(domain):
@@ -1205,18 +1206,19 @@ r'''     _           _            _     _
 		threads.append(worker)
 
 	ttime = 0
-	ival = 0.5
+	ival = 0.2
 	while True:
 		time.sleep(ival)
 		ttime += ival
-		comp = len(domains) - jobs.qsize()
+		dlen = len(domains)
+		comp = dlen - jobs.qsize()
 		if not comp:
 			continue
-		perc = 100 * comp / len(domains)
-		rate = comp / ttime
-		eta = int(jobs.qsize() / rate)
+		rate = int(comp / ttime) + 1
+		eta = jobs.qsize() // rate
 		found = sum([1 for x in domains if x.is_registered()])
-		p_cli('\rPermutations: {:.2f}% of {}, Found: {}, ETA: {} [{:3.0f} qps]'.format(perc, len(domains), found, time.strftime('%M:%S', time.gmtime(eta)), rate))
+		p_cli(ST_CLR + '\rpermutations: {:.2%} of {} | found: {} | eta: {:d}m {:02d}s | speed: {:d} qps'.format(comp/dlen,
+			dlen, found, eta//60, eta%60, rate))
 		if jobs.empty():
 			break
 	p_cli('\n')
@@ -1231,7 +1233,7 @@ r'''     _           _            _     _
 	if args.whois:
 		total = sum([1 for x in domains if x.is_registered()])
 		for i, domain in enumerate([x for x in domains if x.is_registered()]):
-			p_cli('\rWHOIS: {:.2f}% of {}'.format(100*(i+1)/total, total))
+			p_cli(ST_CLR + '\rWHOIS: {} ({:.2%})'.format(domain['domain'], (i+1)/total))
 			try:
 				_, dom, tld = domain_tld(domain['domain'])
 				whoisq = whois.query('.'.join([dom, tld]))
