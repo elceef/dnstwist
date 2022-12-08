@@ -459,7 +459,7 @@ class Fuzzer():
 					pre = domain[:i]
 					win = domain[i:i+w]
 					suf = domain[i+w:]
-					for c in win:
+					for c in set(win):
 						for g in glyphs.get(c, []):
 							yield pre + win.replace(c, g) + suf
 		result1 = set(mix(self.domain))
