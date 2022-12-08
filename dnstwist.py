@@ -441,6 +441,11 @@ class Fuzzer():
 			'y': ['ʏ', 'ý', 'ÿ', 'ŷ', 'ƴ', 'ȳ', 'ɏ', 'ỿ', 'ẏ', 'ỵ'],
 			'z': ['ʐ', 'ż', 'ź', 'ᴢ', 'ƶ', 'ẓ', 'ẕ', 'ⱬ']
 			}
+		self.latin_to_cyrillic = {
+			'a': 'а', 'b': 'ь', 'c': 'с', 'd': 'ԁ', 'e': 'е', 'g': 'ԍ', 'h': 'һ',
+			'i': 'і', 'j': 'ј', 'k': 'к', 'l': 'ӏ', 'm': 'м', 'o': 'о', 'p': 'р',
+			'q': 'ԛ', 's': 'ѕ', 't': 'т', 'v': 'ѵ', 'w': 'ԝ', 'x': 'х', 'y': 'у',
+			}
 
 	def _bitsquatting(self):
 		masks = [1, 2, 4, 8, 16, 32, 64, 128]
@@ -450,6 +455,15 @@ class Fuzzer():
 				b = chr(ord(c) ^ mask)
 				if b in chars:
 					yield self.domain[:i] + b + self.domain[i+1:]
+
+	def _cyrillic(self):
+		cdomain = self.domain
+		for l, c in self.latin_to_cyrillic.items():
+			cdomain = cdomain.replace(l, c)
+		for c, l in zip(cdomain, self.domain):
+			if c == l:
+				return []
+		return [cdomain]
 
 	def _homoglyph(self):
 		def mix(domain):
@@ -542,7 +556,7 @@ class Fuzzer():
 		if not fuzzers or '*original' in fuzzers:
 			self.domains.add(Permutation(fuzzer='*original', domain='.'.join(filter(None, [self.subdomain, self.domain, self.tld]))))
 		for f_name in fuzzers or [
-			'addition', 'bitsquatting', 'homoglyph', 'hyphenation',
+			'addition', 'bitsquatting', 'cyrillic', 'homoglyph', 'hyphenation',
 			'insertion', 'omission', 'repetition', 'replacement',
 			'subdomain', 'transposition', 'vowel-swap', 'dictionary',
 		]:
