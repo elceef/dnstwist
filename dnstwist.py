@@ -1001,7 +1001,7 @@ def run(**kwargs):
 
 	def signal_handler(signal, frame):
 		if threads:
-			print('\nStopping threads... ', file=sys.stderr, flush=True)
+			print('\nstopping threads... ', file=sys.stderr, flush=True)
 			jobs.queue.clear()
 			for worker in threads:
 				worker.stop()
@@ -1150,7 +1150,7 @@ r'''     _           _            _     _
 	ssdeep_effective_url = str()
 	if args.ssdeep:
 		request_url = ssdeep_url.full_uri() if ssdeep_url else url.full_uri()
-		p_cli('Fetching content from: %s ' % request_url)
+		p_cli('fetching content from: {} '.format(request_url))
 		try:
 			r = UrlOpener(request_url,
 				timeout=REQUEST_TIMEOUT_HTTP,
@@ -1174,7 +1174,7 @@ r'''     _           _            _     _
 
 	if args.phash:
 		request_url = phash_url.full_uri() if phash_url else url.full_uri()
-		p_cli('Rendering web page: {}\n'.format(request_url))
+		p_cli('rendering web page: {}\n'.format(request_url))
 		browser = HeadlessBrowser(useragent=args.useragent)
 		try:
 			browser.get(request_url)
