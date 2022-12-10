@@ -178,11 +178,18 @@ def domain_tld(domain):
 
 class UrlOpener():
 	def __init__(self, url, timeout=REQUEST_TIMEOUT_HTTP, headers={}, verify=True):
+		http_headers = {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
+			'accept-encoding': 'gzip,identity',
+			'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8'}
+		for h, v in headers.items():
+			# do not override accepted encoding - only gzip,identity is supported
+			if h.lower() != 'accept-encoding':
+				http_headers[h.lower()] = v
 		if verify:
 			ctx = urllib.request.ssl.create_default_context()
 		else:
 			ctx = urllib.request.ssl._create_unverified_context()
-		request = urllib.request.Request(url, headers=headers)
+		request = urllib.request.Request(url, headers=http_headers)
 		with urllib.request.urlopen(request, timeout=timeout, context=ctx) as r:
 			self.headers = r.headers
 			self.code = r.code
@@ -198,7 +205,7 @@ class UrlOpener():
 				pass
 			else:
 				if meta_url:
-					self.__init__(meta_url.group(1), timeout=timeout, headers=headers, verify=verify)
+					self.__init__(meta_url.group(1), timeout=timeout, headers=http_headers, verify=verify)
 		self.normalized_content = self._normalize()
 
 	def _normalize(self):
@@ -838,10 +845,7 @@ class Scanner(threading.Thread):
 					try:
 						r = UrlOpener(self.url.full_uri(domain),
 							timeout=REQUEST_TIMEOUT_HTTP,
-							headers={'User-Agent': self.useragent,
-								'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
-								'Accept-Encoding': 'gzip,identity',
-								'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8'},
+							headers={'user-agent': self.useragent},
 							verify=False)
 					except Exception as e:
 						self._debug(e)
@@ -1154,10 +1158,7 @@ r'''     _           _            _     _
 		try:
 			r = UrlOpener(request_url,
 				timeout=REQUEST_TIMEOUT_HTTP,
-				headers={'User-Agent': args.useragent,
-					'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
-					'Accept-Encoding': 'gzip,identity',
-					'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8'},
+				headers={'User-Agent': args.useragent},
 				verify=True)
 		except Exception as e:
 			if kwargs:
