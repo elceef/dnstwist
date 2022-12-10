@@ -8,6 +8,8 @@ from time import time
 
 from flask import Flask, request, jsonify, send_from_directory
 
+from copy import copy
+
 import dnstwist
 
 try:
@@ -71,7 +73,7 @@ class Session():
 		self.threads.clear()
 
 	def domains(self):
-		domains = [x for x in self.permutations.copy() if x.is_registered()]
+		domains = [copy(x) for x in self.permutations if x.is_registered()]
 		def _idna(item):
 			try:
 				item['domain'] = item['domain'].encode().decode('idna')
