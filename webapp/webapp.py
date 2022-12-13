@@ -21,7 +21,7 @@ except ImportError:
 PORT = int(os.environ.get('PORT', 8000))
 HOST= os.environ.get('HOST', '127.0.0.1')
 THREADS = int(os.environ.get('THREADS', dnstwist.THREAD_COUNT_DEFAULT))
-NAMESERVER = os.environ.get('NAMESERVER')
+NAMESERVERS = os.environ.get('NAMESERVERS') or os.environ.get('NAMESERVER')
 SESSION_TTL = int(os.environ.get('SESSION_TTL', 300))
 SESSION_MAX = int(os.environ.get('SESSION_MAX', 20))
 WEBAPP_HTML = os.environ.get('WEBAPP_HTML', 'webapp.html')
@@ -39,11 +39,11 @@ app = Flask(__name__)
 
 
 class Session():
-	def __init__(self, url, nameserver=None, thread_count=THREADS):
+	def __init__(self, url, nameservers=None, thread_count=THREADS):
 		self.id = str(uuid4())
 		self.timestamp = int(time())
 		self.url = dnstwist.UrlParser(url)
-		self.nameserver = nameserver
+		self.nameservers = nameservers
 		self.thread_count = thread_count
 		self.jobs = Queue()
 		self.threads = []
@@ -59,8 +59,8 @@ class Session():
 			worker.daemon = True
 			worker.option_extdns = True
 			worker.option_geoip = True
-			if self.nameserver:
-				worker.nameservers = [self.nameserver]
+			if self.nameservers:
+				worker.nameservers = self.nameservers.split(',')
 			worker.start()
 			self.threads.append(worker)
 
@@ -128,7 +128,7 @@ def api_scan():
 	if len(domain) > 15:
 		return jsonify({'message': 'Domain name is too long'}), 400
 	try:
-		session = Session(request.json.get('url'), nameserver=NAMESERVER)
+		session = Session(request.json.get('url'), nameservers=NAMESERVERS)
 	except Exception as err:
 		return jsonify({'message': 'Invalid domain name'}), 400
 	else:
