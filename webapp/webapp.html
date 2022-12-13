@@ -202,7 +202,10 @@ function pollScan() {
 			last_registered = data['registered']
 			fetchDomains();
 		}
-    });
+    })
+	.fail(function(){
+		$('#status').html('Ups! Something went wrong...');
+	});
 }
 
 function actionScan() {
