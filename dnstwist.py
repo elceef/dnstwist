@@ -703,6 +703,7 @@ class Scanner(threading.Thread):
 			resolv.timeout = REQUEST_TIMEOUT_DNS
 			EDNS_PAYLOAD = 1232
 			resolv.use_edns(edns=True, ednsflags=0, payload=EDNS_PAYLOAD)
+			resolv.rotate = True
 
 			if hasattr(resolv, 'resolve'):
 				resolve = resolv.resolve
