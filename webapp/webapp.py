@@ -121,7 +121,7 @@ def root():
 
 @app.route('/api/scans', methods=['POST'])
 def api_scan():
-	if len(sessions) >= SESSION_MAX:
+	if sum([1 for s in sessions if not s.jobs.empty()]) >= SESSION_MAX:
 		return jsonify({'message': 'Too many scan sessions - please retry in a minute'}), 500
 	if 'url' not in request.json:
 		return jsonify({'message': 'Invalid request'}), 400
