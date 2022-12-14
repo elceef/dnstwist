@@ -232,13 +232,13 @@ function actionScan() {
 			},
 		});
 	} else {
-		stop();
+		$('#scan').text('⏱');
 		$.post({
 			url: '/api/scans/' + $('#sid').val() + '/stop',
 			contentType: 'application/json',
-			success: function() {
-				$('#scan').text('Scan');
-			}
+		})
+		.always(function() {
+			$('#scan').text('Scan');
 		});
 	}
 }
