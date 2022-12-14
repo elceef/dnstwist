@@ -187,8 +187,9 @@ def api_stop(sid):
 	return jsonify({'message': 'Scan session not found'}), 404
 
 
+cleaner = threading.Thread(target=janitor, args=(sessions,))
+cleaner.daemon = True
+cleaner.start()
+
 if __name__ == '__main__':
-	j = threading.Thread(target=janitor, args=(sessions,))
-	j.daemon = True
-	j.start()
 	app.run(host=HOST, port=PORT)
