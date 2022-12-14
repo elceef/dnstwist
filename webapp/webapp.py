@@ -4,12 +4,10 @@
 import os
 from queue import Queue
 from uuid import uuid4
-from time import time
-
+import time
+import threading
 from flask import Flask, request, jsonify, send_from_directory
-
 from copy import copy
-
 import dnstwist
 
 try:
@@ -37,11 +35,19 @@ TLD_DICTIONARY = ('com', 'net', 'org', 'info', 'cn', 'co', 'eu', 'de', 'uk', 'pw
 sessions = []
 app = Flask(__name__)
 
+def janitor(sessions):
+	while True:
+		time.sleep(1)
+		for s in sessions:
+			if s.jobs.empty() and s.threads:
+				s.stop()
+			if (s.timestamp + SESSION_TTL) < time.time():
+				sessions.remove(s)
 
 class Session():
 	def __init__(self, url, nameservers=None, thread_count=THREADS):
 		self.id = str(uuid4())
-		self.timestamp = int(time())
+		self.timestamp = int(time.time())
 		self.url = dnstwist.UrlParser(url)
 		self.nameservers = nameservers
 		self.thread_count = thread_count
@@ -50,6 +56,7 @@ class Session():
 		fuzz = dnstwist.Fuzzer(self.url.domain, dictionary=DICTIONARY, tld_dictionary=TLD_DICTIONARY)
 		fuzz.generate()
 		self.permutations = fuzz.permutations()
+		del(fuzz)
 
 	def scan(self):
 		for domain in self.permutations:
@@ -83,8 +90,6 @@ class Session():
 		return sorted(map(_idna, domains))
 
 	def status(self):
-		if self.jobs.empty():
-			self.stop()
 		total = len(self.permutations)
 		remaining = max(self.jobs.qsize(), len(self.threads))
 		complete = total - remaining
@@ -116,10 +121,6 @@ def root():
 
 @app.route('/api/scans', methods=['POST'])
 def api_scan():
-	for s in sessions:
-		status = s.status()
-		if status['remaining'] == 0 and (status['timestamp'] + SESSION_TTL) < time():
-			sessions.remove(s)
 	if len(sessions) >= SESSION_MAX:
 		return jsonify({'message': 'Too many scan sessions - please retry in a minute'}), 500
 	if 'url' not in request.json:
@@ -187,4 +188,7 @@ def api_stop(sid):
 
 
 if __name__ == '__main__':
+	j = threading.Thread(target=janitor, args=(sessions,))
+	j.daemon = True
+	j.start()
 	app.run(host=HOST, port=PORT)
