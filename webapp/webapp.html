@@ -156,7 +156,19 @@ span#source {
 	<span id="source">[<a href="https://github.com/elceef/dnstwist">source code</a>]</span>
 </body>
 <script>
+window.onload = function() {
+	if (window.location.hash) {
+		$('#sid').val(window.location.hash.substring(1));
+		fetchDomains();
+	}
+}
+
 last_registered = 0;
+
+function shareResults() {
+	navigator.clipboard.writeText(window.location.href.split('#')[0] + '#' + sid);
+	$('#status').html('Copied URL to clipboard!');
+}
 
 function fetchDomains() {
 	$.getJSON('/api/scans/' + $('#sid').val() + '/domains', function(data) {
@@ -195,7 +207,7 @@ function pollScan() {
 			setTimeout(pollScan, 250);
 		} else {
 			sid = $('#sid').val()
-			$('#status').html('Scanned <a href="/api/scans/' + sid + '/list">' + data['complete'] + '</a> suspicious domains. Identified ' + data['registered'] + ' registered: download as <a href="/api/scans/' + sid + '/csv">CSV</a> or <a href="/api/scans/' + sid + '/json">JSON</a>');
+			$('#status').html('Scanned <a href="/api/scans/' + sid + '/list">' + data['complete'] + '</a> permutations. Found ' + data['registered'] + ' registered: <a href="#" onclick="shareResults()">share it</a> or download as <a href="/api/scans/' + sid + '/csv">CSV</a> <a href="/api/scans/' + sid + '/json">JSON</a>');
 			$('#scan').text('Scan');
 		}
 		if (last_registered < data['registered']) {
