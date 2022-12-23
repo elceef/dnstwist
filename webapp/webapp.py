@@ -41,6 +41,7 @@ def janitor(sessions):
 		for s in sessions:
 			if s.jobs.empty() and s.threads:
 				s.stop()
+				continue
 			if (s.timestamp + SESSION_TTL) < time.time():
 				sessions.remove(s)
 
