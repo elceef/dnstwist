@@ -180,14 +180,21 @@ function fetchDomains() {
 				'<th>MAIL SERVER</th>'
 			).appendTo('#data');
 		$.each(data, function(i, item) {
+			$.each(item, function(k, v) {
+				if (v instanceof Array) {
+					if (v[0] == '!ServFail') {
+						data[i][k][0] = '🚫'
+					}
+				}
+			})
 			fuzzer = item['fuzzer'] || ''
 			permutation = item['domain'] || ''
 			ipaddr = [
-				(item['dns_a'] || [''])[0].replace('!ServFail', '🚫'),
-				(item['dns_aaaa'] || [''])[0].replace('!ServFail', '')
+				(item['dns_a'] || [''])[0],
+				(item['dns_aaaa'] || [''])[0]
 			].filter(Boolean).join('</br>');
-			dns_ns = (item['dns_ns'] || [''])[0].replace('!ServFail', '🚫');
-			dns_mx = (item['dns_mx'] || [''])[0].replace('!ServFail', '🚫');
+			dns_ns = (item['dns_ns'] || [''])[0];
+			dns_mx = (item['dns_mx'] || [''])[0];
 			geoip = item['geoip'] || '';
 			$('<tr>').html(
 				'<td>' + permutation + ' <a href="http://' + permutation + '" id="link">🔗</a></br><sup>' + fuzzer + '</sup></td>' +
