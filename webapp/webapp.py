@@ -110,6 +110,7 @@ class Session():
 			'id': self.id,
 			'timestamp': self.timestamp,
 			'url': self.url.full_uri(),
+			'domain': self.url.domain,
 			'total': total,
 			'complete': complete,
 			'remaining': remaining,
