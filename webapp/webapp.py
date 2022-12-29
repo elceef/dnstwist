@@ -30,6 +30,7 @@ NAMESERVERS = os.environ.get('NAMESERVERS') or os.environ.get('NAMESERVER')
 SESSION_TTL = int(os.environ.get('SESSION_TTL', 3600))
 SESSION_MAX = int(os.environ.get('SESSION_MAX', 10)) # max concurrent sessions
 MEMORY_LIMIT = human_to_bytes(os.environ.get('MEMORY_LIMIT', '0'))
+DOMAIN_MAXLEN = int(os.environ.get('DOMAIN_MAXLEN', 15))
 WEBAPP_HTML = os.environ.get('WEBAPP_HTML', 'webapp.html')
 WEBAPP_DIR = os.environ.get('WEBAPP_DIR', os.path.dirname(os.path.abspath(__file__)))
 
@@ -134,13 +135,17 @@ def root():
 def api_scan():
 	if sum([1 for s in sessions if not s.jobs.empty()]) >= SESSION_MAX:
 		return jsonify({'message': 'Too many scan sessions - please retry in a minute'}), 500
-	if 'url' not in request.json:
-		return jsonify({'message': 'Invalid request'}), 400
-	_, domain, _ = dnstwist.domain_tld(request.json['url'])
-	if len(domain) > 15:
+	j = request.get_json(force=True)
+	if 'url' not in j:
+		return jsonify({'message': 'Bad request'}), 400
+	try:
+		_, domain, _ = dnstwist.domain_tld(j.get('url'))
+	except Exception:
+		return jsonify({'message': 'Bad request'}), 400
+	if len(domain) > DOMAIN_MAXLEN:
 		return jsonify({'message': 'Domain name is too long'}), 400
 	try:
-		session = Session(request.json.get('url'), nameservers=NAMESERVERS)
+		session = Session(j.get('url'), nameservers=NAMESERVERS)
 	except Exception as err:
 		return jsonify({'message': 'Invalid domain name'}), 400
 	else:
