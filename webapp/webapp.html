@@ -242,6 +242,7 @@ function actionScan() {
 			contentType: 'application/json',
 			success: function(data) {
 				$('#sid').val(data['id']);
+				$('#url').val(data['domain']);
 				$('#scan').text('Stop');
 				pollScan();
 			},
