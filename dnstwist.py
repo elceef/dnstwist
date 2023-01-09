@@ -96,7 +96,6 @@ try:
 except ImportError:
 	MODULE_WHOIS = False
 
-# ssdeep > ppdeep > tlsh
 try:
 	import ssdeep
 	MODULE_SSDEEP = True
@@ -105,19 +104,13 @@ except ImportError:
 		import ppdeep as ssdeep
 		MODULE_SSDEEP = True
 	except ImportError:
-		try:
-			import tlsh
-		except ImportError:
-			MODULE_SSDEEP = False
-		else:
-			MODULE_SSDEEP = True
-			class ssdeep:
-				@staticmethod
-				def compare(h1, h2):
-					return int(100 - (tlsh.diff(h1, h2)/300) * 100)
-				@staticmethod
-				def hash(data):
-					return tlsh.hash(data)
+		MODULE_SSDEEP = False
+
+try:
+	import tlsh
+	MODULE_TLSH = True
+except ImportError:
+	MODULE_TLSH = False
 
 try:
 	import idna
@@ -623,14 +616,14 @@ class Scanner(threading.Thread):
 		self.id = 0
 		self.jobs = queue
 		self.debug = False
-		self.ssdeep_init = ''
-		self.ssdeep_effective_url = ''
+		self.lsh_init = ''
+		self.lsh_effective_url = ''
 		self.phash_init = None
 		self.screenshot_dir = None
 		self.url = None
 		self.option_extdns = False
 		self.option_geoip = False
-		self.option_ssdeep = False
+		self.option_lsh = None
 		self.option_phash = False
 		self.option_banners = False
 		self.option_mxcheck = False
@@ -841,7 +834,7 @@ class Scanner(threading.Thread):
 							except Exception as e:
 								self._debug(e)
 
-			if self.option_ssdeep:
+			if self.option_lsh:
 				if dns_a is True or dns_aaaa is True:
 					try:
 						r = UrlOpener(self.url.full_uri(domain),
@@ -851,12 +844,15 @@ class Scanner(threading.Thread):
 					except Exception as e:
 						self._debug(e)
 					else:
-						if r.url.split('?')[0] != self.ssdeep_effective_url:
-							ssdeep_curr = ssdeep.hash(r.normalized_content)
-							if ssdeep_curr:
-								task['ssdeep'] = ssdeep.compare(self.ssdeep_init, ssdeep_curr)
-							else:
-								task['ssdeep'] = 0
+						if r.url.split('?')[0] != self.lsh_effective_url:
+							if self.option_lsh == 'ssdeep':
+								lsh_curr = ssdeep.hash(r.normalized_content)
+								if lsh_curr not in (None, '3::'):
+									task['ssdeep'] = ssdeep.compare(self.lsh_init, lsh_curr)
+							elif self.option_lsh == 'tlsh':
+								lsh_curr = tlsh.hash(r.normalized_content)
+								if lsh_curr not in (None, 'TNULL'):
+									task['tlsh'] = int(100 - (min(tlsh.diff(self.lsh_init, lsh_curr), 300)/3))
 
 			self.jobs.task_done()
 
@@ -922,6 +918,8 @@ class Format():
 				inf.append(kv('CREATED:', domain['whois_created']))
 			if domain.get('ssdeep', 0) > 0:
 				inf.append(kv('SSDEEP:', '{}%'.format(domain['ssdeep'])))
+			if domain.get('tlsh', 0) > 0:
+				inf.append(kv('TLSH:', '{}%'.format(domain['tlsh'])))
 			if domain.get('phash', 0) > 0:
 				inf.append(kv('PHASH:', '{}%'.format(domain['phash'])))
 			cli.append('{}{[fuzzer]:<{}}{} {[domain]:<{}} {}'.format(FG_BLU, domain, wfuz, FG_RST, domain, wdom, ' '.join(inf or ['-'])))
@@ -957,6 +955,9 @@ def run(**kwargs):
 	parser.add_argument('-f', '--format', type=str, default='cli', help='Output format: cli, csv, json, list (default: cli)')
 	parser.add_argument('--fuzzers', type=str, metavar='LIST', help='Use only selected fuzzing algorithms (separated with commas)')
 	parser.add_argument('-g', '--geoip', action='store_true', help='Lookup for GeoIP location')
+	parser.add_argument('--lsh', type=str, metavar='LSH', nargs='?', const='ssdeep',
+		help='Evaluate web page similarity with LSH algorithm: ssdeep, tlsh (default: ssdeep)')
+	parser.add_argument('--lsh-url', metavar='URL', help='Override URL to fetch the original web page from')
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='Check if MX host can be used to intercept emails')
 	parser.add_argument('-o', '--output', type=str, metavar='FILE', help='Save output to FILE')
 	parser.add_argument('-r', '--registered', action='store_true', help='Show only registered domain names')
@@ -964,8 +965,8 @@ def run(**kwargs):
 	parser.add_argument('-p', '--phash', action='store_true', help='Render web pages and evaluate visual similarity')
 	parser.add_argument('--phash-url', metavar='URL', help='Override URL to render the original web page from')
 	parser.add_argument('--screenshots', metavar='DIR', help='Save web page screenshots into DIR')
-	parser.add_argument('-s', '--ssdeep', action='store_true', help='Fetch web pages and compare their fuzzy hashes to evaluate similarity')
-	parser.add_argument('--ssdeep-url', metavar='URL', help='Override URL to fetch the original web page from')
+	parser.add_argument('-s', '--ssdeep', action='store_true', help=argparse.SUPPRESS)
+	parser.add_argument('--ssdeep-url', help=argparse.SUPPRESS)
 	parser.add_argument('-t', '--threads', type=int, metavar='NUM', default=THREAD_COUNT_DEFAULT,
 		help='Start specified NUM of threads (default: %s)' % THREAD_COUNT_DEFAULT)
 	parser.add_argument('-w', '--whois', action='store_true', help='Lookup WHOIS database for creation date and registrar')
@@ -1017,8 +1018,18 @@ def run(**kwargs):
 	if args.registered and args.unregistered:
 		parser.error('arguments --registered and --unregistered are mutually exclusive')
 
-	if not args.ssdeep and args.ssdeep_url:
-		parser.error('argument --ssdeep-url requires --ssdeep')
+	if args.ssdeep:
+		p_err('WARNING: argument --ssdeep is deprecated, use --lsh ssdeep instead')
+		args.lsh = 'ssdeep'
+	if args.ssdeep_url:
+		p_err('WARNING: argument --ssdeep-url is deprecated, use --lsh-url instead')
+		args.lsh_url = args.ssdeep_url
+
+	if not args.lsh and args.lsh_url:
+		parser.error('argument --lsh-url requires --lsh')
+
+	if args.lsh and args.lsh not in ('ssdeep', 'tlsh'):
+		parser.error('invalid LSH algorithm (choose ssdeep or tlash)')
 
 	if not args.phash:
 		if args.phash_url:
@@ -1082,15 +1093,17 @@ def run(**kwargs):
 		except PermissionError:
 			parser.error('permission denied: %s' % args.output)
 
-	ssdeep_url = None
-	if args.ssdeep:
-		if not MODULE_SSDEEP:
+	lsh_url = None
+	if args.lsh:
+		if args.lsh == 'ssdeep' and not MODULE_SSDEEP:
 			parser.error('missing ssdeep library')
-		if args.ssdeep_url:
+		if args.lsh == 'tlsh' and not MODULE_TLSH:
+			parser.error('missing py-tlsh library')
+		if args.lsh_url:
 			try:
-				ssdeep_url = UrlParser(args.ssdeep_url)
+				lsh_url = UrlParser(args.lsh_url)
 			except ValueError:
-				parser.error('invalid domain name: ' + args.ssdeep_url)
+				parser.error('invalid domain name: ' + args.lsh_url)
 
 	phash_url = None
 	if args.phash or args.screenshots:
@@ -1151,10 +1164,10 @@ r'''     _           _            _     _
 
 ''' % __version__ + FG_RST + ST_RST)
 
-	ssdeep_init = str()
-	ssdeep_effective_url = str()
-	if args.ssdeep:
-		request_url = ssdeep_url.full_uri() if ssdeep_url else url.full_uri()
+	lsh_init = str()
+	lsh_effective_url = str()
+	if args.lsh:
+		request_url = lsh_url.full_uri() if lsh_url else url.full_uri()
 		p_cli('fetching content from: {} '.format(request_url))
 		try:
 			r = UrlOpener(request_url,
@@ -1168,11 +1181,14 @@ r'''     _           _            _     _
 			sys.exit(1)
 		else:
 			p_cli('> {} [{:.1f} KB]\n'.format(r.url.split('?')[0], len(r.content)/1024))
-			ssdeep_init = ssdeep.hash(r.normalized_content)
-			ssdeep_effective_url = r.url.split('?')[0]
+			if args.lsh == 'ssdeep':
+				lsh_init = ssdeep.hash(r.normalized_content)
+			elif args.lsh == 'tlsh':
+				lsh_init = tlsh.hash(r.normalized_content)
+			lsh_effective_url = r.url.split('?')[0]
 			# hash blank if content too short or insufficient entropy
-			if not ssdeep_init:
-				args.ssdeep = False
+			if lsh_init in (None, 'TNULL', '3::'):
+				args.lsh = None
 
 	if args.phash:
 		request_url = phash_url.full_uri() if phash_url else url.full_uri()
@@ -1204,10 +1220,10 @@ r'''     _           _            _     _
 			worker.option_geoip = True
 		if args.banners:
 			worker.option_banners = True
-		if args.ssdeep and ssdeep_init:
-			worker.option_ssdeep = True
-			worker.ssdeep_init = ssdeep_init
-			worker.ssdeep_effective_url = ssdeep_effective_url
+		if args.lsh and lsh_init:
+			worker.option_lsh = args.lsh
+			worker.lsh_init = lsh_init
+			worker.lsh_effective_url = lsh_effective_url
 		if args.phash:
 			worker.option_phash = True
 			worker.phash_init = phash
