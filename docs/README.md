@@ -175,50 +175,59 @@ Phishing detection
 
 Manually checking each domain name in terms of serving a phishing site might be
 time-consuming. To address this, `dnstwist` makes use of so-called fuzzy hashes
-(context triggered piecewise hashes, often called ssdeep) and perceptual hashes
-(pHash). Fuzzy hashing is a concept that involves the ability to compare two
-inputs (HTML code) and determine a fundamental level of similarity, while
-perceptual hash is a fingerprint derived from visual features of an image
-(web browser screenshot).
+(locality-sensitive hash, LSH) and perceptual hashes (pHash). Fuzzy hashing is
+a concept that involves the ability to compare two inputs (HTML code) and
+determine a fundamental level of similarity, while perceptual hash is
+a fingerprint derived from visual features of an image (web page screenshot).
+
+**Fuzzy hashing***
 
 The unique feature of detecting similar HTML source code can be enabled with
-`--ssdeep` argument. For each generated domain, `dnstwist` will fetch content
+`--lsh` argument. For each generated domain, `dnstwist` will fetch content
 from responding HTTP server (following possible redirects), normalize HTML code
 and compare its fuzzy hash with the one for the original (initial) domain. The
-level of similarity will be expressed as a percentage.
+level of similarity is be expressed as a percentage.
 
 In cases when the effective URL is the same as for the original domain, the
 fuzzy hash is not calculated at all in order to reject false positive
 indications.
 
 Note: Keep in mind it's rather unlikely to get 100% match, even for MITM attack
-frameworks, and that a phishing site can have completely different HTML
-source code. However, each notification is a strong indicator and should be
-inspected carefully regardless of the score.
+frameworks, and that a phishing site can have a completely different HTML
+source code.
 
 ```
-$ dnstwist --ssdeep domain.name
+$ dnstwist --lsh domain.name
 ```
 
 In some cases, phishing sites are served from a specific URL. If you provide a
 full or partial URL address as an argument, `dnstwist` will parse it and apply
-for each generated domain name variant. Use `--ssdeep-url` to override URL to
+for each generated domain name variant. Use `--lsh-url` to override URL to
 fetch the original web page from.
 
 ```
-$ dnstwist --ssdeep https://domain.name/owa/
-$ dnstwist --ssdeep --ssdeep-url https://different.domain/owa/ domain.name
+$ dnstwist --lsh https://domain.name/owa/
+$ dnstwist --lsh --lsh-url https://different.domain/owa/ domain.name
 ```
 
-Additionally, if Chromium browser is installed, `dnstwist` can run it in
-headless mode to render web pages, take screenshots and calculate pHash to
-evaluate visual similarity expressed as percentage.
+By default, *ssdeep* is used as LSH algorithm, but *TLSH* is also available and
+can be enabled like so:
+
+```
+$ dnstwist --lsh tlsh domain.name
+```
+
+**Perceptual hashing**
+
+If Chromium browser is installed, `dnstwist` can run it in so called headless
+mode (without GUI) to render web pages, take their screenshots and calculate
+pHash to evaluate visual similarity.
 
 ```
 $ dnstwist --phash domain.name
 ```
 
-Web page screenshots in PNG format can be saved to specified location:
+Additionally, screenshots in PNG format can be saved to selected location:
 
 ```
 $ dnstwist --phash --screenshots /tmp/domain domain.name
