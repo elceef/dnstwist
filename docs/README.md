@@ -180,7 +180,7 @@ a concept that involves the ability to compare two inputs (HTML code) and
 determine a fundamental level of similarity, while perceptual hash is
 a fingerprint derived from visual features of an image (web page screenshot).
 
-**Fuzzy hashing***
+**Fuzzy hashing**
 
 The unique feature of detecting similar HTML source code can be enabled with
 `--lsh` argument. For each generated domain, `dnstwist` will fetch content
