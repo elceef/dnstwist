@@ -33,6 +33,12 @@ Use only selected fuzzing algorithms (separated with commas).
 \fB\-g\fR, \fB\-\-geoip\fR
 Perform lookup for GeoIP location.
 .TP
+\fB\-\-lsh\fR \fI[LSH]\fR
+Evaluate web page similarity with LSH algorithm: \fBssdeep\fR (default), \fBtlsh\fR
+.TP
+\fB\-\-lsh-url\fR \fIURL\fR
+Override \fIURL\fR to fetch the original web page from.
+.TP
 \fB\-h\fR, \fB\-\-help\fR
 Display help message and exit.
 .TP
@@ -56,12 +62,6 @@ Override \fIURL\fR to render the original web page from.
 .TP
 \fB\-\-screenshots\fR \fIDIR\fR
 Save web page screenshots into \fIDIR\fR.
-.TP
-\fB\-s\fR, \fB\-\-ssdeep\fR
-Fetch web pages and compare their fuzzy hashes to evaluate similarity.
-.TP
-\fB\-\-ssdeep-url\fR \fIURL\fR
-Override \fIURL\fR to fetch the original web page from.
 .TP
 \fB\-t\fR, \fB\-\-threads\fR \fINUM\fR
 Start specified \fINUM\fR of threads.
@@ -87,7 +87,7 @@ Usually thousands of domain permutations are generated - especially for longer i
 Ensure your local DNS server can handle thousands of requests within a short period of time. Otherwise, you can specify an external DNS or DNS-over-HTTPS server with \fB\-\-nameservers\fR argument.
 
 .SS Fuzzy hashing
-Manually checking each domain name in terms of serving a phishing site might be time-consuming. To address this, \fBdnstwist\fR makes use of so-called fuzzy hashes (context triggered piecewise hashes, often called ssdeep) and perceptual hashes (pHash). Fuzzy hashing is a concept that involves the ability to compare two inputs (HTML code) and determine a fundamental level of similarity, while perceptual hash is a fingerprint derived from visual features of an image (web browser screenshot). The level of similarity is be expressed as a percentage.
+Manually checking each domain name in terms of serving a phishing site might be time-consuming. To address this, \fBdnstwist\fR makes use of so-called fuzzy hashes (locality-sensitive hash, LSH) and perceptual hashes (pHash). Fuzzy hashing is a concept that involves the ability to compare two inputs (HTML code) and determine a fundamental level of similarity, while perceptual hash is a fingerprint derived from visual features of an image (web browser screenshot). The level of similarity is expressed as a percentage.
 
 Keep in mind it's rather unlikely to get 100% match for a dynamically generated web page. However, each notification is a strong indicator and should be inspected carefully regardless of the score.
 
