@@ -851,7 +851,7 @@ class Scanner(threading.Thread):
 									task['ssdeep'] = ssdeep.compare(self.lsh_init, lsh_curr)
 							elif self.option_lsh == 'tlsh':
 								lsh_curr = tlsh.hash(r.normalized_content)
-								if lsh_curr not in (None, 'TNULL'):
+								if lsh_curr not in (None, '', 'TNULL'):
 									task['tlsh'] = int(100 - (min(tlsh.diff(self.lsh_init, lsh_curr), 300)/3))
 
 			self.jobs.task_done()
@@ -1187,7 +1187,7 @@ r'''     _           _            _     _
 				lsh_init = tlsh.hash(r.normalized_content)
 			lsh_effective_url = r.url.split('?')[0]
 			# hash blank if content too short or insufficient entropy
-			if lsh_init in (None, 'TNULL', '3::'):
+			if lsh_init in (None, '', 'TNULL', '3::'):
 				args.lsh = None
 
 	if args.phash:
