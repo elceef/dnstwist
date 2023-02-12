@@ -1046,11 +1046,10 @@ def run(**kwargs):
 	fuzzers = []
 	if args.fuzzers:
 		fuzzers = [x.strip().lower() for x in set(args.fuzzers.split(','))]
-
-	if args.dictionary and 'dictionary' not in fuzzers:
-		parser.error('argument --dictionary cannot be used with selected fuzzing algorithms (consider enabling fuzzer: dictionary)')
-	if args.tld and 'tld-swap' not in fuzzers:
-		parser.error('argument --tld cannot be used with selected fuzzing algorithms (consider enabling fuzzer: tld-swap)')
+		if args.dictionary and 'dictionary' not in fuzzers:
+			parser.error('argument --dictionary cannot be used with selected fuzzing algorithms (consider enabling fuzzer: dictionary)')
+		if args.tld and 'tld-swap' not in fuzzers:
+			parser.error('argument --tld cannot be used with selected fuzzing algorithms (consider enabling fuzzer: tld-swap)')
 
 	nameservers = []
 	if args.nameservers:
