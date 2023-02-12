@@ -1072,21 +1072,31 @@ def run(**kwargs):
 
 	dictionary = []
 	if args.dictionary:
-		if not os.path.isfile(args.dictionary):
-			parser.error('dictionary file not found: %s' % args.dictionary)
-		if not os.access(args.dictionary, os.R_OK):
-			parser.error('permission denied: %s' % args.dictionary)
-		with open(args.dictionary) as f:
-			dictionary = [x for x in set(f.read().splitlines()) if x.isalnum()]
+		try:
+			with open(args.dictionary, encoding='utf-8') as f:
+				dictionary = [x for x in set(f.read().splitlines()) if x.isalnum()]
+		except FileNotFoundError:
+			parser.error('file not found: {}'.format(args.dictionary))
+		except PermissionError:
+			parser.error('permission denied: {}'.format(args.dictionary))
+		except UnicodeDecodeError:
+			parser.error('UTF-8 decode error when reading: {}'.format(args.dictionary))
+		except OSError as err:
+			parser.error(err)
 
 	tld = []
 	if args.tld:
-		if not os.path.isfile(args.tld):
-			parser.error('dictionary file not found: %s' % args.tld)
-		if not os.access(args.tld, os.R_OK):
-			parser.error('permission denied: %s' % args.tld)
-		with open(args.tld) as f:
-			tld = [x for x in set(f.read().splitlines()) if re.match(r'^[a-z0-9-]{2,63}(\.[a-z0-9-]{2,63}){0,1}$', x)]
+		try:
+			with open(args.tld, encoding='utf-8') as f:
+				tld = [x for x in set(f.read().splitlines()) if re.match(r'^[a-z0-9-]{2,63}(\.[a-z0-9-]{2,63}){0,1}$', x)]
+		except FileNotFoundError:
+			parser.error('file not found: {}'.format(args.tld))
+		except PermissionError:
+			parser.error('permission denied: {}'.format(args.tld))
+		except UnicodeDecodeError:
+			parser.error('UTF-8 decode error when reading: {}'.format(args.tld))
+		except OSError as err:
+			parser.error(err)
 
 	if args.output:
 		try:
