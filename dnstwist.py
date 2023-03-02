@@ -1144,7 +1144,7 @@ def run(**kwargs):
 
 	if args.geoip:
 		if not MODULE_GEOIP:
-			parser.error('missing GeoIP library or database')
+			parser.error('missing geoip2 library or database file (check $GEOLITE2_MMDB environment variable)')
 
 	try:
 		url = UrlParser(args.domain)
