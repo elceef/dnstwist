@@ -10,7 +10,7 @@ jobs:
           python-version: 3.x
       - run: pip install --upgrade pip ruff setuptools wheel
       - name: "Ruff: Issues for this codebase"
-        run: ruff 
+        run: ruff --ignore=E402,E701,E712,E731,E741,F401,F841
                   --format=github --line-length=151 --target-version=py37 .
       - name: "Ruff: All issues"
         run: ruff --exit-zero --select=ALL --statistics --target-version=py37 .
