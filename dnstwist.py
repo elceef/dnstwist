@@ -45,16 +45,25 @@ import urllib.parse
 import gzip
 from io import BytesIO
 
+def _debug(msg):
+	if 'DEBUG' in os.environ:
+		if isinstance(msg, Exception):
+			print('{}:{} {}'.format(__file__, msg.__traceback__.tb_lineno, str(msg)), file=sys.stderr, flush=True)
+		else:
+			print(str(msg), file=sys.stderr, flush=True)
+
 try:
 	from PIL import Image
 	MODULE_PIL = True
-except ImportError:
+except ImportError as e:
+	_debug(e)
 	MODULE_PIL = False
 
 try:
 	from selenium import webdriver
 	MODULE_SELENIUM = True
-except ImportError:
+except ImportError as e:
+	_debug(e)
 	MODULE_SELENIUM = False
 
 try:
@@ -62,18 +71,21 @@ try:
 	import dns.rdatatype
 	from dns.exception import DNSException
 	MODULE_DNSPYTHON = True
-except ImportError:
+except ImportError as e:
+	_debug(e)
 	MODULE_DNSPYTHON = False
 
 GEOLITE2_MMDB = os.environ.get('GEOLITE2_MMDB' , os.path.join(os.path.dirname(__file__), 'GeoLite2-Country.mmdb'))
 try:
 	import geoip2.database
 	_ = geoip2.database.Reader(GEOLITE2_MMDB)
-except Exception:
+except Exception as e:
+	_debug(e)
 	try:
 		import GeoIP
 		_ = GeoIP.new(-1)
-	except Exception:
+	except Exception as e:
+		_debug(e)
 		MODULE_GEOIP = False
 	else:
 		MODULE_GEOIP = True
@@ -93,28 +105,33 @@ else:
 try:
 	import whois
 	MODULE_WHOIS = True
-except ImportError:
+except ImportError as e:
+	_debug(e)
 	MODULE_WHOIS = False
 
 try:
 	import ssdeep
 	MODULE_SSDEEP = True
-except ImportError:
+except ImportError as e:
+	_debug(e)
 	try:
 		import ppdeep as ssdeep
 		MODULE_SSDEEP = True
-	except ImportError:
+	except ImportError as e:
+		_debug(e)
 		MODULE_SSDEEP = False
 
 try:
 	import tlsh
 	MODULE_TLSH = True
-except ImportError:
+except ImportError as e:
+	_debug(e)
 	MODULE_TLSH = False
 
 try:
 	import idna
-except ImportError:
+except ImportError as e:
+	_debug(e)
 	class idna:
 		@staticmethod
 		def decode(domain):
@@ -615,7 +632,6 @@ class Scanner(threading.Thread):
 		self._stop_event = threading.Event()
 		self.id = 0
 		self.jobs = queue
-		self.debug = False
 		self.lsh_init = ''
 		self.lsh_effective_url = ''
 		self.phash_init = None
@@ -630,10 +646,6 @@ class Scanner(threading.Thread):
 		self.nameservers = []
 		self.useragent = ''
 
-	def _debug(self, text):
-		if self.debug:
-			print(str(text), file=sys.stderr, flush=True)
-
 	def _banner_http(self, ip, vhost):
 		try:
 			http = socket.socket()
@@ -642,8 +654,8 @@ class Scanner(threading.Thread):
 			http.send('HEAD / HTTP/1.1\r\nHost: {}\r\nUser-agent: {}\r\n\r\n'.format(vhost, self.useragent).encode())
 			response = http.recv(1024).decode()
 			http.close()
-		except Exception:
-			pass
+		except Exception as e:
+			_debug(e)
 		else:
 			headers = response.splitlines()
 			for field in headers:
@@ -657,8 +669,8 @@ class Scanner(threading.Thread):
 			smtp.connect((mx, 25))
 			response = smtp.recv(1024).decode()
 			smtp.close()
-		except Exception:
-			pass
+		except Exception as e:
+			_debug(e)
 		else:
 			hello = response.splitlines()[0]
 			if hello.startswith('220'):
@@ -735,7 +747,7 @@ class Scanner(threading.Thread):
 				except NoNameservers:
 					task['dns_ns'] = ['!ServFail']
 				except DNSException as e:
-					self._debug(e)
+					_debug(e)
 
 				if nxdomain is False:
 					try:
@@ -744,7 +756,7 @@ class Scanner(threading.Thread):
 					except NoNameservers:
 						task['dns_a'] = ['!ServFail']
 					except DNSException as e:
-						self._debug(e)
+						_debug(e)
 
 					try:
 						task['dns_aaaa'] = _answer_to_list(resolve(domain, rdtype=dns.rdatatype.AAAA))
@@ -752,7 +764,7 @@ class Scanner(threading.Thread):
 					except NoNameservers:
 						task['dns_aaaa'] = ['!ServFail']
 					except DNSException as e:
-						self._debug(e)
+						_debug(e)
 
 				if nxdomain is False and dns_ns is True:
 					try:
@@ -761,7 +773,7 @@ class Scanner(threading.Thread):
 					except NoNameservers:
 						task['dns_mx'] = ['!ServFail']
 					except DNSException as e:
-						self._debug(e)
+						_debug(e)
 			else:
 				try:
 					addrinfo = socket.getaddrinfo(domain, None, proto=socket.IPPROTO_TCP)
@@ -769,7 +781,7 @@ class Scanner(threading.Thread):
 					if e.errno == -3:
 						task['dns_a'] = ['!ServFail']
 				except Exception as e:
-					self._debug(e)
+					_debug(e)
 				else:
 					for _, _, _, _, sa in addrinfo:
 						ip = sa[0]
@@ -799,7 +811,7 @@ class Scanner(threading.Thread):
 					try:
 						country = geo.country_by_addr(task['dns_a'][0])
 					except Exception as e:
-						self._debug(e)
+						_debug(e)
 						pass
 					else:
 						if country:
@@ -821,7 +833,7 @@ class Scanner(threading.Thread):
 						browser.get(self.url.full_uri(domain))
 						screenshot = browser.screenshot()
 					except Exception as e:
-						self._debug(e)
+						_debug(e)
 					else:
 						if self.option_phash:
 							phash = pHash(BytesIO(screenshot))
@@ -832,7 +844,7 @@ class Scanner(threading.Thread):
 								with open(filename, 'wb') as f:
 									f.write(screenshot)
 							except Exception as e:
-								self._debug(e)
+								_debug(e)
 
 			if self.option_lsh:
 				if dns_a is True or dns_aaaa is True:
@@ -842,7 +854,7 @@ class Scanner(threading.Thread):
 							headers={'user-agent': self.useragent},
 							verify=False)
 					except Exception as e:
-						self._debug(e)
+						_debug(e)
 					else:
 						if r.url.split('?')[0] != self.lsh_effective_url:
 							if self.option_lsh == 'ssdeep':
@@ -974,7 +986,6 @@ def run(**kwargs):
 	parser.add_argument('--nameservers', type=str, metavar='LIST', help='DNS or DoH servers to query (separated with commas)')
 	parser.add_argument('--useragent', type=str, metavar='STRING', default=USER_AGENT_STRING,
 		help='Set User-Agent STRING (default: %s)' % USER_AGENT_STRING)
-	parser.add_argument('--debug', action='store_true', help='Display debug messages')
 
 	if kwargs:
 		sys.argv = ['']
@@ -1247,7 +1258,6 @@ r'''     _           _            _     _
 		if args.nameservers:
 			worker.nameservers = nameservers
 		worker.useragent = args.useragent
-		worker.debug = args.debug
 		worker.start()
 		threads.append(worker)
 
