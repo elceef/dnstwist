@@ -288,7 +288,7 @@ providers, in particular but not only:
 Splunk ESCU, RecordedFuture, SpiderFoot, DigitalShadows, SecurityRisk,
 SmartFense, ThreatPipes, PaloAlto Cortex XSOAR, Rapid7 InsightConnect SOAR,
 Mimecast, Watcher, Intel Owl, PatrOwl, VDA Labs, Appsecco, Maltego,
-Conscia ThreatInsights.
+Conscia ThreatInsights, Fortinet FortiSOAR, ThreatConnect.
 
 
 Contact
