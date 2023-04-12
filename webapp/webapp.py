@@ -63,14 +63,17 @@ app = Flask(__name__)
 def janitor(sessions):
 	while True:
 		time.sleep(1)
-		for s in sessions:
+		for s in sorted(sessions, key=lambda x: x.timestamp):
 			if s.jobs.empty() and s.threads:
 				s.stop()
 				continue
-			maxrss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
-			if (((s.timestamp + SESSION_TTL) < time.time())
-				or (MEMORY_LIMIT and maxrss > MEMORY_LIMIT and not s.threads)):
+			if (s.timestamp + SESSION_TTL) < time.time():
 				sessions.remove(s)
+				continue
+			if MEMORY_LIMIT:
+				maxrss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
+				if not s.threads and maxrss > MEMORY_LIMIT:
+					sessions.remove(s)
 
 class Session():
 	def __init__(self, url, nameservers=None, thread_count=THREADS):
