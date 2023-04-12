@@ -44,6 +44,7 @@ import urllib.request
 import urllib.parse
 import gzip
 from io import BytesIO
+import contextlib
 
 def _debug(msg):
 	if 'DEBUG' in os.environ:
@@ -1292,7 +1293,8 @@ r'''     _           _            _     _
 			p_cli(ST_CLR + '\rWHOIS: {} ({:.2%})'.format(domain['domain'], (i+1)/total))
 			try:
 				_, dom, tld = domain_tld(domain['domain'])
-				whoisq = whois.query('.'.join([dom, tld]))
+				with open(os.devnull, 'w') as devnull, contextlib.redirect_stderr(devnull):
+					whoisq = whois.query('.'.join([dom, tld]))
 			except Exception as e:
 				_debug(e)
 			else:
