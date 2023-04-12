@@ -1294,8 +1294,7 @@ r'''     _           _            _     _
 				_, dom, tld = domain_tld(domain['domain'])
 				whoisq = whois.query('.'.join([dom, tld]))
 			except Exception as e:
-				if args.debug:
-					p_err(e)
+				_debug(e)
 			else:
 				if whoisq is None:
 					continue
