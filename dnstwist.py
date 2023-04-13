@@ -25,7 +25,7 @@ limitations under the License.
 '''
 
 __author__ = 'Marcin Ulikowski'
-__version__ = '20230402'
+__version__ = '20230413'
 __email__ = 'marcin@ulikowski.pl'
 
 import re
