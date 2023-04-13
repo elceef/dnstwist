@@ -94,7 +94,6 @@ class Session():
 			self.jobs.put(domain)
 		for _ in range(self.thread_count):
 			worker = dnstwist.Scanner(self.jobs)
-			worker.daemon = True
 			worker.option_extdns = dnstwist.MODULE_DNSPYTHON
 			worker.option_geoip = dnstwist.MODULE_GEOIP
 			if self.nameservers:
