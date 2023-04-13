@@ -7,3 +7,5 @@ py-tlsh>=4.5.0
 whois>=0.8
 tld>=0.9.1
 idna>=2.8
+#Pillow>=7.0.0
+#selenium>=4.0.0
