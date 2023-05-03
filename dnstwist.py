@@ -31,7 +31,7 @@ __email__ = 'marcin@ulikowski.pl'
 import re
 import sys
 import socket
-socket.setdefaulttimeout(10.0)
+socket.setdefaulttimeout(12.0)
 import signal
 import time
 import argparse
@@ -326,7 +326,7 @@ class pHash():
 
 
 class HeadlessBrowser():
-	WEBDRIVER_TIMEOUT = 10
+	WEBDRIVER_TIMEOUT = 12
 	WEBDRIVER_ARGUMENTS = (
 		'--disable-dev-shm-usage',
 		'--ignore-certificate-errors',
