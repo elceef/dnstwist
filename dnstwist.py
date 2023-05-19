@@ -402,6 +402,8 @@ class Fuzzer():
 		**dict.fromkeys(['cz', 'sk', 'uk', 'co.uk', 'nl', 'edu'], {
 			# IDN not suported by the corresponding registry
 		}),
+		**dict.fromkeys(['jp', 'co.jp', 'ad.jp'], {
+		}),
 		**dict.fromkeys(['br'], {
 			'a': ('à', 'á', 'â', 'ã'),
 			'c': ('ç',),
