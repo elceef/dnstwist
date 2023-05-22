@@ -1298,7 +1298,8 @@ def run(**kwargs):
 
 	if args.format == 'list':
 		print(Format(domains).list())
-		sys.stdout = sys._stdout
+		if hasattr(sys, '_stdout'):
+			sys.stdout = sys._stdout
 		return list(map(dict, domains)) if kwargs else None
 
 	if not MODULE_DNSPYTHON:
@@ -1438,7 +1439,8 @@ r'''     _           _            _     _
 		elif args.format == 'cli':
 			print(Format(domains).cli())
 
-	sys.stdout = sys._stdout
+	if hasattr(sys, '_stdout'):
+		sys.stdout = sys._stdout
 
 	if kwargs:
 		return list(map(dict, domains))
