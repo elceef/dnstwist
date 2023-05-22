@@ -1231,8 +1231,9 @@ def run(**kwargs):
 			parser.error(err)
 
 	if args.output:
+		sys._stdout = sys.stdout
 		try:
-			sys.stdout = open(args.output, 'x')
+			sys.stdout = open(args.output, 'w' if args.output == os.devnull else 'x')
 		except FileExistsError:
 			parser.error('file already exists: %s' % args.output)
 		except FileNotFoundError:
@@ -1297,6 +1298,7 @@ def run(**kwargs):
 
 	if args.format == 'list':
 		print(Format(domains).list())
+		sys.stdout = sys._stdout
 		return list(map(dict, domains)) if kwargs else None
 
 	if not MODULE_DNSPYTHON:
@@ -1435,6 +1437,8 @@ r'''     _           _            _     _
 			print(Format(domains).json())
 		elif args.format == 'cli':
 			print(Format(domains).cli())
+
+	sys.stdout = sys._stdout
 
 	if kwargs:
 		return list(map(dict, domains))
