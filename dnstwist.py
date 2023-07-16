@@ -306,7 +306,7 @@ class Permutation(dict):
 
 class pHash():
 	def __init__(self, image, hsize=8):
-		img = Image.open(image).convert('L').resize((hsize, hsize), Image.ANTIALIAS)
+		img = Image.open(image).convert('L').resize((hsize, hsize), Image.LANCZOS)
 		pixels = list(img.getdata())
 		avg = sum(pixels) / len(pixels)
 		self.hash = ''.join('1' if p > avg else '0' for p in pixels)
