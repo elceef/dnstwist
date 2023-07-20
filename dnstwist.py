@@ -1417,7 +1417,7 @@ r'''     _           _            _     _
 			try:
 				_, dom, tld = domain_tld(domain['domain'])
 				with open(os.devnull, 'w') as devnull, contextlib.redirect_stderr(devnull):
-					whoisq = whois.query('.'.join([dom, tld]))
+					whoisq = whois.query('.'.join([dom, tld]), ignore_returncode=True)
 			except Exception as e:
 				_debug(e)
 			else:
