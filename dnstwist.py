@@ -1081,13 +1081,15 @@ def run(**kwargs):
 		'''typosquatting, fraud and brand impersonation.''',
 		formatter_class=lambda prog: argparse.HelpFormatter(prog,max_help_position=30)
 		)
-
+	_default_fuzzers = ['addition', 'bitsquatting', 'cyrillic', 'homoglyph', 'hyphenation',
+			'insertion', 'omission', 'repetition', 'replacement', 'subdomain', 
+			'transposition', 'vowel-swap', 'dictionary', 'tld-swap', 'various']
 	parser.add_argument('domain', help='Domain name or URL to scan')
 	parser.add_argument('-a', '--all', action='store_true', help='Print all DNS records instead of the first ones')
 	parser.add_argument('-b', '--banners', action='store_true', help='Determine HTTP and SMTP service banners')
 	parser.add_argument('-d', '--dictionary', type=str, metavar='FILE', help='Generate more domains using dictionary FILE')
 	parser.add_argument('-f', '--format', type=str, default='cli', help='Output format: cli, csv, json, list (default: cli)')
-	parser.add_argument('--fuzzers', type=str, metavar='LIST', help='Use only selected fuzzing algorithms (separated with commas)')
+	parser.add_argument('--fuzzers', type=str, metavar='LIST', nargs='?', default=', '.join(_default_fuzzers), help='Use only selected fuzzing algorithms (separated with commas).')
 	parser.add_argument('-g', '--geoip', action='store_true', help='Lookup for GeoIP location')
 	parser.add_argument('--lsh', type=str, metavar='LSH', nargs='?', const='ssdeep',
 		help='Evaluate web page similarity with LSH algorithm: ssdeep, tlsh (default: ssdeep)')
@@ -1183,6 +1185,9 @@ def run(**kwargs):
 			parser.error('argument --dictionary cannot be used with selected fuzzing algorithms (consider enabling fuzzer: dictionary)')
 		if args.tld and 'tld-swap' not in fuzzers:
 			parser.error('argument --tld cannot be used with selected fuzzing algorithms (consider enabling fuzzer: tld-swap)')
+	if not args.fuzzers:
+		parser.error('argument --fuzzers requires a comma-separated list of fuzzers.\nAvailable fuzzers: {}'
+	       .format(', '.join(_default_fuzzers)))
 
 	nameservers = []
 	if args.nameservers:
