@@ -1449,6 +1449,8 @@ r'''     _           _            _     _
 		worker.start()
 		threads.append(worker)
 
+	p_cli('started {} scanner threads\n'.format(args.threads))
+
 	ttime = 0
 	ival = 0.2
 	while True:
