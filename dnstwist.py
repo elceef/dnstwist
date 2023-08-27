@@ -1472,6 +1472,8 @@ r'''     _           _            _     _
 			dlen, found, eta//60, eta%60, rate))
 		if jobs.empty():
 			break
+		if sum([1 for x in threads if x.is_alive()]) == 0:
+			break
 	p_cli('\n')
 
 	for worker in threads:
