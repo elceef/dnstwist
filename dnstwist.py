@@ -836,36 +836,41 @@ class Scanner(threading.Thread):
 		self.nameservers = []
 		self.useragent = ''
 
-	def _banner_http(self, ip, vhost):
+	@staticmethod
+	def _send_recv_tcp(host, port, data=b'', timeout=2.0, recv_bytes=1024):
+		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		sock.settimeout(timeout)
+		resp = b''
 		try:
-			http = socket.socket()
-			http.settimeout(1)
-			http.connect((ip, 80))
-			http.send('HEAD / HTTP/1.1\r\nHost: {}\r\nUser-agent: {}\r\n\r\n'.format(vhost, self.useragent).encode())
-			response = http.recv(1024).decode()
-			http.close()
+			sock.connect((host, port))
+			if data:
+				sock.send(data)
+			resp = sock.recv(recv_bytes)
 		except Exception as e:
 			_debug(e)
-		else:
-			headers = response.splitlines()
-			for field in headers:
-				if field.lower().startswith('server: '):
-					return field[8:]
+		finally:
+			sock.close()
+		return resp.decode('utf-8', errors='ignore')
+
+	def _banner_http(self, ip, vhost):
+		response = self._send_recv_tcp(ip, 80,
+			'HEAD / HTTP/1.1\r\nHost: {}\r\nUser-Agent: {}\r\n\r\n'.format(vhost, self.useragent).encode())
+		if not response:
+			return ''
+		headers = response.splitlines()
+		for field in headers:
+			if field.lower().startswith('server: '):
+				return field[8:]
+		return ''
 
 	def _banner_smtp(self, mx):
-		try:
-			smtp = socket.socket()
-			smtp.settimeout(1)
-			smtp.connect((mx, 25))
-			response = smtp.recv(1024).decode()
-			smtp.close()
-		except Exception as e:
-			_debug(e)
-		else:
-			hello = response.splitlines()[0]
-			if hello.startswith('220'):
-				return hello[4:].strip()
-			return hello[:40]
+		response = self._send_recv_tcp(mx, 25)
+		if not response:
+			return ''
+		hello = response.splitlines()[0]
+		if hello.startswith('220'):
+			return hello[4:].strip()
+		return ''
 
 	def _mxcheck(self, mx, from_domain, to_domain):
 		from_addr = 'randombob1986@' + from_domain
