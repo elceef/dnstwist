@@ -256,6 +256,24 @@ easy-to-process list of dictionaries. Keep in mind that `dnstwist.run()` spawns
 a number of daemon threads.
 
 
+Performance tuning
+------------------
+
+When it comes to testing thousands of domain permutations, speed and efficiency
+are obvious priorities. On the other hand the tool was designed to "work out of
+the box", refraining from overwhelming DNS resolvers and conserving precious
+resources. That said, the default settings strike a cautious balance, but
+there's always area for improvement.
+
+It is recommended to experiment with the number of threads. Initially this
+number is computed based on the available CPU cores, but in most cases
+elevating this value gives a substantial performance boost. Another suggestion
+is to select fast DNS resolver(s) with the lowest network round-trip
+time (RTT). While a few miliseconds may not sound as a big difference, when
+multiplied across thousands of domain permutations, it translates to
+noticeable time savings.
+
+
 Notes on coverage
 -----------------
 
@@ -289,7 +307,7 @@ providers, in particular but not only:
 Splunk ESCU, RecordedFuture, SpiderFoot, DigitalShadows, SecurityRisk,
 SmartFense, ThreatPipes, PaloAlto Cortex XSOAR, Rapid7 InsightConnect SOAR,
 Mimecast, Watcher, Intel Owl, PatrOwl, VDA Labs, Appsecco, Maltego,
-Conscia ThreatInsights, Fortinet FortiSOAR, ThreatConnect.
+Conscia ThreatInsights, Fortinet FortiSOAR, ThreatConnect, CISA Crossfeed.
 
 
 Contact
