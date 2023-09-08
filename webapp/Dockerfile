@@ -6,7 +6,7 @@ MAINTAINER marcin@ulikowski.pl
 WORKDIR    /opt/dnstwist
 
 RUN        apt-get update && \
-           apt-get install -y --no-install-recommends python3-tld python3-dnspython python3-geoip gunicorn3 python3-flask
+           apt-get install -y --no-install-recommends python3-idna python3-tld python3-dnspython python3-geoip gunicorn3 python3-flask
 
 COPY       ./webapp.py /opt/dnstwist/
 COPY       ./webapp.html /opt/dnstwist/
