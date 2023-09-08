@@ -156,6 +156,8 @@ if sys.platform != 'win32' and sys.stdout.isatty():
 else:
 	FG_RND = FG_YEL = FG_CYA = FG_BLU = FG_RST = ST_BRI = ST_CLR = ST_RST = ''
 
+devnull = os.devnull
+
 
 def domain_tld(domain):
 	try:
