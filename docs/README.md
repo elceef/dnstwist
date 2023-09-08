@@ -250,6 +250,14 @@ the most convenient and efficient way is to pass the input as follows.
 >>> data = dnstwist.run(domain='domain.name', registered=True, format='null')
 ```
 
+To work in a completely passive operating mode and produce just domain
+permutations, it is required to combine the list format with output redirection
+to the null device.
+
+```
+>>> dnstwist.run(domain='domain.name', format='list', output=dnstwist.devnull)
+```
+
 The arguments for `dnstwist.run()` are translated internally, so the usage is
 very similar to the command line. The returned data structure is an
 easy-to-process list of dictionaries. Keep in mind that `dnstwist.run()` spawns
