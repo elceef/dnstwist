@@ -302,14 +302,19 @@ class UrlOpener():
 
 class UrlParser():
 	def __init__(self, url):
+		if not url:
+			raise TypeError('argument has to be non-empty string')
 		u = urllib.parse.urlparse(url if '://' in url else 'http://{}'.format(url))
-		self.domain = u.hostname.lower()
-		self.domain = idna.encode(self.domain).decode()
-		if not self._validate_domain(self.domain):
-			raise ValueError('Invalid domain name') from None
-		self.scheme = u.scheme
+		self.scheme = u.scheme.lower()
 		if self.scheme not in ('http', 'https'):
-			raise ValueError('Invalid scheme') from None
+			raise ValueError('invalid scheme') from None
+		self.domain = u.hostname.lower()
+		try:
+			self.domain = idna.encode(self.domain).decode()
+		except Exception:
+			raise ValueError('invalid domain name') from None
+		if not self._validate_domain(self.domain):
+			raise ValueError('invalid domain name') from None
 		self.username = u.username
 		self.password = u.password
 		self.port = u.port
@@ -318,7 +323,7 @@ class UrlParser():
 		self.fragment = u.fragment
 
 	def _validate_domain(self, domain):
-		if len(domain) > 253:
+		if 1 > len(domain) > 253:
 			return False
 		if VALID_FQDN_REGEX.match(domain):
 			try:
