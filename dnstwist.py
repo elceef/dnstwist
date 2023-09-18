@@ -683,14 +683,14 @@ class Fuzzer():
 		md = lambda a, b: {k: set(a.get(k, [])) | set(b.get(k, [])) for k in set(a.keys()) | set(b.keys())}
 		glyphs = md(self.glyphs_ascii, self.glyphs_idn_by_tld.get(self.tld, self.glyphs_unicode))
 		def mix(domain):
-			for w in (1, 2):
-				for i in range(len(domain)-w+1):
-					pre = domain[:i]
-					win = domain[i:i+w]
-					suf = domain[i+w:]
-					for c in (set(win) | {win}):
-						for g in glyphs.get(c, []):
-							yield pre + win.replace(c, g) + suf
+			for i, c in enumerate(domain):
+				for g in glyphs.get(c, []):
+					yield domain[:i] + g + domain[i+1:]
+			for i in range(len(domain)-1):
+				win = domain[i:i+2]
+				for c in {win[0], win[1], win}:
+					for g in glyphs.get(c, []):
+						yield domain[:i] + win.replace(c, g) + domain[i+2:]
 		result1 = set(mix(self.domain))
 		result2 = set()
 		for r in result1:
