@@ -1290,14 +1290,10 @@ def run(**kwargs):
 		try:
 			with open(args.dictionary, encoding='utf-8') as f:
 				dictionary = [x for x in set(f.read().lower().splitlines()) if re_subd.match(x)]
-		except FileNotFoundError:
-			parser.error('file not found: {}'.format(args.dictionary))
-		except PermissionError:
-			parser.error('permission denied: {}'.format(args.dictionary))
 		except UnicodeDecodeError:
 			parser.error('UTF-8 decode error when reading: {}'.format(args.dictionary))
 		except OSError as err:
-			parser.error(err)
+			parser.error('unable to open {} ({})'.format(args.dictionary, err.strerror.lower()))
 
 	tld = []
 	if args.tld:
@@ -1305,25 +1301,18 @@ def run(**kwargs):
 		try:
 			with open(args.tld, encoding='utf-8') as f:
 				tld = [x for x in set(f.read().lower().splitlines()) if re_tld.match(x)]
-		except FileNotFoundError:
-			parser.error('file not found: {}'.format(args.tld))
-		except PermissionError:
-			parser.error('permission denied: {}'.format(args.tld))
 		except UnicodeDecodeError:
 			parser.error('UTF-8 decode error when reading: {}'.format(args.tld))
 		except OSError as err:
-			parser.error(err)
+			parser.error('unable to open {} ({})'.format(args.tld, err.strerror.lower()))
 
 	if args.output:
 		sys._stdout = sys.stdout
 		try:
 			sys.stdout = open(args.output, 'w' if args.output == os.devnull else 'x')
-		except FileExistsError:
-			parser.error('file already exists: %s' % args.output)
-		except FileNotFoundError:
-			parser.error('file not found: %s' % args.output)
-		except PermissionError:
-			parser.error('permission denied: %s' % args.output)
+		except OSError as err:
+			parser.error('unable to open {} ({})'.format(args.output, err.strerror.lower()))
+
 
 	lsh_url = None
 	if args.lsh:
