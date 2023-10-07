@@ -1286,9 +1286,10 @@ def run(**kwargs):
 
 	dictionary = []
 	if args.dictionary:
+		re_subd = re.compile(r'^(?:(?:xn--)[a-z0-9-]{3,59}|[a-z0-9-]{1,63})$')
 		try:
 			with open(args.dictionary, encoding='utf-8') as f:
-				dictionary = [x for x in set(f.read().splitlines()) if x.isalnum()]
+				dictionary = [x for x in set(f.read().lower().splitlines()) if re_subd.match(x)]
 		except FileNotFoundError:
 			parser.error('file not found: {}'.format(args.dictionary))
 		except PermissionError:
@@ -1300,9 +1301,10 @@ def run(**kwargs):
 
 	tld = []
 	if args.tld:
+		re_tld = re.compile(r'^[a-z0-9-]{2,63}(?:\.[a-z0-9-]{2,63})?$')
 		try:
 			with open(args.tld, encoding='utf-8') as f:
-				tld = [x for x in set(f.read().splitlines()) if re.match(r'^[a-z0-9-]{2,63}(\.[a-z0-9-]{2,63}){0,1}$', x)]
+				tld = [x for x in set(f.read().lower().splitlines()) if re_tld.match(x)]
 		except FileNotFoundError:
 			parser.error('file not found: {}'.format(args.tld))
 		except PermissionError:
