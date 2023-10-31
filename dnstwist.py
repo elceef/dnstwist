@@ -740,6 +740,11 @@ class Fuzzer():
 				if self.domain[i] in vowels:
 					yield self.domain[:i] + vowel + self.domain[i+1:]
 
+	def _plural(self):
+		for i in range(2, len(self.domain)-2):
+			yield self.domain[:i+1] + ('es' if self.domain[i] in ('s', 'x', 'z') else 's') + self.domain[i+1:]
+
+
 	def _addition(self):
 		return {self.domain + chr(i) for i in (*range(48, 58), *range(97, 123))}
 
@@ -768,11 +773,12 @@ class Fuzzer():
 		return set(self.tld_dictionary)
 
 	def generate(self, fuzzers=[]):
+		self.domains = set()
 		if not fuzzers or '*original' in fuzzers:
 			self.domains.add(Permutation(fuzzer='*original', domain='.'.join(filter(None, [self.subdomain, self.domain, self.tld]))))
 		for f_name in fuzzers or [
 			'addition', 'bitsquatting', 'cyrillic', 'homoglyph', 'hyphenation',
-			'insertion', 'omission', 'repetition', 'replacement',
+			'insertion', 'omission', 'plural', 'repetition', 'replacement',
 			'subdomain', 'transposition', 'vowel-swap', 'dictionary',
 		]:
 			try:
