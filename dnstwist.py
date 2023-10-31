@@ -445,6 +445,10 @@ class HeadlessBrowser():
 		chrome_options = webdriver.ChromeOptions()
 		for opt in self.WEBDRIVER_ARGUMENTS:
 			chrome_options.add_argument(opt)
+		proxies = urllib.request.getproxies()
+		if proxies:
+			proxy_string = ';'.join(['{}={}'.format(scheme, url) for scheme, url in proxies.items()])
+			chrome_options.add_argument('--proxy-server={}'.format(proxy_string))
 		chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
 		chrome_options.add_experimental_option('useAutomationExtension', False)
 		self.driver = webdriver.Chrome(options=chrome_options)
