@@ -1393,6 +1393,11 @@ r'''     _           _            _     _
 
 ''' % __version__ + FG_RST + ST_RST)
 
+	if args.lsh or args.phash:
+		proxies = urllib.request.getproxies()
+		if proxies:
+			p_cli('using proxy: {}\n'.format(' '.join(set(proxies.values()))))
+
 	lsh_init = str()
 	lsh_effective_url = str()
 	if args.lsh:
