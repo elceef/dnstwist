@@ -9,6 +9,7 @@ you'd prefer a different name be used, please let me know.
 (in alphabetical order)
 
 - Alexander Bayandin
+- Alex Pinkney
 - Andrew Bennett
 - Charles McCauley
 - Christopher Schmidt
@@ -24,6 +25,8 @@ you'd prefer a different name be used, please let me know.
 - Luke Snyder
 - Mario Uher
 - Mike Saunders
+- Nuno André
+- Oliver Freyermuth
 - Patricia Lipp
 - Peter Wienemann
 - Phillip Martin
