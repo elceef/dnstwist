@@ -238,6 +238,13 @@ $ dnstwist --phash --screenshots /tmp/domain domain.name
 Note: Due to the multi-threaded use of a fully functional web browser,
 an appropriate amount of free resources (mainly memory) should be provided.
 
+**Proxy support**
+
+For all HTTP connections, proxies are automatically used when the presence of
+environment variables named `$<scheme>_proxy`, in a case insensitive approach,
+is detected. If both lowercase and uppercase environment variables exist,
+lowercase is preferred.
+
 
 API
 ---
