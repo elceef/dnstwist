@@ -706,7 +706,7 @@ class Fuzzer():
 
 	def _insertion(self):
 		result = set()
-		for i in range(1, len(self.domain)-1):
+		for i in range(0, len(self.domain)-1):
 			prefix, orig_c, suffix = self.domain[:i], self.domain[i], self.domain[i+1:]
 			for c in (c for keys in self.keyboards for c in keys.get(orig_c, [])):
 				result.update({
