@@ -3,3 +3,5 @@ venv/
 .idea
 *.pyc
 *.swp
+# VSCode project directory
+.vscode
