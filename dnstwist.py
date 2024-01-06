@@ -665,6 +665,12 @@ class Fuzzer():
 		self.tld_dictionary = list(tld_dictionary)
 		self.domains = set()
 
+	def __enter__(self):
+		return self
+
+	def __exit__(self, exc_type, exc_val, exc_tb):
+		return
+
 	def _bitsquatting(self):
 		masks = [1, 2, 4, 8, 16, 32, 64, 128]
 		chars = set('abcdefghijklmnopqrstuvwxyz0123456789-')
