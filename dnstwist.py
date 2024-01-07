@@ -1281,6 +1281,13 @@ def run(**kwargs):
 			parser.error('argument --dictionary cannot be used with selected fuzzing algorithms (consider enabling fuzzer: dictionary)')
 		if args.tld and 'tld-swap' not in fuzzers:
 			parser.error('argument --tld cannot be used with selected fuzzing algorithms (consider enabling fuzzer: tld-swap)')
+		# important: this should enable all available fuzzers
+		with Fuzzer('example.domain', ['foo'], ['bar']) as fuzz:
+			fuzz.generate()
+			all_fuzzers = sorted({x.get('fuzzer') for x in fuzz.permutations()})
+			if not set(fuzzers).issubset(all_fuzzers):
+				parser.error('argument --fuzzers takes a comma-separated list with at least one of the following: {}'.format(' '.join(all_fuzzers)))
+			del all_fuzzers
 
 	nameservers = []
 	if args.nameservers:
