@@ -1206,6 +1206,7 @@ def run(**kwargs):
 	parser.add_argument('--nameservers', type=str, metavar='LIST', help='DNS or DoH servers to query (separated with commas)')
 	parser.add_argument('--useragent', type=str, metavar='STRING', default=USER_AGENT_STRING,
 		help='Set User-Agent STRING (default: %s)' % USER_AGENT_STRING)
+	parser.add_argument('--version', action='version', version='dnstwist {}'.format(__version__), help=argparse.SUPPRESS)
 
 	if kwargs:
 		sys.argv = ['']
