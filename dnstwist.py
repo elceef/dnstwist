@@ -1261,7 +1261,7 @@ def run(**kwargs):
 		parser.error('argument --lsh-url requires --lsh')
 
 	if args.lsh and args.lsh not in ('ssdeep', 'tlsh'):
-		parser.error('invalid LSH algorithm (choose ssdeep or tlash)')
+		parser.error('invalid LSH algorithm (choose ssdeep or tlsh)')
 
 	if not args.phash:
 		if args.phash_url:
