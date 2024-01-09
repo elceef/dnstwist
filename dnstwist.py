@@ -43,7 +43,6 @@ import queue
 import urllib.request
 import urllib.parse
 import gzip
-import copy
 from io import BytesIO
 from datetime import datetime
 
@@ -362,10 +361,12 @@ class Permutation(dict):
 
 	__setattr__ = dict.__setitem__
 
-	def __init__(self, fuzzer='', domain=''):
+	def __init__(self, **kwargs):
 		super(dict, self).__init__()
-		self['fuzzer'] = fuzzer
-		self['domain'] = domain
+		self['fuzzer'] = kwargs.pop('fuzzer', '')
+		self['domain'] = kwargs.pop('domain', '')
+		for k, v in kwargs.items():
+			self[k] = v
 
 	def __hash__(self):
 		return hash(self['domain'])
@@ -378,6 +379,9 @@ class Permutation(dict):
 
 	def is_registered(self):
 		return len(self) > 2
+
+	def copy(self):
+		return Permutation(**self)
 
 
 class pHash():
@@ -828,11 +832,11 @@ class Fuzzer():
 
 	def permutations(self, registered=False, unregistered=False, dns_all=False, unicode=False):
 		if (registered and not unregistered):
-			domains = [copy.copy(x) for x in self.domains if x.is_registered()]
+			domains = [x.copy() for x in self.domains if x.is_registered()]
 		elif (unregistered and not registered):
-			domains = [copy.copy(x) for x in self.domains if not x.is_registered()]
+			domains = [x.copy() for x in self.domains if not x.is_registered()]
 		else:
-			domains = copy.deepcopy(self.domains)
+			domains = [x.copy() for x in self.domains]
 		if not dns_all:
 			for domain in domains:
 				for k in ('dns_ns', 'dns_a', 'dns_aaaa', 'dns_mx'):
