@@ -23,14 +23,9 @@ from uuid import uuid4
 import time
 import threading
 from flask import Flask, request, jsonify, send_from_directory
-from copy import copy
 import resource
 import dnstwist
 
-try:
-	import idna.codec
-except ImportError:
-	pass
 
 def human_to_bytes(size):
 	units = {'b': 1, 'k': 2**10, 'm': 2**20, 'g': 2**30}
@@ -84,13 +79,12 @@ class Session():
 		self.thread_count = thread_count
 		self.jobs = Queue()
 		self.threads = []
-		fuzz = dnstwist.Fuzzer(self.url.domain, dictionary=DICTIONARY, tld_dictionary=TLD_DICTIONARY)
-		fuzz.generate()
-		self.permutations = fuzz.permutations()
-		del(fuzz)
+		self.fuzzer = dnstwist.Fuzzer(self.url.domain, dictionary=DICTIONARY, tld_dictionary=TLD_DICTIONARY)
+		self.fuzzer.generate()
+		self.permutations = self.fuzzer.permutations
 
 	def scan(self):
-		for domain in self.permutations:
+		for domain in self.fuzzer.domains:
 			self.jobs.put(domain)
 		for _ in range(self.thread_count):
 			worker = dnstwist.Scanner(self.jobs)
@@ -110,20 +104,13 @@ class Session():
 		self.threads.clear()
 
 	def domains(self):
-		domains = [copy(x) for x in self.permutations if x.is_registered()]
-		def _idna(item):
-			try:
-				item['domain'] = item['domain'].encode().decode('idna')
-			except Exception:
-				pass
-			return item
-		return sorted(map(_idna, domains))
+		return self.permutations(registered=True, unicode=True)
 
 	def status(self):
-		total = len(self.permutations)
+		total = len(self.permutations())
 		remaining = max(self.jobs.qsize(), len(self.threads))
 		complete = total - remaining
-		registered = sum([1 for x in self.permutations if x.is_registered()])
+		registered = len(self.permutations(registered=True))
 		return {
 			'id': self.id,
 			'timestamp': self.timestamp,
@@ -136,13 +123,13 @@ class Session():
 			}
 
 	def csv(self):
-		return dnstwist.Format([x for x in self.permutations if x.is_registered()]).csv()
+		return dnstwist.Format(self.permutations(registered=True)).csv()
 
 	def json(self):
-		return dnstwist.Format([x for x in self.permutations if x.is_registered()]).json()
+		return dnstwist.Format(self.permutations(registered=True)).json()
 
 	def list(self):
-		return dnstwist.Format(self.permutations).list()
+		return dnstwist.Format(self.permutations()).list()
 
 
 @app.route('/')
