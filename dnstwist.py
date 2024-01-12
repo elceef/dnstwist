@@ -375,7 +375,12 @@ class Permutation(dict):
 		return self['domain'] == other['domain']
 
 	def __lt__(self, other):
-		return self['fuzzer'] + ''.join(self.get('dns_a', [])[:1]) + self['domain'] < other['fuzzer'] + ''.join(other.get('dns_a', [])[:1]) + other['domain']
+		if self['fuzzer'] == other['fuzzer']:
+			if len(self) > 2 and len(other) > 2:
+				return self.get('dns_a', [''])[0] + self['domain'] < other.get('dns_a', [''])[0] + other['domain']
+			else:
+				return self['domain'] < other['domain']
+		return self['fuzzer'] < other['fuzzer']
 
 	def is_registered(self):
 		return len(self) > 2
