@@ -838,10 +838,13 @@ class Fuzzer():
 		else:
 			domains = [x.copy() for x in self.domains]
 		if not dns_all:
-			for domain in domains:
-				for k in ('dns_ns', 'dns_a', 'dns_aaaa', 'dns_mx'):
-					if k in domain:
-						domain[k] = domain[k][:1]
+			def _cutdns(x):
+				if x.is_registered():
+					for k in ('dns_ns', 'dns_a', 'dns_aaaa', 'dns_mx'):
+						if k in x:
+							x[k] = x[k][:1]
+				return x
+			domains = map(_cutdns, domains)
 		if unicode:
 			def _punydecode(x):
 				x.domain = idna.decode(x.domain)
