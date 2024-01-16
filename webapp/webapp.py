@@ -23,16 +23,8 @@ from uuid import uuid4
 import time
 import threading
 from flask import Flask, request, jsonify, send_from_directory
-import resource
 import dnstwist
 
-
-def human_to_bytes(size):
-	units = {'b': 1, 'k': 2**10, 'm': 2**20, 'g': 2**30}
-	u = size[-1].lower()
-	if u.isdigit():
-		return int(size)
-	return int(size[:-1]) * units.get(u, 1)
 
 PORT = int(os.environ.get('PORT', 8000))
 HOST= os.environ.get('HOST', '127.0.0.1')
@@ -40,7 +32,6 @@ THREADS = int(os.environ.get('THREADS', dnstwist.THREAD_COUNT_DEFAULT))
 NAMESERVERS = os.environ.get('NAMESERVERS') or os.environ.get('NAMESERVER')
 SESSION_TTL = int(os.environ.get('SESSION_TTL', 3600))
 SESSION_MAX = int(os.environ.get('SESSION_MAX', 10)) # max concurrent sessions
-MEMORY_LIMIT = human_to_bytes(os.environ.get('MEMORY_LIMIT', '0'))
 DOMAIN_MAXLEN = int(os.environ.get('DOMAIN_MAXLEN', 15))
 WEBAPP_HTML = os.environ.get('WEBAPP_HTML', 'webapp.html')
 WEBAPP_DIR = os.environ.get('WEBAPP_DIR', os.path.dirname(os.path.abspath(__file__)))
@@ -65,10 +56,6 @@ def janitor(sessions):
 			if (s.timestamp + SESSION_TTL) < time.time():
 				sessions.remove(s)
 				continue
-			if MEMORY_LIMIT:
-				maxrss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
-				if not s.threads and maxrss > MEMORY_LIMIT:
-					sessions.remove(s)
 
 class Session():
 	def __init__(self, url, nameservers=None, thread_count=THREADS):
