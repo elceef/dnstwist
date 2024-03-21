@@ -292,8 +292,8 @@ class UrlOpener():
 	def _normalize(self):
 		content = b' '.join(self.content.split())
 		mapping = dict({
-			b'(action|src|href)="[^"]+"': lambda m: m.group(0).split(b'=')[0] + b'=""',
-			b'url\([^)]+\)': b'url()',
+			b'(action|src|href)=".+"': lambda m: m.group(0).split(b'=')[0] + b'=""',
+			b'url(.+)': b'url()',
 			})
 		for pattern, repl in mapping.items():
 			content = re.sub(pattern, repl, content, flags=re.IGNORECASE)
