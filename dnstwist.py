@@ -304,7 +304,7 @@ class UrlParser():
 	def __init__(self, url):
 		if not url:
 			raise TypeError('argument has to be non-empty string')
-		u = urllib.parse.urlparse(url if '://' in url else 'http://{}'.format(url))
+		u = urllib.parse.urlparse(url if '://' in url else '//' + url, scheme='http')
 		self.scheme = u.scheme.lower()
 		if self.scheme not in ('http', 'https'):
 			raise ValueError('invalid scheme') from None
