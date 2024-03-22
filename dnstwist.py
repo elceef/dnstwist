@@ -413,6 +413,7 @@ class pHash():
 class HeadlessBrowser():
 	WEBDRIVER_TIMEOUT = 12
 	WEBDRIVER_ARGUMENTS = (
+		'--remote-debugging-pipe',
 		'--disable-dev-shm-usage',
 		'--ignore-certificate-errors',
 		'--headless',
