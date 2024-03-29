@@ -323,7 +323,7 @@ class UrlParser():
 		self.fragment = u.fragment
 
 	def _validate_domain(self, domain):
-		if 1 > len(domain) > 253:
+		if len(domain) < 1 or len(domain) > 253:
 			return False
 		if VALID_FQDN_REGEX.match(domain):
 			try:
