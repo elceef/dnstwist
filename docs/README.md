@@ -73,6 +73,12 @@ $ sudo apt install dnstwist
 $ sudo dnf install dnstwist
 ```
 
+**Arch Linux User Repository (yay)**
+
+```
+$ yay -S dnstwist
+```
+
 **macOS**
 
 This will install `dnstwist` along with all dependencies, and the binary will
