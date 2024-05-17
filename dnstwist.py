@@ -488,7 +488,7 @@ class HeadlessBrowser():
 
 class Fuzzer():
 	glyphs_idn_by_tld = {
-		**dict.fromkeys(['cz', 'sk', 'uk', 'co.uk', 'nl', 'edu', 'us'], {
+		**dict.fromkeys(['ad', 'cz', 'sk', 'uk', 'co.uk', 'nl', 'edu', 'us'], {
 			# IDN not supported by the corresponding registry
 		}),
 		**dict.fromkeys(['jp', 'co.jp', 'ad.jp', 'ne.jp'], {
