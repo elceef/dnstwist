@@ -915,17 +915,16 @@ class Scanner(threading.Thread):
 			return hello[4:].strip()
 		return ''
 
-	def _mxcheck(self, mx, from_domain, to_domain):
-		from_addr = 'randombob1986@' + from_domain
-		to_addr = 'randomalice1986@' + to_domain
-		try:
-			smtp = smtplib.SMTP(mx, 25, timeout=REQUEST_TIMEOUT_SMTP)
-			smtp.sendmail(from_addr, to_addr, 'And that\'s how the cookie crumbles')
-			smtp.quit()
-		except Exception:
-			return False
-		else:
-			return True
+	def _mxcheck(self, smtp, domain):
+		checks = (smtp.ehlo, smtp.helo)
+		for mx_check in checks:
+			try:
+				mx_check(name=domain)
+			except smtplib.SMTPException:
+				continue
+			else:
+				return True
+		return False
 
 	def stop(self):
 		self._stop_event.set()
@@ -1041,8 +1040,14 @@ class Scanner(threading.Thread):
 			if self.option_mxcheck:
 				if dns_mx is True:
 					if domain != self.url.domain:
-						if self._mxcheck(task['dns_mx'][0], self.url.domain, domain):
-							task['mx_spy'] = True
+						try:
+							mx = task['dns_mx'][0]
+							smtp = smtplib.SMTP(mx, 25, timeout=REQUEST_TIMEOUT_SMTP)
+							if self._mxcheck(smtp, domain):
+								task['mx_spy'] = True
+							smtp.quit()
+						except OSError:
+							pass
 
 			if self.option_geoip:
 				if dns_a is True:
