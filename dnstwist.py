@@ -766,7 +766,13 @@ class Fuzzer():
 
 
 	def _addition(self):
-		return {self.domain + chr(i) for i in (*range(48, 58), *range(97, 123))}
+		result = set()
+		if '-' in self.domain:
+			parts = self.domain.split('-')
+			result = {'-'.join(parts[:p]) + chr(i) + '-' + '-'.join(parts[p:]) for i in (*range(48, 58), *range(97, 123)) for p in range(1, len(parts))}
+		result.update({self.domain + chr(i) for i in (*range(48, 58), *range(97, 123))})
+		return result
+
 
 	def _dictionary(self):
 		result = set()
