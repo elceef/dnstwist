@@ -37,7 +37,6 @@ import time
 import argparse
 import threading
 import os
-import smtplib
 import json
 import queue
 import urllib.request
@@ -928,17 +927,38 @@ class Scanner(threading.Thread):
 			return hello[4:].strip()
 		return ''
 
-	def _mxcheck(self, mx, from_domain, to_domain):
-		from_addr = 'randombob1986@' + from_domain
-		to_addr = 'randomalice1986@' + to_domain
+	def _mxcheck(self, mxhost, domain_from, domain_rcpt):
+		r'''
+		Detects potential email honey pots waiting for mistyped emails to arrive.
+		Note: Some mail servers only pretend to accept incorrectly addressed
+		emails - this technique is used to prevent "directory harvesting attack".
+		'''
 		try:
-			smtp = smtplib.SMTP(mx, 25, timeout=REQUEST_TIMEOUT_SMTP)
-			smtp.sendmail(from_addr, to_addr, 'And that\'s how the cookie crumbles')
-			smtp.quit()
+			sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			sock.settimeout(REQUEST_TIMEOUT_SMTP)
+			sock.connect((mxhost, 25))
 		except Exception:
 			return False
+		for cmd in [
+			'EHLO {}\r\n'.format(mxhost),
+			'MAIL FROM: randombob1986@{}\r\n'.format(domain_from),
+			'RCPT TO: randomalice1986@{}\r\n'.format(domain_rcpt),
+			# And that's how the cookie crumbles
+		]:
+			try:
+				resp = sock.recv(512)
+			except Exception:
+				break
+			if not resp:
+				break
+			if resp[0] != 0x32: # status code != 2xx
+				break
+			sock.send(cmd.encode())
 		else:
+			sock.close()
 			return True
+		sock.close()
+		return False
 
 	def stop(self):
 		self._stop_event.set()
