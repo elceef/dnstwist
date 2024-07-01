@@ -1589,11 +1589,11 @@ r'''     _           _            _     _
 
 	if domains:
 		if args.format == 'csv':
-			print(Format(domains).csv())
+			p_cli(Format(domains).csv())
 		elif args.format == 'json':
-			print(Format(domains).json())
+			p_cli(Format(domains).json())
 		elif args.format == 'cli':
-			print(Format(domains).cli())
+			p_cli(Format(domains).cli())
 
 	if hasattr(sys, '_stdout'):
 		sys.stdout = sys._stdout
