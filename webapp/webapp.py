@@ -36,6 +36,8 @@ DOMAIN_MAXLEN = int(os.environ.get('DOMAIN_MAXLEN', 15))
 WEBAPP_HTML = os.environ.get('WEBAPP_HTML', 'webapp.html')
 WEBAPP_DIR = os.environ.get('WEBAPP_DIR', os.path.dirname(os.path.abspath(__file__)))
 
+DOMAIN_BLOCKLIST = []
+
 DICTIONARY = ('auth', 'account', 'confirm', 'connect', 'enroll', 'http', 'https', 'info', 'login', 'mail', 'my',
 	'online', 'payment', 'portal', 'recovery', 'register', 'ssl', 'safe', 'secure', 'signin', 'signup', 'support',
 	'update', 'user', 'verify', 'verification', 'web', 'www')
@@ -137,6 +139,9 @@ def api_scan():
 		return jsonify({'message': 'Bad request'}), 400
 	if len(domain) > DOMAIN_MAXLEN:
 		return jsonify({'message': 'Domain name is too long'}), 400
+	for block in DOMAIN_BLOCKLIST:
+		if str(block) in domain:
+			return jsonify({'message': 'Not allowed'}), 400
 	try:
 		session = Session(j.get('url'), nameservers=NAMESERVERS)
 	except Exception as err:
