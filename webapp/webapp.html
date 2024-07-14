@@ -198,11 +198,16 @@ span#source {
 			<progress id="progress" value="0"></progress>
 			<span id="status"></span>
 		</div>
-		<table id="data"></table>
+		<table onchange="adjust()" id="data"></table>
 	</div>
 	<span id="source">[<a href="https://github.com/elceef/dnstwist">source code</a>]</span>
 </body>
 <script>
+
+function adjust() {
+  document.getElementById("container").style.marginTop = "2em";
+}
+
 window.onload = function() {
 	if (window.location.hash) {
 		$('#sid').val(window.location.hash.substring(1));
@@ -312,6 +317,7 @@ function actionScan() {
 
 $('#scan').click(function() {
 	actionScan();
+	adjust();
 });
 
 $('#url').on('keypress',function(e) {
