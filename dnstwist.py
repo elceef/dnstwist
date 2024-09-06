@@ -839,6 +839,7 @@ class Fuzzer():
 				self.domains.add(Permutation(fuzzer='various', domain='.'.join(filter(None, [self.subdomain, self.domain + self.tld, self.tld]))))
 			if self.tld != 'com' and '.' not in self.tld:
 				self.domains.add(Permutation(fuzzer='various', domain='.'.join(filter(None, [self.subdomain, self.domain + '-' + self.tld, 'com']))))
+				self.domains.add(Permutation(fuzzer='various', domain='.'.join(filter(None, [self.subdomain, self.domain + self.tld, 'com']))))
 			if self.subdomain:
 				self.domains.add(Permutation(fuzzer='various', domain='.'.join([self.subdomain + self.domain, self.tld])))
 				self.domains.add(Permutation(fuzzer='various', domain='.'.join([self.subdomain.replace('.', '') + self.domain, self.tld])))
