@@ -242,12 +242,12 @@ class Whois():
 				response += buf
 			if server and server != self.WHOIS_IANA and tld not in self.whois_tld:
 				self.whois_tld[tld] = server
-		except socket.timeout:
+		except (socket.timeout, socket.gaierror):
 			return ''
 		finally:
 			sock.close()
 		response = response.decode('utf-8', errors='ignore')
-		refer = re.search(r'refer:\s+(?P<server>\w[-.a-z0-9]+)', response, re.IGNORECASE | re.MULTILINE)
+		refer = re.search(r'refer:\s+(?P<server>[-.a-z0-9]+)', response, re.IGNORECASE | re.MULTILINE)
 		if refer:
 			return self.query(query, refer.group('server'))
 		return response
