@@ -195,6 +195,12 @@ class Whois():
 		'cn': 'whois.cnnic.cn',
 		'ru': 'whois.tcinet.ru',
 		'in': 'whois.registry.in',
+		'eu': 'whois.eu',
+		'uk': 'whois.nic.uk',
+		'de': 'whois.denic.de',
+		'nl': 'whois.domain-registry.nl',
+		'br': 'whois.registro.br',
+		'jp': 'whois.jprs.jp',
 	}
 
 	def __init__(self):
