@@ -43,7 +43,7 @@ import urllib.request
 import urllib.parse
 import gzip
 from io import BytesIO
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def _debug(msg):
 	if 'DEBUG' in os.environ:
@@ -374,12 +374,24 @@ class Permutation(dict):
 			self[k] = v
 
 	def __hash__(self):
+		# Make the object hashable based on the domain
 		return hash(self['domain'])
 
 	def __eq__(self, other):
+		# Ensure equality comparison matches hash behavior
 		return self['domain'] == other['domain']
 
 	def __lt__(self, other):
+		# Add sorting by registration date if both domains have whois_created
+		if hasattr(self, 'sort_by_date') and self.sort_by_date:
+			if 'whois_created' in self and 'whois_created' in other:
+				return self['whois_created'] < other['whois_created']
+			elif 'whois_created' in self:
+				return True
+			elif 'whois_created' in other:
+				return False
+		
+		# Original sorting logic
 		if self['fuzzer'] == other['fuzzer']:
 			if len(self) > 2 and len(other) > 2:
 				return self.get('dns_a', [''])[0] + self['domain'] < other.get('dns_a', [''])[0] + other['domain']
@@ -1190,37 +1202,58 @@ class Format():
 	def cli(self):
 		cli = []
 		domains = list(self.domains)
-		if sys.stdout.encoding.lower() == 'utf-8':
-			for domain in domains:
-				domain.update(domain=idna.decode(domain.get('domain')))
+		
+		# Calculate max widths for formatting
 		wfuz = max([len(x.get('fuzzer', '')) for x in domains]) + 1
 		wdom = max([len(x.get('domain', '')) for x in domains]) + 1
-		kv = lambda k, v: FG_YEL + k + FG_CYA + v + FG_RST if k else FG_CYA + v + FG_RST
+		
+		# Calculate the date 60 days ago
+		recent_threshold = datetime.now() - timedelta(days=60)
+
 		for domain in domains:
-			inf = []
+			# Build the information parts
+			info_parts = []
+			
+			# Add IP addresses if present
 			if 'dns_a' in domain:
-				inf.append(';'.join(domain['dns_a']) + (kv('/', domain['geoip'].replace(' ', '')) if 'geoip' in domain else ''))
-			if 'dns_aaaa' in domain:
-				inf.append(';'.join(domain['dns_aaaa']))
-			if 'dns_ns' in domain:
-				inf.append(kv('NS:', ';'.join(domain['dns_ns'])))
-			if 'dns_mx' in domain:
-				inf.append(kv('SPYING-MX:' if domain.get('mx_spy') else 'MX:', ';'.join(domain['dns_mx'])))
-			if 'banner_http' in domain:
-				inf.append(kv('HTTP:', domain['banner_http']))
-			if 'banner_smtp' in domain:
-				inf.append(kv('SMTP:', domain['banner_smtp']))
-			if 'whois_registrar' in domain:
-				inf.append(kv('REGISTRAR:', domain['whois_registrar']))
+				info_parts.append(';'.join(domain['dns_a']))
+			
+			# Add registration date if present
 			if 'whois_created' in domain:
-				inf.append(kv('CREATED:', domain['whois_created']))
-			if domain.get('ssdeep', 0) > 0:
-				inf.append(kv('SSDEEP:', '{}%'.format(domain['ssdeep'])))
-			if domain.get('tlsh', 0) > 0:
-				inf.append(kv('TLSH:', '{}%'.format(domain['tlsh'])))
-			if domain.get('phash', 0) > 0:
-				inf.append(kv('PHASH:', '{}%'.format(domain['phash'])))
-			cli.append('{}{[fuzzer]:<{}}{} {[domain]:<{}} {}'.format(FG_BLU, domain, wfuz, FG_RST, domain, wdom, ' '.join(inf or ['-'])))
+				date_str = domain['whois_created']
+				try:
+					reg_date = datetime.strptime(date_str, '%Y-%m-%d')
+					if reg_date > recent_threshold:
+						date_str = f'⚠️  {date_str} (RECENT)'
+						# Highlight the line for recent registrations
+						highlight = True
+					else:
+						highlight = False
+				except (ValueError, TypeError):
+					highlight = False
+				info_parts.append(f"Registered: {date_str}")
+			else:
+				highlight = False
+			
+			# Add registrar if present
+			if 'whois_registrar' in domain:
+				info_parts.append(f"Registrar: {domain['whois_registrar']}")
+			
+			# Format the line with fixed width columns
+			line = '{:<{}} {:<{}} {}'.format(
+				domain.get('fuzzer', ''), 
+				wfuz,
+				domain.get('domain', ''), 
+				wdom,
+				' | '.join(info_parts) if info_parts else '-'
+			)
+			
+			# Add highlighting for recent registrations
+			if highlight:
+				line = '\x1b[41m' + line + '\x1b[0m'
+			
+			cli.append(line)
+		
 		return '\n'.join(cli)
 
 
@@ -1233,7 +1266,6 @@ def cleaner(func):
 		sys.argv = sys.argv[0:1]
 		return result
 	return wrapper
-
 
 @cleaner
 def run(**kwargs):
@@ -1265,6 +1297,7 @@ def run(**kwargs):
 	parser.add_argument('--screenshots', metavar='DIR', help='Save web page screenshots into DIR')
 	parser.add_argument('-s', '--ssdeep', action='store_true', help=argparse.SUPPRESS)
 	parser.add_argument('--ssdeep-url', help=argparse.SUPPRESS)
+	parser.add_argument('--sort-date', action='store_true', help='Sort domains by registration date')
 	parser.add_argument('-t', '--threads', type=int, metavar='NUM', default=THREAD_COUNT_DEFAULT,
 		help='Start specified NUM of threads (default: %s)' % THREAD_COUNT_DEFAULT)
 	parser.add_argument('-w', '--whois', action='store_true', help='Lookup WHOIS database for creation date and registrar')
@@ -1404,6 +1437,13 @@ def run(**kwargs):
 			parser.error('unable to open {} ({})'.format(args.output, err.strerror.lower()))
 
 
+
+
+
+
+
+
+
 	lsh_url = None
 	if args.lsh:
 		if args.lsh == 'ssdeep' and not MODULE_SSDEEP:
@@ -1419,7 +1459,7 @@ def run(**kwargs):
 	phash_url = None
 	if args.phash or args.screenshots:
 		if not MODULE_PIL:
-			parser.error('missing Python Imaging Library (PIL)')
+				parser.error('missing Python Imaging Library (PIL)')
 		if not MODULE_SELENIUM:
 			parser.error('missing Selenium Webdriver')
 		try:
@@ -1581,18 +1621,50 @@ r'''     _           _            _     _
 	if args.whois:
 		total = sum([1 for x in domains if x.is_registered()])
 		whois = Whois()
+		print("\nGathering WHOIS information...")
+		
 		for i, domain in enumerate([x for x in domains if x.is_registered()]):
-			p_cli(ST_CLR + '\rWHOIS: {} ({:.2%})'.format(domain['domain'], (i+1)/total))
 			try:
-				wreply = whois.whois('.'.join(domain_tld(domain['domain'])[1:]))
+				wreply = whois.whois(domain['domain'])
+				if wreply:
+					creation_date = wreply.get('creation_date')
+					if creation_date:
+						if isinstance(creation_date, list):
+								creation_date = creation_date[0]
+						if isinstance(creation_date, datetime):
+							domain['whois_created'] = creation_date.strftime('%Y-%m-%d')
+						else:
+							try:
+								parsed_date = parser.parse(str(creation_date))
+								domain['whois_created'] = parsed_date.strftime('%Y-%m-%d')
+							except:
+								domain['whois_created'] = str(creation_date)
+					
+					if wreply.get('registrar'):
+						domain['whois_registrar'] = wreply.get('registrar')
+				
+				# Update progress without overwriting data
+				sys.stdout.write(f"\rProgress: {i+1}/{total} domains processed")
+				sys.stdout.flush()
+				
 			except Exception as e:
 				_debug(e)
-			else:
-				if wreply.get('creation_date'):
-					domain['whois_created'] = wreply.get('creation_date').strftime('%Y-%m-%d')
-				if wreply.get('registrar'):
-					domain['whois_registrar'] = wreply.get('registrar')
-		p_cli('\n')
+		
+		print("\nWHOIS gathering completed.\n")
+
+	# Sort domains by date if requested
+	if args.sort_date:
+		domains = sorted(domains, 
+						key=lambda x: x.get('whois_created', '9999-99-99'))  # Domains without dates go to the end
+
+	if args.format == 'list':
+		print(Format(domains).list())
+		if hasattr(sys, '_stdout'):
+			sys.stdout = sys._stdout
+		return list(map(dict, domains)) if kwargs else None
+
+	if not MODULE_DNSPYTHON:
+		p_err('WARNING: DNS features are limited due to lack of DNSPython library')
 
 	p_cli('\n')
 
