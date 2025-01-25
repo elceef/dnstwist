@@ -162,7 +162,7 @@ def domain_tld(domain):
 	try:
 		from tld import parse_tld
 	except ImportError:
-		ctld = ['org', 'com', 'net', 'gov', 'edu', 'co', 'mil', 'nom', 'ac', 'info', 'biz']
+		ctld = ['org', 'com', 'net', 'gov', 'edu', 'co', 'mil', 'nom', 'ac', 'info', 'biz', 'ne']
 		d = domain.rsplit('.', 3)
 		if len(d) < 2:
 			return '', d[0], ''
