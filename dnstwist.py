@@ -1255,7 +1255,7 @@ def run(**kwargs):
 	parser.add_argument('-f', '--format', type=str, default='cli', help='Output format: cli, csv, json, list (default: cli)')
 	parser.add_argument('--fuzzers', type=str, metavar='LIST', help='Use only selected fuzzing algorithms (separated with commas)')
 	parser.add_argument('-g', '--geoip', action='store_true', help='Lookup for GeoIP location')
-	parser.add_argument('--lsh', type=str, metavar='LSH', nargs='?', const='ssdeep',
+	parser.add_argument('--lsh', metavar='LSH', nargs='?', const='ssdeep', choices=['ssdeep', 'tlsh'],
 		help='Evaluate web page similarity with LSH algorithm: ssdeep, tlsh (default: ssdeep)')
 	parser.add_argument('--lsh-url', metavar='URL', help='Override URL to fetch the original web page from')
 	parser.add_argument('-m', '--mxcheck', action='store_true', help='Check if MX host can be used to intercept emails')
@@ -1327,9 +1327,6 @@ def run(**kwargs):
 
 	if not args.lsh and args.lsh_url:
 		parser.error('argument --lsh-url requires --lsh')
-
-	if args.lsh and args.lsh not in ('ssdeep', 'tlsh'):
-		parser.error('invalid LSH algorithm (choose ssdeep or tlsh)')
 
 	if not args.phash:
 		if args.phash_url:
