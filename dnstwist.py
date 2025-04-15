@@ -135,13 +135,22 @@ except ImportError as e:
 
 
 VALID_FQDN_REGEX = re.compile(r'(?=^.{4,253}$)(^((?!-)[a-z0-9-]{1,63}(?<!-)\.)+[a-z0-9-]{2,63}$)', re.IGNORECASE)
-USER_AGENT_STRING = 'Mozilla/5.0 ({} {}-bit) dnstwist/{}'.format(sys.platform, sys.maxsize.bit_length() + 1, __version__)
 
-REQUEST_TIMEOUT_DNS = 2.5
-REQUEST_RETRIES_DNS = 2
-REQUEST_TIMEOUT_HTTP = 5
-REQUEST_TIMEOUT_SMTP = 5
+USER_AGENT_STRING = 'Mozilla/5.0 ({} {}-bit) dnstwist/{}'.format(sys.platform, sys.maxsize.bit_length() + 1, __version__)
 THREAD_COUNT_DEFAULT = min(32, os.cpu_count() + 4)
+
+# adjustable with environment variables
+for env, typ, val in [
+	('REQUEST_TIMEOUT_DNS', float, 2.5),
+	('REQUEST_RETRIES_DNS', int, 2),
+	('REQUEST_TIMEOUT_HTTP', float, 5),
+	('REQUEST_TIMEOUT_SMTP', float, 5),
+	('WEBDRIVER_PAGELOAD_TIMEOUT', float, 12.0)
+	]:
+	try:
+		globals()[env] = typ(os.environ.get(env, val))
+	except ValueError:
+		globals()[env] = val
 
 if sys.platform != 'win32' and sys.stdout.isatty():
 	FG_RND = '\x1b[3{}m'.format(int(time.time())%8+1)
@@ -416,7 +425,7 @@ class pHash():
 
 
 class HeadlessBrowser():
-	WEBDRIVER_TIMEOUT = 12
+	WEBDRIVER_TIMEOUT = WEBDRIVER_PAGELOAD_TIMEOUT
 	WEBDRIVER_ARGUMENTS = (
 		'--disable-dev-shm-usage',
 		'--ignore-certificate-errors',
