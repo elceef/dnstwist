@@ -1,7 +1,10 @@
 # DNStwist Web App Dockerfile
-FROM python:3.11-slim
+FROM 764525110978.dkr.ecr.us-west-2.amazonaws.com/python:3.11-slim-bookworm-arm
 
 WORKDIR /app
+
+# Ensure we're running as root for system package installation
+USER root
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
