@@ -53,7 +53,7 @@ ENV THREADS=10
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8000/ || exit 1
+    CMD curl -f -k https://localhost:8000/ || exit 1
 
 # Run the webapp
-CMD ["gunicorn", "webapp:app", "--bind", "0.0.0.0:8000", "--workers", "1", "--threads", "10", "--log-level", "info"]
+CMD ["gunicorn", "webapp:app", "--bind", "0.0.0.0:8000", "--workers", "1", "--threads", "10", "--log-level", "info", "--certfile", "/app/ssl/cert.pem", "--keyfile", "/app/ssl/key.pem"]
