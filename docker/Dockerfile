@@ -33,14 +33,15 @@ RUN pip install --no-cache-dir \
     dnspython \
     requests
 
+# Create a non-root user
+RUN useradd -m -u 1001 dnstwist
+
 # Create SSL directory and generate self-signed certificate
 RUN mkdir -p /app/ssl && \
     openssl req -x509 -newkey rsa:4096 -keyout /app/ssl/key.pem -out /app/ssl/cert.pem -days 365 -nodes \
     -subj "/C=US/ST=Arizona/L=Scottsdale/O=GoDaddy/CN=dnstwist-internal" && \
+    chown -R dnstwist:dnstwist /app/ssl && \
     chmod 600 /app/ssl/key.pem && chmod 644 /app/ssl/cert.pem
-
-# Create a non-root user
-RUN useradd -m -u 1001 dnstwist
 USER dnstwist
 
 # Expose port
