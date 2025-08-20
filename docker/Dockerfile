@@ -53,6 +53,9 @@ ENV THREADS=10
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f -k https://localhost:8000/ || exit 1
 
+# Switch to non-root user
+USER dnstwist
+
 # Set entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
 
