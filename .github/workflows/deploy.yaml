@@ -1,0 +1,154 @@
+name: Deploy image
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: environment
+        required: true
+        default: dev-private
+        description: Target deployment environment.
+      tag:
+        type: string
+        required: true
+        description: Tag of the docker image to pull from CICD ECR.
+      services:
+        type: string
+        required: false
+        description: Comma separated services. Defaults to running services.
+      deploy:
+        type: boolean
+        required: true
+        description: Deploy image. If left unchecked, it will push image to target ECR but skip deploying services.
+        default: true
+      rollback:
+        type: boolean
+        required: true
+        description: Rollback if deployment fails.
+        default: false
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: false
+        default: dev-private
+        description: Target deployment environment. It defaults to dev-private.
+      tag:
+        type: string
+        required: true
+        description: Tag of the docker image to pull from CICD ECR.
+      services:
+        type: string
+        required: false
+        description: Comma separated services. Defaults to running services.
+      deploy:
+        type: string
+        required: false
+        description: If false, it will push image to target ECR but skip deploying services.
+        default: true
+      rollback:
+        type: string
+        required: false
+        description: Rollback if deployment fails.
+        default: false
+
+env:
+  ENVIRONMENT: ${{ github.event.inputs.environment || inputs.environment }}
+  TAG: ${{ github.event.inputs.tag || inputs.tag || 'latest' }}
+  DEPLOY: ${{ github.event.inputs.deploy || inputs.deploy }}
+  ROLLBACK: ${{ github.event.inputs.rollback || inputs.rollback }}
+
+jobs:
+  get-services:
+    runs-on:
+      group: 6763-ubuntu
+      labels: [self-hosted]
+    environment: ${{ github.event.inputs.environment || inputs.environment }}
+    outputs:
+      services: ${{ steps.services.outputs.services }}
+    steps:
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
+        
+      - name: Get secrets
+        uses: aws-actions/aws-secretsmanager-get-secrets@ff26a0aa6bd4dd5e51326b5afb3f5f6874c958c7 # v2.0.3
+        env:
+          # CICD account region
+          AWS_REGION: us-west-2
+        with:
+          secret-ids: |
+            GH_ACTIONS_PAT,/Github/Github-Actions-Runner-PAT
+
+      - name: Checkout infra repository
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
+        with:
+          repository: gdcorp-uni/infra
+          token: ${{ env.GH_ACTIONS_PAT }}
+          ref: main
+          path: infra
+
+      - id: load-params
+        uses: ./infra/.github/actions/load-deploy-params
+        with:
+          environment: ${{ github.event.inputs.environment }}
+
+      - name: Configure ${{ env.ENVIRONMENT }} AWS credentials
+        uses: aws-actions/configure-aws-credentials@e1e17a757e536f70e52b5a12b2e8d1d1c60e04ef #v2.0.0
+        with:
+          role-to-assume: ${{ steps.load-params.outputs.AWS_ROLE }}
+          role-duration-seconds: 1800
+          role-skip-session-tagging: true
+          aws-region: ${{ steps.load-params.outputs.AWS_REGION }}
+
+      - name: Build service matrix
+        id: services
+        env:
+          SERVICES: ${{ github.event.inputs.services || inputs.services }}
+        run: |
+          if [ -z "$SERVICES" ]
+          then
+            echo services=$(aws ecs list-services --cluster dnstwist | jq -r ".serviceArns|map(.|match(\".+service\/dnstwist\/(.+)$\")|.captures|.[0].string)") >> $GITHUB_OUTPUT
+          else
+            SERVICES=$(echo -e "${SERVICES}" | tr -d '[:space:]')
+            IFS=',' read -r -a ARR <<< "$SERVICES"
+            echo services=$(jq -n '$ARGS.positional' --args "${ARR[@]}") >> $GITHUB_OUTPUT
+          fi
+
+  deploy:
+    needs: [get-services]
+    runs-on:
+      group: 6763-ubuntu
+      labels: [self-hosted]
+    strategy:
+      matrix:
+        service: ${{ fromJSON(needs.get-services.outputs.services) }}
+    environment: ${{ github.event.inputs.environment || inputs.environment }}
+    steps:
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
+        
+      - name: Get secrets
+        uses: aws-actions/aws-secretsmanager-get-secrets@ff26a0aa6bd4dd5e51326b5afb3f5f6874c958c7 # v2.0.3
+        env:
+          # CICD account region
+          AWS_REGION: us-west-2
+        with:
+          secret-ids: |
+            GH_ACTIONS_PAT,/Github/Github-Actions-Runner-PAT
+
+      - name: Checkout infra repository
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
+        with:
+          repository: gdcorp-uni/infra
+          token: ${{ env.GH_ACTIONS_PAT }}
+          ref: main
+          path: infra
+
+      - name: Push image to ${{ env.ENVIRONMENT }} ECR and deploy
+        uses: ./infra/.github/actions/deploy-image
+        with:
+          image_name: dnstwist
+          image_tag: ${{ env.TAG }}
+          environment: ${{ env.ENVIRONMENT }}
+          cluster_name: dnstwist
+          service_name: ${{ matrix.service }}
+          deploy_image: ${{ env.DEPLOY }}
+          rollback: ${{ env.ROLLBACK }}
