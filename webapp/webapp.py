@@ -206,4 +206,21 @@ cleaner.daemon = True
 cleaner.start()
 
 if __name__ == '__main__':
-	app.run(host=HOST, port=PORT)
+	import ssl
+	
+	# Check if SSL is enabled via environment variable
+	ssl_disabled = os.environ.get('SSL_DISABLE', 'true').lower() == 'true'
+	
+	if not ssl_disabled:
+		# Run HTTPS with SSL certificates
+		cert_file = os.environ.get('SSL_CERT', '/app/ssl/cert.pem')
+		key_file = os.environ.get('SSL_KEY', '/app/ssl/key.pem')
+		
+		if os.path.exists(cert_file) and os.path.exists(key_file):
+			app.run(host=HOST, port=PORT, ssl_context=(cert_file, key_file))
+		else:
+			print("SSL certificates not found, falling back to HTTP")
+			app.run(host=HOST, port=PORT)
+	else:
+		# Run HTTP
+		app.run(host=HOST, port=PORT)

@@ -1,0 +1,59 @@
+name: Build and deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: environment
+        required: true
+        default: dev-private
+        description: Target deployment environment.
+      tag:
+        type: string
+        required: false
+        description: Docker image tag. If left empty, it defaults to commit sha.
+      services:
+        type: string
+        required: false
+        description: Comma separated services. Defaults to running services.
+      deploy:
+        type: boolean
+        required: true
+        description: Deploy image. If left unchecked, it will push image to target ECR but skip deploying services.
+        default: true
+      rollback:
+        type: boolean
+        required: true
+        description: Rollback if deployment fails.
+        default: false
+      container_scan:
+        type: boolean
+        description: Run container-scan checks.
+        required: true
+        default: true
+      platforms:
+        type: select
+        description: Target platform for the build.
+        required: true
+        default: linux/amd64
+        options:
+          - linux/amd64
+          - linux/arm64
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yaml
+    with:
+      tags: ${{ github.event.inputs.tag || github.sha }}
+      container_scan: ${{ github.event.inputs.container_scan }}
+      platforms: ${{ github.event.inputs.platforms }}
+
+  deploy:
+    needs: build
+    uses: ./.github/workflows/deploy.yaml
+    with:
+      environment: ${{ github.event.inputs.environment }}
+      tag: ${{ github.event.inputs.tag || github.sha }}
+      services: ${{ github.event.inputs.services }}
+      deploy: ${{ github.event.inputs.deploy }}
+      rollback: ${{ github.event.inputs.rollback }}

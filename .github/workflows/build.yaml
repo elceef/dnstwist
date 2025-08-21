@@ -1,0 +1,82 @@
+name: Build image
+
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        type: string
+        required: false
+        description: Comma separated image tags (latest,release,etc). If left empty, it defaults to commit sha.
+      container_scan:
+        type: boolean
+        description: Run container-scan checks.
+        required: true
+        default: true
+      platforms:
+        type: select
+        description: Target platform for the build.
+        required: true
+        default: linux/amd64
+        options:
+          - linux/amd64
+          - linux/arm64
+  workflow_call:
+    inputs:
+      tags:
+        type: string
+        required: false
+        description: Comma separated image tags (latest,release,etc). If left empty, it defaults to commit sha.
+      container_scan:
+        type: string
+        description: Run container-scan checks.
+        required: false
+        default: true
+      platforms:
+        type: string
+        description: Target platform for the build.
+        required: false
+        default: linux/amd64
+  push:
+    branches:
+      - main
+  release:
+
+env:
+  TAGS: ${{ github.event.inputs.tags || inputs.tags || (github.event_name == 'push' && 'latest') || (github.event_name == 'release' && github.event.release.tag_name) || github.sha }}
+  SCAN: ${{ github.event.inputs.container_scan || inputs.container_scan || github.event_name == 'push' }}
+  PLATFORMS: ${{ github.event.inputs.platforms || inputs.platforms || 'linux/amd64' }}
+
+jobs:
+  build:
+    runs-on:
+      group: 6763-ubuntu
+      labels: [self-hosted]
+
+    steps:
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
+
+      - name: Get secrets
+        uses: aws-actions/aws-secretsmanager-get-secrets@ff26a0aa6bd4dd5e51326b5afb3f5f6874c958c7 # v2.0.3
+        env:
+          # CICD account region
+          AWS_REGION: us-west-2
+        with:
+          secret-ids: |
+            GH_ACTIONS_PAT,/Github/Github-Actions-Runner-PAT
+
+      - name: Checkout infra repository
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
+        with:
+          repository: gdcorp-uni/infra
+          token: ${{ env.GH_ACTIONS_PAT }}
+          ref: main
+          path: infra
+
+      - name: Build and push image to ECR
+        uses: ./infra/.github/actions/build-image
+        with:
+          image_name: dnstwist
+          image_tags: ${{ env.TAGS }}
+          container_scan: ${{ env.SCAN }}
+          platforms: ${{ env.PLATFORMS }}
+          path: ./docker/Dockerfile
