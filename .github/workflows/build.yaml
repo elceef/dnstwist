@@ -13,10 +13,10 @@ on:
         required: true
         default: true
       platforms:
-        type: select
+        type: choice
         description: Target platform for the build.
         required: true
-        default: linux/amd64
+        default: linux/arm64
         options:
           - linux/amd64
           - linux/arm64
@@ -35,7 +35,7 @@ on:
         type: string
         description: Target platform for the build.
         required: false
-        default: linux/amd64
+        default: linux/arm64
   push:
     branches:
       - main
@@ -49,7 +49,7 @@ env:
 jobs:
   build:
     runs-on:
-      group: 6763-ubuntu
+      group: 6763-arm
       labels: [self-hosted]
 
     steps:
