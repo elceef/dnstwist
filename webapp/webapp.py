@@ -18,6 +18,7 @@ limitations under the License.
 '''
 
 import os
+import collections
 from queue import Queue
 from uuid import uuid4
 import time
@@ -40,7 +41,8 @@ def bind_address(host=None, port=None):
 THREADS = int(os.environ.get('THREADS', dnstwist.THREAD_COUNT_DEFAULT))
 NAMESERVERS = os.environ.get('NAMESERVERS') or os.environ.get('NAMESERVER')
 SESSION_TTL = int(os.environ.get('SESSION_TTL', 3600))
-SESSION_MAX = int(os.environ.get('SESSION_MAX', 10)) # max concurrent sessions
+MAX_CONCURRENT = int(os.environ.get('SESSION_MAX', 10)) # max concurrently running scans
+MAX_QUEUE = int(os.environ.get('MAX_QUEUE', 500)) # max queued scans before backpressure
 DOMAIN_MAXLEN = int(os.environ.get('DOMAIN_MAXLEN', 15))
 WEBAPP_HTML = os.environ.get('WEBAPP_HTML', 'webapp.html')
 WEBAPP_DIR = os.environ.get('WEBAPP_DIR', os.path.dirname(os.path.abspath(__file__)))
@@ -59,6 +61,8 @@ TLD_DICTIONARY = ('com', 'net', 'org', 'info', 'cn', 'co', 'eu', 'de', 'uk', 'pw
 
 
 sessions = []
+pending = collections.deque() # queued sessions awaiting a free slot (FIFO)
+lock = threading.Lock() # guards mutations of sessions/pending
 app = Flask(__name__)
 
 def janitor(sessions):
@@ -69,8 +73,30 @@ def janitor(sessions):
 				s.stop()
 				continue
 			if (s.timestamp + SESSION_TTL) < time.time():
-				sessions.remove(s)
+				with lock:
+					if s in sessions:
+						sessions.remove(s)
+					if s in pending:
+						pending.remove(s)
 				continue
+
+def dispatch_once():
+	running = sum(1 for s in sessions if s.state == 'running' and s.threads)
+	while running < MAX_CONCURRENT:
+		with lock:
+			if not pending:
+				break
+			s = pending.popleft()
+		# Skip sessions that were stopped/expired while waiting in the queue.
+		if s.state != 'queued':
+			continue
+		s.scan()
+		running += 1
+
+def dispatcher():
+	while True:
+		time.sleep(0.2)
+		dispatch_once()
 
 class Session():
 	def __init__(self, url, nameservers=None, thread_count=THREADS):
@@ -81,11 +107,13 @@ class Session():
 		self.thread_count = thread_count
 		self.jobs = Queue()
 		self.threads = []
+		self.state = 'queued'
 		self.fuzzer = dnstwist.Fuzzer(self.url.domain, dictionary=DICTIONARY, tld_dictionary=TLD_DICTIONARY)
 		self.fuzzer.generate()
 		self.permutations = self.fuzzer.permutations
 
 	def scan(self):
+		self.state = 'running'
 		for domain in self.fuzzer.domains:
 			self.jobs.put(domain)
 		for _ in range(self.thread_count):
@@ -104,14 +132,21 @@ class Session():
 		for worker in self.threads:
 			worker.join()
 		self.threads.clear()
+		self.state = 'done'
 
 	def domains(self):
 		return self.permutations(registered=True, unicode=True)
 
 	def status(self):
 		total = len(self.permutations())
-		remaining = max(self.jobs.qsize(), len(self.threads))
-		complete = total - remaining
+		if self.state == 'queued':
+			# Not started yet: report no progress so polling clients keep waiting
+			# instead of seeing remaining=0 and treating the scan as complete.
+			remaining = total
+			complete = 0
+		else:
+			remaining = max(self.jobs.qsize(), len(self.threads))
+			complete = total - remaining
 		registered = len(self.permutations(registered=True))
 		return {
 			'id': self.id,
@@ -121,7 +156,8 @@ class Session():
 			'total': total,
 			'complete': complete,
 			'remaining': remaining,
-			'registered': registered
+			'registered': registered,
+			'state': self.state
 			}
 
 	def csv(self):
@@ -144,8 +180,8 @@ def healthcheck():
 
 @app.route('/api/scans', methods=['POST'])
 def api_scan():
-	if sum([1 for s in sessions if not s.jobs.empty()]) >= SESSION_MAX:
-		return jsonify({'message': 'Too many scan sessions - please retry in a minute'}), 500
+	if len(pending) >= MAX_QUEUE:
+		return jsonify({'message': 'Too many scan sessions - please retry in a minute'}), 429, {'Retry-After': '60'}
 	j = request.get_json(force=True)
 	if 'url' not in j:
 		return jsonify({'message': 'Bad request'}), 400
@@ -163,8 +199,10 @@ def api_scan():
 	except Exception as err:
 		return jsonify({'message': 'Invalid domain name'}), 400
 	else:
-		session.scan()
-		sessions.append(session)
+		# Enqueue only; the dispatcher thread starts the scan when a slot frees up.
+		with lock:
+			sessions.append(session)
+			pending.append(session)
 	return jsonify(session.status()), 201
 
 
@@ -217,9 +255,18 @@ def api_stop(sid):
 	return jsonify({'message': 'Scan session not found'}), 404
 
 
-cleaner = threading.Thread(target=janitor, args=(sessions,))
-cleaner.daemon = True
-cleaner.start()
+def start_background_threads():
+	cleaner = threading.Thread(target=janitor, args=(sessions,))
+	cleaner.daemon = True
+	cleaner.start()
+
+	promoter = threading.Thread(target=dispatcher)
+	promoter.daemon = True
+	promoter.start()
+
+# Started on import so gunicorn workers get the threads; tests can opt out.
+if os.environ.get('WEBAPP_START_THREADS', '1') != '0':
+	start_background_threads()
 
 if __name__ == '__main__':
 	app.run(host=HOST, port=PORT)
