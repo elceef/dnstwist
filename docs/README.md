@@ -94,6 +94,7 @@ $ brew install dnstwist
 
 ```
 $ pipx install otinstaller
+$ otinstaller init
 $ otinstaller install dnstwist
 $ otinstaller run dnstwist -- --registered d:domain.name
 ```
