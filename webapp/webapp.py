@@ -138,7 +138,7 @@ def api_scan():
 	except Exception:
 		return jsonify({'message': 'Bad request'}), 400
 	if len(domain) > DOMAIN_MAXLEN:
-		return jsonify({'message': 'Domain name is too long'}), 400
+		return jsonify({'message': 'Domain name is too long (max {} characters)'.format(DOMAIN_MAXLEN)}), 400
 	for block in DOMAIN_BLOCKLIST:
 		if str(block) in domain:
 			return jsonify({'message': 'Not allowed'}), 400
