@@ -88,6 +88,16 @@ be added to `$PATH`.
 $ brew install dnstwist
 ```
 
+**OTinstaller (Linux)**
+
+[OTinstaller](https://github.com/OSINTVerseHQ/OTinstaller) is a third-party tool manager that installs `dnstwist[full]` into its own virtualenv. It isn't maintained here, so please report problems with it [on the OTinstaller tracker](https://github.com/OSINTVerseHQ/OTinstaller/issues).
+
+```
+$ pipx install otinstaller
+$ otinstaller install dnstwist
+$ otinstaller run dnstwist -- --registered d:domain.name
+```
+
 **Docker**
 
 Pull and run official image from the Docker Hub:
