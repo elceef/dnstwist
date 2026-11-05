@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# Modified to accept UTF-8 BOMs in user-supplied word lists.
 
 r'''
      _           _            _     _
@@ -1386,7 +1387,7 @@ def run(**kwargs):
 	if args.dictionary:
 		re_subd = re.compile(r'^(?:(?:xn--)[a-z0-9-]{3,59}|[a-z0-9-]{1,63})$')
 		try:
-			with open(args.dictionary, encoding='utf-8') as f:
+			with open(args.dictionary, encoding='utf-8-sig') as f:
 				dictionary = [x for x in set(f.read().lower().splitlines()) if re_subd.match(x)]
 		except UnicodeDecodeError:
 			parser.error('UTF-8 decode error when reading: {}'.format(args.dictionary))
@@ -1397,7 +1398,7 @@ def run(**kwargs):
 	if args.tld:
 		re_tld = re.compile(r'^[a-z0-9-]{2,63}(?:\.[a-z0-9-]{2,63})?$')
 		try:
-			with open(args.tld, encoding='utf-8') as f:
+			with open(args.tld, encoding='utf-8-sig') as f:
 				tld = [x for x in set(f.read().lower().splitlines()) if re_tld.match(x)]
 		except UnicodeDecodeError:
 			parser.error('UTF-8 decode error when reading: {}'.format(args.tld))
